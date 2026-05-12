@@ -10,5 +10,5 @@ translatedFrom: "content/pages/de/index.md"
 
 Welcome to **BSC 70 Linz**.
 
-This is the starting point of the relaunch. Content will be migrated from the legacy Joomla site step by step.
+Here you can find the latest news as well as information about the club, training, teams, youth, and events.
 

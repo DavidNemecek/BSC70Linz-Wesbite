@@ -9,5 +9,5 @@ translationStatus: "reviewed"
 
 Willkommen beim **BSC 70 Linz**.
 
-Diese Seite ist der Startpunkt des Relaunches. Inhalte werden Schritt für Schritt aus der alten Joomla-Seite übernommen.
+Hier findest du aktuelle News sowie Informationen rund um Verein, Training, Mannschaften, Nachwuchs und Termine.
 

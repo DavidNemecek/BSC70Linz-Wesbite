@@ -21,6 +21,10 @@ body{
 }
 a{ color:var(--color-primary); text-decoration:none; }
 a:hover{ text-decoration:underline; }
+a:focus-visible, button:focus-visible, summary:focus-visible{
+  outline:2px solid var(--color-primary);
+  outline-offset:2px;
+}
 code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
 
 .skip{
@@ -48,7 +52,18 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
 .brand__name{ font-weight:800; line-height:1.1; }
 .brand__tag{ color:var(--color-muted); font-size:12px; }
 
-.nav{ display:flex; gap:14px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+.nav{ display:flex; gap:14px; align-items:center; justify-content:flex-end; }
+.nav__panel{ display:flex; gap:14px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+.nav__toggle{
+  display:none;
+  align-items:center; justify-content:center;
+  height:38px; padding:0 12px;
+  border-radius:10px;
+  border:1px solid var(--color-border);
+  background:var(--color-bg);
+  font-weight:800;
+}
+.nav__toggle:hover{ background:var(--color-surface); }
 .nav__right{ display:flex; align-items:center; gap:10px; }
 .nav__list{ list-style:none; margin:0; padding:0; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
 .nav__item{ position:relative; }
@@ -63,6 +78,8 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
 .nav__link.is-active, .nav__sublink.is-active{ border-color:var(--color-border); background:var(--color-surface); }
 .nav__group{ position:relative; }
 .nav__summary{ cursor:pointer; list-style:none; }
+.nav__summary::after{ content:"▾"; color:var(--color-muted); font-size:12px; margin-left:8px; }
+.nav__group[open] .nav__summary::after{ content:"▴"; }
 .nav__summary::-webkit-details-marker{ display:none; }
 .nav__dropdown{
   position:absolute; right:0; top:calc(100% + 6px);
@@ -75,6 +92,12 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
   display:flex; flex-direction:column; gap:4px;
 }
 @media (max-width: 860px){
+  .header__inner{ align-items:flex-start; flex-wrap:wrap; }
+  .nav{ width:100%; justify-content:space-between; }
+  .nav__toggle{ display:inline-flex; }
+  .nav__panel{ width:100%; flex-direction:column; align-items:stretch; gap:10px; }
+  .nav__list{ flex-direction:column; align-items:stretch; }
+  .nav__link, .nav__sublink, .nav__summary{ width:100%; justify-content:space-between; }
   .nav__dropdown{ position:static; box-shadow:none; border-radius:10px; }
 }
 .lang{
@@ -89,6 +112,19 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
 }
 .lang:hover{ background:var(--color-surface); }
 
+.btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:10px 14px; border-radius:12px;
+  border:1px solid transparent;
+  background:var(--color-primary); color:white;
+  font-weight:800; text-decoration:none;
+  min-height:44px;
+}
+.btn:hover{ text-decoration:none; filter:saturate(1.05); }
+.btn--ghost{ background:transparent; color:var(--color-text); border-color:var(--color-border); }
+.btn--ghost:hover{ background:var(--color-surface); }
+.lang-chooser{ display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+
 .main{ padding:26px 0 40px; }
 
 .prose{ max-width: 80ch; }
@@ -100,6 +136,22 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
 .lead{ color:var(--color-muted); font-size:clamp(16px, 2vw, 18px); }
 
 .news-grid{ display:grid; gap:14px; margin-top:16px; }
+.news-filter{ margin-top:10px; }
+.news-filter__inner{ display:flex; flex-wrap:wrap; gap:8px; }
+.chip{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:6px 10px; border-radius:999px;
+  border:1px solid var(--color-border);
+  background:var(--color-bg);
+  color:inherit;
+  font-weight:700;
+  font-size:13px;
+  text-decoration:none;
+}
+.chip:hover{ background:var(--color-surface); text-decoration:none; }
+.chip.is-active{ border-color:var(--color-primary); }
+.news-cat{ text-decoration:none; }
+.news-cat:hover{ text-decoration:underline; }
 .news-card{
   background:var(--color-surface);
   border:1px solid var(--color-border);

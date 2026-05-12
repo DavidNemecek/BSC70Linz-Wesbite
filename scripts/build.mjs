@@ -49,6 +49,26 @@ function escapeHtml(s) {
     .replace(/\"/g, "&quot;");
 }
 
+function descriptionFromMarkdown(markdown, fallbackTitle) {
+  const lines = String(markdown || "")
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .map((l) => l.trim());
+  for (const line of lines) {
+    if (!line) continue;
+    if (line.startsWith("#")) continue;
+    if (line.startsWith("---")) continue;
+    const cleaned = line
+      .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+      .replace(/[*_`]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (cleaned) return cleaned.length > 160 ? `${cleaned.slice(0, 157)}…` : cleaned;
+  }
+  return String(fallbackTitle || "BSC 70 Linz");
+}
+
 function formatDate(iso) {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
@@ -88,9 +108,9 @@ function buildNavHtml(pages, { lang, activeUrl }) {
       const it = g.items[0];
       const isActive = it.url === activeUrl;
       parts.push(
-        `<li class="nav__item"><a class="nav__link${isActive ? " is-active" : ""}" href="${it.url}">${escapeHtml(
-          it.navLabel || it.title
-        )}</a></li>`
+        `<li class="nav__item"><a class="nav__link${isActive ? " is-active" : ""}" href="${it.url}"${
+          isActive ? ' aria-current="page"' : ""
+        }>${escapeHtml(it.navLabel || it.title)}</a></li>`
       );
       continue;
     }
@@ -102,16 +122,18 @@ function buildNavHtml(pages, { lang, activeUrl }) {
     for (const it of g.items) {
       const isActive = it.url === activeUrl;
       parts.push(
-        `<a class="nav__sublink${isActive ? " is-active" : ""}" href="${it.url}">${escapeHtml(
-          it.navLabel || it.title
-        )}</a>`
+        `<a class="nav__sublink${isActive ? " is-active" : ""}" href="${it.url}"${
+          isActive ? ' aria-current="page"' : ""
+        }>${escapeHtml(it.navLabel || it.title)}</a>`
       );
     }
     parts.push(`</div></details></li>`);
   }
 
   parts.push(
-    `<li class="nav__item"><a class="nav__link${activeUrl.startsWith(`/${lang}/news`) ? " is-active" : ""}" href="/${lang}/news/">News</a></li>`
+    `<li class="nav__item"><a class="nav__link${activeUrl.startsWith(`/${lang}/news`) ? " is-active" : ""}" href="/${lang}/news/"${
+      activeUrl.startsWith(`/${lang}/news`) ? ' aria-current="page"' : ""
+    }>News</a></li>`
   );
   parts.push(`</ul>`);
 
@@ -175,7 +197,7 @@ function normalizePageMeta({ data, content }, { lang }) {
     navLabel: data.navLabel,
     translationStatus: data.translationStatus,
     translatedFrom: data.translatedFrom,
-    description: data.description || data.teaser,
+    description: data.description || data.teaser || descriptionFromMarkdown(content, title),
     url,
     body: content,
   };
@@ -263,7 +285,7 @@ async function writePage({
   const html = renderTemplate(templates.layout, {
     lang,
     title: escapeHtml(title),
-    description: escapeHtml(description || ""),
+    description: escapeHtml(description || title || ""),
     hreflangLinks: hreflangs,
     header: headerHtml,
     content: contentHtml,
@@ -284,11 +306,46 @@ async function main() {
   await writeText(path.join(paths.docsDir, ".nojekyll"), "\n");
   await writeText(path.join(paths.docsDir, "CNAME"), `${envConfig.cname}\n`);
 
-  // Root index redirect to /de/
-  await writeText(
-    path.join(paths.docsDir, "index.html"),
-    `<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=/de/"><link rel="canonical" href="${envConfig.origin}/de/"><title>BSC 70 Linz</title>`
-  );
+  // Root index: language chooser (avoid meta refresh for SEO/A11y)
+  const rootIndex = `<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BSC 70 Linz</title>
+    <meta name="description" content="Offizielle Website des BSC 70 Linz." />
+    <link rel="canonical" href="${envConfig.origin}/" />
+    <link rel="alternate" hreflang="de" href="${envConfig.origin}/de/">
+    <link rel="alternate" hreflang="en" href="${envConfig.origin}/en/">
+    <link rel="alternate" hreflang="x-default" href="${envConfig.origin}/">
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/themes/default.css" id="theme" />
+  </head>
+  <body>
+    <main class="main">
+      <div class="container">
+        <article class="prose">
+          <h1>BSC 70 Linz</h1>
+          <p class="lead">Bitte Sprache wählen.</p>
+          <div class="lang-chooser">
+            <a class="btn" href="/de/">Deutsch</a>
+            <a class="btn btn--ghost" href="/en/">English</a>
+          </div>
+          <noscript>
+            <p>JavaScript ist deaktiviert. Bitte wähle eine Sprache über die Links oben.</p>
+          </noscript>
+        </article>
+      </div>
+    </main>
+    <script type="module">
+      const lang = (navigator.language || '').toLowerCase();
+      if (lang.startsWith('en')) location.replace('/en/');
+      else location.replace('/de/');
+    </script>
+  </body>
+</html>`;
+  await writeText(path.join(paths.docsDir, "index.html"), rootIndex);
 
   // Static assets
   if (await fileExists(paths.assetsDir)) await copyDir(paths.assetsDir, path.join(paths.docsDir, "assets"));
@@ -350,6 +407,7 @@ async function main() {
   async function renderNews(lang, itemsThis, itemsOther, pagesThis) {
     const navBase = buildNavHtml(pagesThis, { lang, activeUrl: `/${lang}/news/` });
     const langSwitchBase = buildLangSwitch({ lang, currentUrl: `/${lang}/news/`, existsOther: true });
+    const listingDescription = lang === "en" ? "Latest news and match reports." : "Aktuelle News und Berichte.";
 
     // Index listing with pagination
     const paged = paginate(itemsThis, PAGE_SIZE);
@@ -368,7 +426,7 @@ async function main() {
         brandHref: `/${lang}/`,
         origin: envConfig.origin,
         title: "News",
-        description: "Aktuelle News und Berichte.",
+        description: listingDescription,
         contentHtml,
         activeUrl: url,
         urlDe: url.replace(`/${lang}/`, "/de/"),
@@ -401,7 +459,7 @@ async function main() {
           brandHref: `/${lang}/`,
           origin: envConfig.origin,
           title: `News: ${category}`,
-          description: `News Kategorie ${category}.`,
+          description: lang === "en" ? `News category ${category}.` : `News Kategorie ${category}.`,
           contentHtml,
           activeUrl: url,
           urlDe: url.replace(`/${lang}/`, "/de/"),
