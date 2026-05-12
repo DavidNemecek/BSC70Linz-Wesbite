@@ -1,0 +1,12 @@
+:root{
+  --color-bg:#0b1220;
+  --color-surface:#111a2e;
+  --color-text:#e5e7eb;
+  --color-muted:#9ca3af;
+  --color-primary:#7aa2ff;
+  --color-border:#22304d;
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+.header{ background:rgba(11,18,32,.85); }
+.badge{ background:rgba(255,255,255,.03); }
+
