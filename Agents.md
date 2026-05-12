@@ -11,6 +11,11 @@ Kurz, praxisnah, und auf saubere Software-Engineering-Standards ausgerichtet.
 - Zielbild (wenn freigegeben): Relaunch/Erneuerung als **vanilla HTML/CSS/JavaScript** (keine Framework-Pflicht, keine komplizierte Build-Pipeline), aber so strukturiert, dass z.B. **News** später einfach erweiterbar sind.
 - Inhalt/Assets-Quelle: alle Texte/Bilder/Infos kommen von `https://bsc70linz.at/` (bestehende Seite) und werden für die neue Seite übernommen.
 
+## Nicht verhandelbar (Owner-Prioritäten)
+- Runtime ist **nur HTML/CSS/JS**; Build/Import/Checks dürfen Dev-Tools (z.B. Node) nutzen.
+- CI/CD muss Änderungen publizieren; bevor „fertig“ gesagt wird, muss die Live-Seite nach Deploy **sichtbar** geprüft werden (inkl. Wartezeit).
+- GitHub Actions müssen **aktuell** gehalten werden (zuerst Updates, erst dann Workarounds).
+
 ## Subagents: Rollenmodell (Manager + Spezialisten)
 - **Manager (Lead-Agent)**: priorisiert Tasks, verteilt Arbeit, hält Scope/DoD, integriert Änderungen, entscheidet bei Tradeoffs, sorgt für konsistente Umsetzung.
 - **Responsive/UX-Analyst (Read-only)**: analysiert Layout/Usability auf Mobile/Tablet/Desktop; liefert Findings (P0–P2), Repro-Schritte, ggf. Screenshots/Breakpoint-Angaben.
@@ -29,7 +34,11 @@ Kurz, praxisnah, und auf saubere Software-Engineering-Standards ausgerichtet.
   - Deployment ist **sichtbar** auf der Live-URL (nach Wartezeit; GitHub Pages braucht oft ~1–2 Minuten)
   - Seite/Änderung ist korrekt auf mehreren Viewports (z.B. ~360px, ~768px, ~1280px) und Assets laden ohne Fehler
   - wenn etwas nicht passt: Subagent liefert konkrete Findings + Fix-Vorschläge; Manager lässt korrigieren und lässt erneut prüfen
-- **GitHub Actions Node-Version (immer!)**: Wegen der Deprecation von Node.js 20 müssen Workflows die **aktuellen Actions-Versionen** verwenden, die Node 24 unterstützen (z.B. `actions/checkout@v6`, `actions/configure-pages@v6`, `actions/upload-pages-artifact@v5`, `actions/deploy-pages@v5`). Keine dauerhaften Workarounds per `env`—stattdessen Actions-Versionen aktuell halten und nach jedem CI-Run die Logs auf Deprecation-Warnings prüfen.
+- **GitHub Actions Node-Version (immer!)**:
+  - Zuerst immer prüfen, ob es ein **Update** der betroffenen Actions gibt, das die Runner-Änderung (z.B. Node 20 → Node 24) sauber unterstützt; dann die Workflow-Refs upgraden (z.B. `actions/checkout@v6`, `actions/configure-pages@v6`, `actions/upload-pages-artifact@v5`, `actions/deploy-pages@v5`).
+  - Falls (temporär) **kein Update verfügbar** ist: Workaround zulässig, z.B. `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` als **Mitigation** in der Workflow-`env`.
+  - Workarounds sind **zeitlich befristet**: sobald ein Update verfügbar ist, Workaround entfernen und Actions upgraden.
+  - Nach jedem CI-Run Logs auf Deprecation-Warnings prüfen; Warnungen sind zu behandeln (Update/Mitigation), nicht zu ignorieren.
 
 ## Wie AGENTS.md wirkt (Scope)
 - Viele Agent-Tools lesen `AGENTS.md` automatisch aus dem **aktuellen Ordner und Elternordnern**; zusätzliche `AGENTS.md` in Unterordnern können Regeln **präzisieren/überschreiben**.

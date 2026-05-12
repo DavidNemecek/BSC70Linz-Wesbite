@@ -338,6 +338,18 @@ Ziel: Statische Ausgabe in `docs/`, GitHub Pages ready.
   - [ ] Step: Commit/Push aktualisiertes `docs/` (oder alternative: Pages Artifact Deploy)
   - [ ] Step: Umgebung wählen (Staging vs Prod) und `docs/CNAME` entsprechend setzen
 - [ ] Dokumentieren, wie man Prod aktiviert (z.B. Tag/Release/Manual Dispatch)
+- [ ] Actions aktuell halten (Node 20 → Node 24 Deprecation etc.):
+  - [ ] Immer zuerst Actions-Versionen prüfen/aktualisieren (z.B. `actions/checkout`, `actions/configure-pages`, `actions/upload-pages-artifact`, `actions/deploy-pages`)
+  - [ ] Falls kein Update verfügbar ist: temporäre Mitigation via Workflow-`env` (z.B. `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`)
+  - [ ] Mitigations wieder entfernen, sobald Updates verfügbar sind
+  - [ ] Nach jedem Deploy-Run Logs auf Deprecation-Warnings prüfen und behandeln
+
+### 9.5 Live-Validierung (nach Deploy)
+GitHub Pages braucht oft ~1–2 Minuten, bis Änderungen sichtbar sind.
+- [ ] Workflow-Run ist `completed/success`
+- [ ] Live-URL liefert `200` und zeigt den neuen Stand (nicht aus Cache/alt)
+- [ ] Smoke-Check auf 3 Viewports (ca. 360px / 768px / 1280px)
+- [ ] Wenn nicht sichtbar: 1–2 Minuten warten, hard refresh, erneut prüfen; erst dann als Fehler behandeln
 
 ## 10) Risiken + Gegenmaßnahmen (damit es nicht kippt)
 - Repo wird groß (viele News + Bilder):
