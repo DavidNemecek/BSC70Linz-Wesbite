@@ -30,5 +30,5 @@ Ein gutes Auftaktergebnis gegen ASV Pressbaum wäre wünschenswert für uns. “
 
 Link: [Die Termine/Ergebnisse der 1. Bundesliga](http://obv.tournamentsoftware.com/sport/draw.aspx?id=F1E68A52-154B-465A-9D1F-2AF6CBA0D1B2&draw=1):
 
-*   [< Zurück](/de/news/bsc-70-linz-gewinnt-auftaktspiel-gegen-pressbaum-in-der-1-bundesliga/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/431-bsc70linz-gewinnt-auftaktspiel-gegen-pressbaum-in-der-1-bundesliga)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/396-bundesliga-finale-im-orf)

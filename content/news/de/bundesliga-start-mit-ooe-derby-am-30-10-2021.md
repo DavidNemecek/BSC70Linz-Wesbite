@@ -43,4 +43,4 @@ DANKE…
 ****DANKE** an unsere [Sponsoren/Unterstützer](/de/sponsoren-partner/ "Sponsoren") die in dieser (auch wirtschaftlich) schwierigen Zeit bereit sind uns zu unterstützen. Damit ermöglichen sie uns unseren Sport auf diesem Niveau weiter auszuüben.
 
 *   [< Zurück](/de/news/auftaktniederlage-in-traun-mit-6-2/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/687-bundesliga-halbfinale-askoe-traun-bsc-70-linz)
+*   [Weiter >](/de/news/bundesliga-halbfinale-askoe-traun-bsc-70-linz/)

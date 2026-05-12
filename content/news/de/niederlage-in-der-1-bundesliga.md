@@ -13,7 +13,6 @@ translationStatus: "reviewed"
 
 unglückliche Niederlage in der 1. Bundesligarunde gegen Askö kelag Kärnten.  
 Endstand 5:3 für Klagenfurt  
-![Team BSC 70 Linz - Season 2011|2012](https://www.bsc70linz.at/media/images/zoom/PKEPAQ/viewsize/BSC70Linz_Team_2011_2012_320px.JPG)
 
 [Detailergebnis](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=43766155-EA03-461F-A322-45BFE89D8405&match=24)  
 Leider konnte wir das gewünschte Ergebnis heute nicht erreichen.  
@@ -34,4 +33,4 @@ Der "Joker" zog voll und ganz und konnte das Spiel in 3 Sätzen gegen Dominik Tr
 eine gute Leistung von Manuel Berger, der abermals seine Klasse unter Beweis stellte.
 
 *   [< Zurück](/de/news/bundesliga-doppelrunde-in-linz-am-15-16-10-2011/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/171-bundesligastart-am-sa-249-in-klagenfut)
+*   [Weiter >](/de/news/bundesligastart-am-sa-24-9-in-klagenfurt/)

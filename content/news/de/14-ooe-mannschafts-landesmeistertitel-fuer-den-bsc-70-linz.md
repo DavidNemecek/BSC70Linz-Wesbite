@@ -359,5 +359,5 @@ Spielpunkte
 
 2683
 
-*   [< Zurück](/de/news/meisterfeier-der-2-und-4-mannschaft-des-bsc-70-linz/)
-*   [Weiter >](/de/news/8-runde-landesliga-traun-gegen-linz/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/551-meisterfeier-der-2-und-4-mannschaft-des-bsc-70-linz)
+*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/542-8-runde-landesliga-traun-gegen-linz)

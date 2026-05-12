@@ -25,5 +25,5 @@ Durch ihre Leistungen bei den vergangenen Großerveranstaltungen wurden auch Har
   
 [Turnierseite - Teilnehmer Österreich](http://bwf.tournamentsoftware.com/sport/matches.aspx?id=69AEA0D3-51D7-4C9A-A076-D6E4D5195C9C&c=AUT)
 
-*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/614-silber-und-bronze-bei-der-senioren-em-2018)
+*   [< Zurück](/de/news/silber-und-bronze-bei-der-senioren-em-2018-durch-tariq-farooq/)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/590-christa-lechner)

@@ -29,5 +29,5 @@ Alles in allem gewannen wir mit einem tollen Teamgeist 6:2 und sind somit so gut
 
 [Detailergebnisse](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=63EC460E-E2B5-4C0D-8531-319750A7FDF2&match=92)
 
-*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/543-14-ooe-mannschafts-landesmeistertitel-fuer-den-bsc-70-linz)
+*   [< Zurück](/de/news/14-ooe-mannschafts-landesmeistertitel-fuer-den-bsc-70-linz/)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/538-falsche-doppelrunde-souveraen-gewonnen)

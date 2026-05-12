@@ -362,4 +362,4 @@ Spielpunkte
 1775
 
 *   [< Zurück](/de/news/vorbericht-zum-rueckrundenstart-der-1-bundesliga/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/569-bsc-70-linz-derbysieger-gegen-askoe-traun)
+*   [Weiter >](/de/news/bsc-70-linz-mit-5-3-derbysieger-gegen-askoe-traun/)

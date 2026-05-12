@@ -26,4 +26,4 @@ Christoph Kainrath im 2 Herreneinzel verlor leider auch nach starker Leistung ge
 Details: [Tournamentsoftware](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=414506CF-DAC2-4A7B-8F1A-4292B7DFF04D&match=104)
 
 *   [< Zurück](/de/news/1-landesliga-5-runde-bsc-70-linz-2-gegen-union-urfahr-1/)
-*   [Weiter >](/de/news/1-landesliga-1-runde-gegen-ubc-neuhofen-1/)
+*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/425-1-landesliga-1-runde-gegen-ubc-neuhofen-1)

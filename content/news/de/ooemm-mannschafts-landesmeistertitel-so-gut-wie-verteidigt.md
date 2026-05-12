@@ -190,4 +190,4 @@ Dann werden wir wohl auf die Titelverteidigung anstossen, freut sich Mannschafts
 ###### 2715
 
 *   [< Zurück](/de/news/ooemm-9-runde/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/30-ooemm-7-runde)
+*   [Weiter >](/de/news/ooemm-7-runde/)

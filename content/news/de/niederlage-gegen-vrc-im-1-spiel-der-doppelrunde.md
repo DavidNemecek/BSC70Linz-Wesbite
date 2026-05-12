@@ -361,4 +361,4 @@ Spielpunkte
 764
 
 *   [< Zurück](/de/news/tabellenplatz-2-nach-der-bundesliga-doppelrunde/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/615-8-0-auftaktsieg-gegen-alkoven)
+*   [Weiter >](/de/news/8-0-auftaktsieg-gegen-alkoven/)

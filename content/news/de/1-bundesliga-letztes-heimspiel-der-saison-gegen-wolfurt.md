@@ -17,8 +17,6 @@ Am
 **Sa. 12.2.2011 findet ab 15 Uhr in der AHS Solar City Halle**  
 das letzte Heimspiel statt.
 
-![](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2010_11ru_40jahr_design.jpg)
-
 Die Ausgangslage ist klar - will man das Semifinal Play-off noch erreichen - muss ein Sieg her..
 
 Vieles davon wird von der Personaldecke abhängen.

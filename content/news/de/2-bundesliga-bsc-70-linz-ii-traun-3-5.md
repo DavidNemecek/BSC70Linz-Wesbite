@@ -14,7 +14,9 @@ translationStatus: "reviewed"
 Askö Traun war auch in dieser Runde zu stark für unser Team, das mit einigen Ausfällen zu kämpfen hatte. Harald Hochgatterer, Alexander Serov krankheitsbedingt und Steffi Peter und Flo Baumgartner fielen wegen anderen Verpflichtungen aus.
 
 Traun gewinnt das Derby mit 5:3 und damit verlieren wir die 3. Partie ganz knapp.  
-[![](https://www.bsc70linz.at/media/index.php?view=image&format=raw&type=orig&id=1050 "Andrej Serov")](https://www.bsc70linz.at/media/index.php?view=image&format=raw&type=orig&id=1050)
+[](https://www.bsc70linz.at/media/index.php?view=image&format=raw&type=orig&id=1050)
+
+[
 
 Aufgrund der Ausfälle musste auch unser Obmann Reinhard Hechenberger ran und sorgte wohl für die Überraschung der Begegnung.  
 Er siegte gegen Klaus Dornig (wurde mit Traun 2011 Meister) in 3 umkämpften Sätzen.  
@@ -22,7 +24,9 @@ Leider war dieser Sieg nicht genug für das Team – war Mannschaftsführer Chri
 Mit neuen Trikotsponsor FAW Hagenberg und Ausstattung durch Adidas spielten die Jungen des BSC 70 Linz gut auf und vor allem die Jungen zeigten gute Leistungen.  
 „Es fehlt nur mehr an Kleinigkeiten, hoffentlich können die Spieler das rasch abrufen“, blick Christoph Kainrath bereits in die Zukunft und hofft auf den 1. Punktgewinn der Saison.
 
-[Aktuelle Fotos findest du hier >>>](https://www.bsc70linz.at/media/index.php?view=category&catid=25)
+](https://www.bsc70linz.at/media/index.php?view=image&format=raw&type=orig&id=1050)
+
+[](https://www.bsc70linz.at/media/index.php?view=image&format=raw&type=orig&id=1050)[Aktuelle Fotos findest du hier >>>](https://www.bsc70linz.at/media/index.php?view=category&catid=25)
 
 Spielübersicht
 

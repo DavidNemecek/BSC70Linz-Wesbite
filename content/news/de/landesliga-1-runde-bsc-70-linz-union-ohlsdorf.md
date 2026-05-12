@@ -25,5 +25,5 @@ Mannschaftsführer Daniel Walchshofer resümierte, dass das Ergebnis klarer auss
 
 Spieldetails: [Tournamentsoftware](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=63EC460E-E2B5-4C0D-8531-319750A7FDF2&match=96)
 
-*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/505-landesliga-2-runde-bsc-70-linz-2-gegen-bc-windischgarsten)
+*   [< Zurück](/de/news/landesliga-2-runde-bsc-70-linz-2-gegen-bc-windischgarsten/)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/501-1-runde-bsc-70-linz-iii-gegen-sv-kematen)

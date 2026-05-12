@@ -13,5 +13,5 @@ translationStatus: "reviewed"
 
 ![](assets/uploads/bl2011-2-3ru-dd7d5f4569.jpg)
 
-*   [< Zurück](/de/news/bericht-bundesliga-2-3-runde/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/179-bundesliga-2-runde-sieg-fuer-wolfurt)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/172-niederlage-in-der-1-bundesliga)

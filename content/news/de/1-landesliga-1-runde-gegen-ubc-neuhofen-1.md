@@ -23,5 +23,5 @@ Unser Landesliga-Debütant Markus Pöllhuber verlor nach einer starken Leistung 
 
 „Es war eine starke Vorstellung unserer Mannschaft, die heuer mit einem sehr großem Kader (7 Herren und 3 Damen) ausgestattet ist“, analysierte Mannschaftsführer Walchshofer nach diesem Match.
 
-*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/430-1-landesliga-2-runde-gegen-union-windischgarsten)
+*   [< Zurück](/de/news/1-landesliga-2-runde-gegen-union-windischgarsten/)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/382-10-und-letzte-runde-der-1-landesliga-gegen-atsv-steyr-1)

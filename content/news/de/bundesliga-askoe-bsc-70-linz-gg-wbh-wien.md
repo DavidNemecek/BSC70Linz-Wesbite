@@ -30,7 +30,5 @@ Spannend werden sämtliche Begegnungen werden, allem voran das Duell im 1. Herre
 
 Auf spannende und knappe Spiele können wir uns freuen.
 
-![](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2009_9ru.jpg)
-
 *   [< Zurück](/de/news/bsc-70-linz-i-gewinnt-gegen-wbh-wien/)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/54-bundesliga-ooe-derby-traun-bsc-70-linz)

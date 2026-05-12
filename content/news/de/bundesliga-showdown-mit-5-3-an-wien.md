@@ -142,4 +142,4 @@ GD
 21-15 21-23 21-7
 
 *   [< Zurück](/de/news/bsc-70-linz-mit-sieg-in-die-2-bundesliga-gestartet/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/580-niederlage-in-der-bundesliga-gegen-wolfurt)
+*   [Weiter >](/de/news/niederlage-in-der-bundesliga-gegen-wolfurt/)

@@ -40,4 +40,4 @@ Den mit Spannung erwarteten Auftritt von Neuverpflichtung Daniel Aria Dinata kon
 6.  Wien                2
 
 *   [< Zurück](/de/news/bundesliga-doppelrunde-28-29-1-2023/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/724-bundesliga-niederlage-gegen-vizemeister-pressbaum)
+*   [Weiter >](/de/news/bundesliga-niederlage-gegen-vizemeister-pressbaum/)

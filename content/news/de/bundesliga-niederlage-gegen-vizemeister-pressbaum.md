@@ -21,5 +21,5 @@ Gleich zu Beginn des Jahres warten die Spiele in Wolfurt (6.1.2023) und Mödling
 
 Für Linz muss es nach einer durchwachsenen Hinrunde endlich mal eine gesamter Kader zur Verfügung stehen! Dann sollten die Spiele im Jänner gut verlaufen.
 
-*   [< Zurück](/de/news/bundesliga-sieg-gegen-wolfurt-mit-6-2/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/726-bundesliga-rueckrunden-start-gegen-wolfurt-2)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/723-sieg-und-niederlage-in-der-doppelrunde)

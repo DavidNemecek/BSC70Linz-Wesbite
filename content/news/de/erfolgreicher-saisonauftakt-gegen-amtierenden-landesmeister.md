@@ -22,4 +22,4 @@ Das Team des BSC 70 Linz 3 war vertreten durch: Edelmüller Ursula, Kumar Ritika
 Ergebnisdetails: [Tournamentsoftware](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=A9240FAE-F3B2-4605-8021-F3A0F040AB71&match=84)
 
 *   [< Zurück](/de/news/bsc-70-linz-iii-bittere-niederlage-in-kirchdorf/)
-*   [Weiter >](/de/news/bsc-70-linz-iii-ist-meister/)
+*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/67-bsc-70-linz-iii-ist-meister)

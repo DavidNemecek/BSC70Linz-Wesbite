@@ -24,4 +24,4 @@ Damit kommt es in 14 Tagen zum neuerlichen Aufeinandertreffen mit Mödling.
 Wir sind gewarnt ob der Stärke der Mödlinger Mannschaft. Im ersten Spiel siegten wir ganz knapp, gestern etwas klarer. Jedoch gingen mehrere Matches dieser Begegnungen zu Gunsten von uns aus. Wir sind daher gewarnt und nehmen die Begegnung mehr als Ernst und werden unseren Gegner mit Sicherheit nicht unterschätzen 
 
 *   [< Zurück](/de/news/plakat-finale-badminton-bundesliga-2021-2022/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/706-wolfurt-linz-2-6)
+*   [Weiter >](/de/news/wolfurt-linz-2-6-feldkirch-linz-1-7/)

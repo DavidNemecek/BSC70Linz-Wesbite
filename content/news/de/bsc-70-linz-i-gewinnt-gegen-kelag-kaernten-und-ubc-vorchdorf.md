@@ -26,8 +26,6 @@ Unsere Hoffnung war es gegen die Kärntner zumindest ein Unentschieden wird. All
 
 Heute gegen Vorchdorf:
 
-![](https://www.bsc70linz.at/media/images/zoom/BXRIVB/viewsize/TEAM_21_2_2010.jpg)
-
 Premiere für unsere Jungsters - Matthias & Chrstoph Almer.
 
 Für beide war es das erste Antreten in der 1. Bundesliga überhaupt.
@@ -46,7 +44,5 @@ Bemerkenswert der Auftritt von Staatsmeisterin Claudia Mayer die ihrer Gegnerin 
 
 Gratulation an die gesamte Mannschaft zum Erreichen des Semifinales der Badminton Bundesliga 2009/2010
 
-![Doppel Chrissi & Matthias Almer](https://www.bsc70linz.at/media/images/zoom/BXRIVB/viewsize/Doppel_Chrissi_Matthias.jpg)
-
-*   [< Zurück](/de/news/bundesliga-am-27-3-2010-letzte-runde-im-grunddurchgang/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/71-bundesliga-am-2732010-letzte-runde-im-grunddurchgang)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/65-bundesliga-doppelrunde-am-2021-februar-2010)

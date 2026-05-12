@@ -29,4 +29,4 @@ Aber der Blick geht schon wieder nach vorne denn am Wochenende könnte unsere 1 
 Am Samstag und hoffentlich auch Sonntag, spielt dann unsere 1er Mannschaft gegen UBSC Wolfurt um den Aufstieg ins Bundesliga-Finale. Mit dem Rückenwind von hoffentlich 3 Titeln wollen wir auch überregional zeigen, dass der BSC 70 Linz auch mit der ersten Mannschaft den Titel nach Linz holen will. Und mit der Unterstützung unserer anderen Mannschaften sollte der Einzug ins Bundesligafinale gegen die starken Vorarlberger am Wochenende auch gelingen.
 
 *   [< Zurück](/de/news/ooe-mannschaftsmeisterschaft/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/543-14-ooe-mannschafts-landesmeistertitel-fuer-den-bsc-70-linz)
+*   [Weiter >](/de/news/14-ooe-mannschafts-landesmeistertitel-fuer-den-bsc-70-linz/)

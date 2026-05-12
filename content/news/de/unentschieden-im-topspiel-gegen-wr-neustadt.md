@@ -133,4 +133,4 @@ GD
 21-12 21-12
 
 *   [< Zurück](/de/news/bundesliga-niederlage-gegen-wbh-wien/)
-*   [Weiter >](/de/news/tabellenplatz-2-nach-der-bundesliga-doppelrunde/)
+*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/617-tabellenplatz-2-nachder-bundesliga-doppelrunde)

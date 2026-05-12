@@ -40,4 +40,4 @@ Der besser platzierte spielt das 1. Match auswärts und hat die Entscheidung in 
 Sollte es sich ausgehen werden beide direkt vom Turnier zum Bundesligaspiel anreisen.
 
 *   [< Zurück](/de/news/bsc-70-linz-i-verliert-gegen-asv-pressbaum/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/66-bsc-70-linz-i-gewinnt-gegen-kelag-kaernten)
+*   [Weiter >](/de/news/bsc-70-linz-i-gewinnt-gegen-kelag-kaernten-und-ubc-vorchdorf/)

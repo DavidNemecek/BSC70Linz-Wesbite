@@ -234,5 +234,5 @@ GD
 
 21-15 11-21 21-11
 
-*   [< Zurück](/de/news/bundesligateam-startet-wieder-in-der-1-bundesliga/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/675-bundesligateam-startet-wieder-in-der-1-bundesliga)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/653-herbstmeister)

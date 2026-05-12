@@ -11,10 +11,12 @@ translationStatus: "reviewed"
 [Bundesligadoppelrunde am 25./26.1.2014](/de/news/bundesligadoppelrunde-am-25-26-1-2014/)
 -----------------------------------------------------------------------------------------
 
- [![](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2013_7ru.jpg)](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2013_6ru.jpg)[![](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2013_7_8ru.jpg)](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2013_6ru.jpg)
+[](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2013_6ru.jpg)[](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2013_6ru.jpg)
 
-schau vorbei ... für spannende Spiele ist gesorgt...  
-[AHS SOLAR CITY - große Halle](https://www.bsc70linz.at/cms/index.php/component/content/?id=170&Itemid=81&lang=de "Halle Solar City") - Helios Allee 140-142
+[](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2013_6ru.jpg)
+
+[schau vorbei ... für spannende Spiele ist gesorgt...  
+](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2013_6ru.jpg)[AHS SOLAR CITY - große Halle](https://www.bsc70linz.at/cms/index.php/component/content/?id=170&Itemid=81&lang=de "Halle Solar City") - Helios Allee 140-142
 
 Spielübersicht Samstag, 25. Januar 2014
 

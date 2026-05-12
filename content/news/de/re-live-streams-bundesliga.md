@@ -15,5 +15,5 @@ Das Bundesliga Match wurde live auf YouTube gestreamt.
 
 [Youtube Channel](https://www.youtube.com/channel/UCsfAzyXLSMDMKt2IMxNrncw/videos?view=2&live_view=502)
 
-*   [< Zurück](/de/news/bundesliga-halbfinale-askoe-traun-bsc-70-linz/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/687-bundesliga-halbfinale-askoe-traun-bsc-70-linz)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/682-live-score)

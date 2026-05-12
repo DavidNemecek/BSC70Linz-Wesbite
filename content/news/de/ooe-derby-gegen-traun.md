@@ -11,8 +11,6 @@ translationStatus: "reviewed"
 [OÖ. DERBY gegen Traun](/de/news/ooe-derby-gegen-traun/)
 --------------------------------------------------------
 
-![](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2010_5ru_traun.jpg)
-
 kommendes Wochenende kämpft unsere Bundesligamannschaft gegen Titelverteidiger Traun im OÖ. Derby
 
 **Askö BSC 70 Linz gegen Askö Traun**

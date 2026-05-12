@@ -3,7 +3,7 @@ title: "Bundesliga am 11.1.2014"
 slug: "bundesliga-am-11-1-2014"
 date: "2014-01-11"
 category: "bundesliga"
-teaser: "------------------------------------------------------------ [](https://www.bsc70linz.at/cms/images/stories/Plakate/bl20136ru.jpg) schau vorbei ... für spannende Spiele ist geso…"
+teaser: "------------------------------------------------------------ [](https://www.bsc70linz.at/cms/images/stories/Plakate/bl20136ru.jpg) [](https://www.bsc70linz.at/cms/images/stories…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/358-bundesliga-am-1112014"
 translationStatus: "reviewed"
 ---
@@ -11,10 +11,12 @@ translationStatus: "reviewed"
 [Bundesliga am 11.1.2014](/de/news/bundesliga-am-11-1-2014/)
 ------------------------------------------------------------
 
-[![](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2013_6ru.jpg)](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2013_6ru.jpg)
+[](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2013_6ru.jpg)
 
-schau vorbei ... für spannende Spiele ist gesorgt...  
-[AHS SOLAR CITY - große Halle](https://www.bsc70linz.at/cms/index.php/component/content/?id=170&Itemid=81&lang=de "Halle Solar City") - Helios Allee 140-142
+[](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2013_6ru.jpg)
+
+[schau vorbei ... für spannende Spiele ist gesorgt...  
+](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2013_6ru.jpg)[AHS SOLAR CITY - große Halle](https://www.bsc70linz.at/cms/index.php/component/content/?id=170&Itemid=81&lang=de "Halle Solar City") - Helios Allee 140-142
 
 Es ist das Spiel des 1. (BSC 70 Linz) gegen den 2. (Mödling) der Tabelle der 1. Bundesliga.
 

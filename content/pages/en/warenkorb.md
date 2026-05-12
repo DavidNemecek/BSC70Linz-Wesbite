@@ -1,11 +1,11 @@
 ---
 title: "Warenkorb"
 slug: "warenkorb"
-navGroup: "Club"
-navOrder: 10
-navLabel: "Warenkorb"
+navGroup: "Gallery"
+navOrder: 999
+navLabel: "Cart"
+navHidden: true
 translationStatus: "draft"
 translatedFrom: "content/pages/de/warenkorb.md"
 ---
-
 

@@ -185,4 +185,4 @@ Status
 * * *
 
 *   [< Zurück](/de/news/feldkirch-bsc-70-linz-2-6/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/660-bundesliga-doppelrunde-am-25-26-1-2020)
+*   [Weiter >](/de/news/bundesliga-doppelrunde-am-25-26-1-2020/)

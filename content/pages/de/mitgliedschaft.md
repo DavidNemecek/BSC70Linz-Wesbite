@@ -1,7 +1,7 @@
 ---
 title: "Mitgliedschaft"
 slug: "mitgliedschaft"
-navGroup: "Verein"
+navGroup: "Mitmachen"
 navOrder: 50
 navLabel: "Mitgliedschaft"
 translationStatus: "reviewed"

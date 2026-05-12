@@ -2,8 +2,8 @@
 title: "Sponsoren/Partner"
 slug: "sponsoren-partner"
 navGroup: "Verein"
-navOrder: 110
-navLabel: "Sponsoren/Partner"
+navOrder: 82
+navLabel: "Sponsoren"
 translationStatus: "reviewed"
 ---
 

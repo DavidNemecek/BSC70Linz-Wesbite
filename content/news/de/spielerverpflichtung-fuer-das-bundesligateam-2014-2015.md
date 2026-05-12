@@ -26,5 +26,5 @@ Rüdiger & Wolfgang Gnedt schlagen ab Sommer 2014 für den BSC 70 Linz auf.
   
 (damit brauchen auch alle die es schon zu wissen glaubten nicht mehr leise darüber sprechen...)
 
-*   [< Zurück](/de/news/bundesliga-finale-im-orf/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/396-bundesliga-finale-im-orf)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/389-bsc-70-linz-ist-vize-staatsmeister-2013-2014)

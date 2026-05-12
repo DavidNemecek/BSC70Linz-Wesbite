@@ -23,7 +23,7 @@ Gratulation an die ganze Mannschaft
 
 [Tabelle - 1. Landesliga](http://obv.tournamentsoftware.com/sport/draw.aspx?id=B1885A2D-0662-4B87-A6C3-E863843ADF29&draw=3)
 
-*   [< Zurück](/de/news/bsc-70-linz-ii-gewinnt-in-vorchdorf/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/55-bsc-70-linz-ii-gewinnt-in-vorchdorf)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/13-4-runde-ooemm)
 
 _

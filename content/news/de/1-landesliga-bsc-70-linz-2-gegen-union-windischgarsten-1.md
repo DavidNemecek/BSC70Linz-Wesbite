@@ -24,4 +24,4 @@ Details: [Tournamentsoftware](http://obv.tournamentsoftware.com/sport/teammatch.
 Jetzt macht die Landesliga 2 Wochen Pause, was uns Zeit gibt die kleinen Wehwehchen auszuheilen und uns auf das abschließende Hinrundenspiel gegen UBC Neuhofen bestmöglich vorzubereiten.
 
 *   [< Zurück](/de/news/ooemm-2-mal-gegen-ubc-neuhofen/)
-*   [Weiter >](/de/news/landesliga-2-runde-bsc-70-linz-2-gegen-bc-windischgarsten/)
+*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/505-landesliga-2-runde-bsc-70-linz-2-gegen-bc-windischgarsten)

@@ -36,4 +36,4 @@ Sofern unsere Damen an diesem Wochenende fit sind, sollten wir hier den Grundste
 Lassen wir uns von beiden Begegnungen an diesem Wochenende überraschen und begeistern.
 
 *   [< Zurück](/de/news/bericht-doppelrunde-bundesliga/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/128-feldkirch-bsc-70-linz)
+*   [Weiter >](/de/news/bericht-feldkirch-bsc-70-linz-2-6/)

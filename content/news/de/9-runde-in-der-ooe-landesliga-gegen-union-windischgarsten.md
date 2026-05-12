@@ -19,5 +19,5 @@ Mit diesem Sieg überholen uns die Windischgarstner auch in der Tabelle und sind
 
 Für den BSC 70 Linz 3 im Einsatz waren: Christoph Kainrath, Harald Hochgatterer, Andi Böhm, Hilda Kosorus, Ursula Edelmüller und Mannschaftsführer Daniel Walchshofer
 
-*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/382-10-und-letzte-runde-der-1-landesliga-gegen-atsv-steyr-1)
+*   [< Zurück](/de/news/10-und-letzte-runde-der-1-landesliga-gegen-atsv-steyr-1/)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/374-8-runde-in-der-ooe-landesliga-gegen-bc-windischgarsten)

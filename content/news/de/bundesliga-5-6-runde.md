@@ -17,8 +17,6 @@ Wien - BSC 70 Linz 5:3
 
 Klagenfurt - BSC 70 Linz 5:3
 
-![](http://www.bsc70linz.at/cms/typo3temp/pics/c0e8c9bbb6.jpg)
-
 Schwarzes Wochenende für die Bundesligaspieler des BSC 70 Linz
 
 In Wien und Klagenfurt wurde es verabsäumt die wichtigen Spiele zu gewinnen.  

@@ -44,4 +44,4 @@ Vielmehr wollen wir die Entwicklung der jungen Mannschaft vorantreiben.
 Morgen geht´s weiter mit Training um hoffentlich für das Spiel gegen Pressbaum in 3 Wochen eine weitere Steigerung erreichen zu können.
 
 *   [< Zurück](/de/news/bundesliga-4-runde-pressbaum-gg-bsc-70-linz/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/178-bundesliga-doppelrunde-in-linz-am-1516102011)
+*   [Weiter >](/de/news/bundesliga-doppelrunde-in-linz-am-15-16-10-2011/)

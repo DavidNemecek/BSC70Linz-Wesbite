@@ -64,7 +64,7 @@ function descriptionFromMarkdown(markdown, fallbackTitle) {
       .replace(/[*_`]/g, "")
       .replace(/\s+/g, " ")
       .trim();
-    if (cleaned) return cleaned.length > 160 ? `${cleaned.slice(0, 157)}…` : cleaned;
+    if (cleaned) return cleaned.length > 160 ? `${cleaned.slice(0, 157)}\u2026` : cleaned;
   }
   return String(fallbackTitle || "BSC 70 Linz");
 }
@@ -76,7 +76,99 @@ function formatDate(iso) {
 }
 
 function compareNewsDesc(a, b) {
-  return String(b.date).localeCompare(String(a.date));
+  const c = String(b.date).localeCompare(String(a.date));
+  if (c !== 0) return c;
+  const ia = sourceIdFromUrl(a.sourceUrl);
+  const ib = sourceIdFromUrl(b.sourceUrl);
+  if (ia !== ib) return ib - ia;
+  return String(b.slug).localeCompare(String(a.slug));
+}
+
+function sourceIdFromUrl(url) {
+  const u = String(url || "");
+  const m = u.match(/\/(\d+)-/);
+  if (!m) return 0;
+  const n = Number(m[1]);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function formatDateDisplay(iso, lang) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  const locale = lang === "en" ? "en-GB" : "de-AT";
+  return new Intl.DateTimeFormat(locale, { year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
+}
+
+function isEmptyBody(body) {
+  return !String(body || "").trim();
+}
+
+function findBySlug(items, slug) {
+  return items.find((it) => it.slug === slug) || null;
+}
+
+function displayCategory(category, lang) {
+  const c = String(category || "").toLowerCase();
+  const mapDe = {
+    news: "News",
+    bundesliga: "Bundesliga",
+    "ooe-meisterschaft": "OÖ Meisterschaft",
+    turniere: "Turniere",
+    nachwuchs: "Nachwuchs",
+    mitglieder: "Mitglieder",
+  };
+  const mapEn = {
+    news: "News",
+    bundesliga: "Bundesliga",
+    "ooe-meisterschaft": "Upper Austria Championship",
+    turniere: "Tournaments",
+    nachwuchs: "Youth",
+    mitglieder: "Members",
+  };
+  const label = (lang === "en" ? mapEn : mapDe)[c];
+  if (label) return label;
+  return c.replace(/-/g, " ");
+}
+
+function cleanLegacyMarkdown(markdown, { kind }) {
+  let out = String(markdown || "").replace(/\r\n/g, "\n");
+  const lines = out.split("\n");
+
+  // Common legacy pattern in news bodies:
+  // [Title](/de/news/slug/)
+  // -----------------------
+  let i = 0;
+  while (i < lines.length && !lines[i].trim()) i++;
+  const first = (lines[i] || "").trim();
+  const second = (lines[i + 1] || "").trim();
+  const looksLikeSelfLink = /^\[[^\]]+\]\(\/(de|en)\/news\/[^)]+\/\)\s*$/.test(first);
+  const looksLikeDashLine = /^-{20,}\s*$/.test(second);
+  if (kind === "news" && looksLikeSelfLink && looksLikeDashLine) {
+    lines.splice(i, 2);
+  }
+
+  out = lines
+    .filter((l) => !/^-{20,}\s*$/.test(l.trim()))
+    .filter((l) => !/^\*\s*\[(<\s*Zur\u00fcck|<\s*Zur\u00fcck|Zur\u00fcck)\]\(/i.test(l.trim()))
+    .filter((l) => !/^\*\s*\[(Weiter\s*>|Weiter)\]\(/i.test(l.trim()))
+    .filter((l) => l.trim() !== "0/th")
+    .join("\n")
+    .replace(/\[\]\((https?:\/\/[^)\s]+)\)/g, "")
+    .replace(/^\[\s*$/gm, "")
+    .replace(/^#\s+/gm, "## ")
+    .replace(/^([^\n]+)\n={3,}\s*$/gm, "## $1")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+
+  return out;
+}
+
+function cleanTeaser(teaser) {
+  let out = String(teaser || "").replace(/\r\n/g, "\n").trim();
+  out = out.replace(/^-{10,}\s*/g, "");
+  out = out.replace(/\\([\\`*{}\[\]()#+.!_-])/g, "$1");
+  out = out.replace(/\s+/g, " ").trim();
+  return out;
 }
 
 function paginate(items, pageSize) {
@@ -86,8 +178,14 @@ function paginate(items, pageSize) {
 }
 
 function buildNavHtml(pages, { lang, activeUrl }) {
+  const navPages = pages.filter((p) => {
+    if (p.navHidden) return false;
+    if (p.slug === "index") return false;
+    if (lang === "en" && p.translationStatus === "draft" && isEmptyBody(p.body)) return false;
+    return true;
+  });
   const byGroup = new Map();
-  for (const p of pages) {
+  for (const p of navPages) {
     const group = String(p.navGroup || "misc");
     if (!byGroup.has(group)) byGroup.set(group, []);
     byGroup.get(group).push(p);
@@ -195,6 +293,7 @@ function normalizePageMeta({ data, content }, { lang }) {
     navGroup: data.navGroup,
     navOrder: data.navOrder,
     navLabel: data.navLabel,
+    navHidden: data.navHidden === true,
     translationStatus: data.translationStatus,
     translatedFrom: data.translatedFrom,
     description: data.description || data.teaser || descriptionFromMarkdown(content, title),
@@ -229,13 +328,13 @@ function normalizeNewsMeta({ data, content }, { lang }) {
 }
 
 function buildNewsCard(item) {
-  const date = escapeHtml(formatDate(item.date));
+  const date = escapeHtml(formatDateDisplay(item.date, item.lang));
   const title = escapeHtml(item.title);
-  const teaser = escapeHtml(item.teaser);
+  const teaser = escapeHtml(cleanTeaser(item.teaser));
   return `<article class="news-card">
   <div class="news-card__meta">
     <span class="news-card__date">${date}</span>
-    <span class="news-card__cat">${escapeHtml(item.category)}</span>
+    <span class="news-card__cat">${escapeHtml(displayCategory(item.category, item.lang))}</span>
   </div>
   <h2 class="news-card__title"><a href="${item.url}">${title}</a></h2>
   ${teaser ? `<p class="news-card__teaser">${teaser}</p>` : ""}
@@ -280,7 +379,13 @@ async function writePage({
   urlEn,
 }) {
   const headerHtml = renderTemplate(templates.header, { nav: navHtml, langSwitch, brandHref });
-  const footerHtml = templates.footer;
+  const footerHtml = renderTemplate(templates.footer, {
+    contactHref: `/${lang}/kontakt/`,
+    contactLabel: lang === "en" ? "Contact" : "Kontakt",
+    legalHref: `/${lang}/impressum-vereinsdaten/`,
+    legalLabel: lang === "en" ? "Imprint" : "Impressum",
+    legacyLabel: lang === "en" ? "Legacy site" : "Alte Seite (Joomla)",
+  });
   const hreflangs = buildHreflangLinks({ origin, urlDe, urlEn });
   const html = renderTemplate(templates.layout, {
     lang,
@@ -291,6 +396,7 @@ async function writePage({
     content: contentHtml,
     footer: footerHtml,
     canonical: `${origin}${activeUrl}`,
+    skipText: lang === "en" ? "Skip to content" : "Zum Inhalt",
   });
   const outPath = outputPathForUrl(activeUrl);
   await writeText(outPath, html);
@@ -375,12 +481,56 @@ async function main() {
   async function renderLangPages(lang, pagesThis, pagesOther) {
     for (const p of pagesThis) {
       const otherExists = pagesOther.some((o) => o.slug === p.slug);
+      const other = otherExists ? findBySlug(pagesOther, p.slug) : null;
       const activeUrl = p.url;
       const navHtml = buildNavHtml(pagesThis, { lang, activeUrl });
       const langSwitch = buildLangSwitch({ lang, currentUrl: activeUrl, existsOther: otherExists });
-      const contentHtml = `<article class="prose"><h1>${escapeHtml(p.title)}</h1>${md.render(p.body, {
+      const useFallback = isEmptyBody(p.body) && other && !isEmptyBody(other.body);
+      const body = !isEmptyBody(p.body) ? p.body : useFallback ? other.body : "";
+      const description = useFallback ? other.description || p.description : p.description || (other ? other.description : "");
+      const fallbackNote = useFallback
+        ? `<div class="callout callout--info">${
+            lang === "en"
+              ? "This page is not translated yet. You are seeing the German version."
+              : "Diese Seite ist noch nicht \u00fcbersetzt. Du siehst die englische Version."
+          }</div>`
+        : "";
+      const bodyClean = cleanLegacyMarkdown(body, { kind: "page" });
+      const isHome = p.slug === "index";
+      const newsThis = lang === "de" ? newsDe : newsEn;
+      const newsOther = lang === "de" ? newsEn : newsDe;
+      const latestNews = newsThis.slice(0, 6).map((it) => {
+        const otherNews = findBySlug(newsOther, it.slug);
+        return { ...it, teaser: it.teaser || (otherNews ? otherNews.teaser : "") };
+      });
+      const latestCards = latestNews.map(buildNewsCard).join("\n");
+      const quickLinks =
+        lang === "en"
+          ? [
+              { href: `/${lang}/trainingszeiten/`, label: "Training Times" },
+              { href: `/${lang}/spiel-und-trainingshallen/`, label: "Sports Halls" },
+              { href: `/${lang}/mitgliedschaft/`, label: "Membership" },
+              { href: `/${lang}/nachwuchs/`, label: "Youth" },
+              { href: `/${lang}/kontakt/`, label: "Contact" },
+            ]
+          : [
+              { href: `/${lang}/trainingszeiten/`, label: "Trainingszeiten" },
+              { href: `/${lang}/spiel-und-trainingshallen/`, label: "Hallen" },
+              { href: `/${lang}/mitgliedschaft/`, label: "Mitgliedschaft" },
+              { href: `/${lang}/nachwuchs/`, label: "Nachwuchs" },
+              { href: `/${lang}/kontakt/`, label: "Kontakt" },
+            ];
+      const quickHtml = `<div class="quick-links">${quickLinks
+        .map((l) => `<a class="btn btn--ghost" href="${l.href}">${escapeHtml(l.label)}</a>`)
+        .join("")}</div>`;
+      const homeExtras = isHome
+        ? `${quickHtml}<section class="home-news"><h2>${lang === "en" ? "Latest News" : "Aktuelle News"}</h2><div class="news-grid">${latestCards}</div><p class="home-news__more"><a class="btn" href="/${lang}/news/">${
+            lang === "en" ? "All news" : "Alle News"
+          }</a></p></section>`
+        : "";
+      const contentHtml = `<article class="prose"><h1>${escapeHtml(p.title)}</h1>${fallbackNote}${md.render(bodyClean, {
         assetPrefix: "/assets/",
-      })}</article>`;
+      })}${homeExtras}</article>`;
       const urlDe = lang === "de" ? activeUrl : otherExists ? activeUrl.replace("/en/", "/de/") : "/de/";
       const urlEn = lang === "en" ? activeUrl : otherExists ? activeUrl.replace("/de/", "/en/") : "/en/";
       await writePage({
@@ -391,7 +541,7 @@ async function main() {
         brandHref: `/${lang}/`,
         origin: envConfig.origin,
         title: p.title,
-        description: p.description,
+        description,
         contentHtml,
         activeUrl,
         urlDe,
@@ -415,7 +565,11 @@ async function main() {
     for (let i = 0; i < paged.length; i++) {
       const pageNo = i + 1;
       const url = pageNo === 1 ? `/${lang}/news/` : `/${lang}/news/page/${pageNo}/`;
-      const cards = paged[i].map(buildNewsCard).join("\n");
+      const pageItems = paged[i].map((it) => {
+        const other = findBySlug(itemsOther, it.slug);
+        return { ...it, teaser: it.teaser || (other ? other.teaser : "") };
+      });
+      const cards = pageItems.map(buildNewsCard).join("\n");
       const pagination = buildPagination({ lang, baseUrl: `/${lang}/news/`, pageIndex: i, totalPages: paged.length });
       const contentHtml = `<section class="prose"><h1>News</h1><div class="news-grid">${cards}</div>${pagination}</section>`;
       await writePage({
@@ -448,9 +602,13 @@ async function main() {
         const pageNo = i + 1;
         const baseUrl = `/${lang}/news/${category}/`;
         const url = pageNo === 1 ? baseUrl : `${baseUrl}page/${pageNo}/`;
-        const cards = catPaged[i].map(buildNewsCard).join("\n");
+        const pageItems = catPaged[i].map((it) => {
+          const other = findBySlug(itemsOther, it.slug);
+          return { ...it, teaser: it.teaser || (other ? other.teaser : "") };
+        });
+        const cards = pageItems.map(buildNewsCard).join("\n");
         const pagination = buildPagination({ lang, baseUrl, pageIndex: i, totalPages: catPaged.length });
-        const contentHtml = `<section class="prose"><h1>News: ${escapeHtml(category)}</h1><div class="news-grid">${cards}</div>${pagination}</section>`;
+        const contentHtml = `<section class="prose"><h1>News: ${escapeHtml(displayCategory(category, lang))}</h1><div class="news-grid">${cards}</div>${pagination}</section>`;
         await writePage({
           templates,
           lang,
@@ -472,17 +630,31 @@ async function main() {
     // Detail pages
     for (const it of itemsThis) {
       const otherExists = itemsOther.some((o) => o.slug === it.slug);
+      const other = otherExists ? findBySlug(itemsOther, it.slug) : null;
       const navHtml = buildNavHtml(pagesThis, { lang, activeUrl: it.url });
       const langSwitch = buildLangSwitch({ lang, currentUrl: it.url, existsOther: otherExists });
-      const hero = it.heroImage
-        ? `<figure class="hero-img"><img src="${it.heroImage.startsWith("/") ? it.heroImage : `/${it.heroImage}`}" alt=""></figure>`
+      const displayTitle = it.title && it.title !== "Untitled" ? it.title : other ? other.title : it.title;
+      const useFallback = isEmptyBody(it.body) && other && !isEmptyBody(other.body);
+      const bodySource = !isEmptyBody(it.body) ? it.body : useFallback ? other.body : "";
+      const teaser = cleanTeaser(it.teaser || (other ? other.teaser : ""));
+      const heroImage = it.heroImage || (other ? other.heroImage : "");
+      const hero = heroImage
+        ? `<figure class="hero-img"><img src="${heroImage.startsWith("/") ? heroImage : `/${heroImage}`}" alt=""></figure>`
         : "";
-      const bodyHtml = md.render(it.body, { assetPrefix: "/assets/" });
+      const fallbackNote = useFallback
+        ? `<div class="callout callout--info">${
+            lang === "en"
+              ? "This article is not translated yet. You are seeing the German version."
+              : "Dieser Artikel ist noch nicht \u00fcbersetzt. Du siehst die englische Version."
+          }</div>`
+        : "";
+      const bodyClean = cleanLegacyMarkdown(bodySource, { kind: "news" });
+      const bodyHtml = md.render(bodyClean, { assetPrefix: "/assets/" });
       const contentHtml = `<article class="prose"><header class="news-head"><p class="news-head__meta"><span>${escapeHtml(
-        formatDate(it.date)
-      )}</span> · <span>${escapeHtml(it.category)}</span></p><h1>${escapeHtml(it.title)}</h1>${
-        it.teaser ? `<p class="lead">${escapeHtml(it.teaser)}</p>` : ""
-      }</header>${hero}${bodyHtml}</article>`;
+        formatDateDisplay(it.date, lang)
+      )}</span> · <span>${escapeHtml(displayCategory(it.category, lang))}</span></p><h1>${escapeHtml(displayTitle)}</h1>${
+        teaser ? `<p class="lead">${escapeHtml(teaser)}</p>` : ""
+      }</header>${hero}${fallbackNote}${bodyHtml}</article>`;
       const urlDe = lang === "de" ? it.url : otherExists ? it.url.replace("/en/", "/de/") : "/de/news/";
       const urlEn = lang === "en" ? it.url : otherExists ? it.url.replace("/de/", "/en/") : "/en/news/";
       await writePage({
@@ -492,8 +664,8 @@ async function main() {
         langSwitch,
         brandHref: `/${lang}/`,
         origin: envConfig.origin,
-        title: it.title,
-        description: it.teaser,
+        title: displayTitle,
+        description: teaser,
         contentHtml,
         activeUrl: it.url,
         urlDe,

@@ -23,5 +23,5 @@ Das Langzeitduell wird damit der Knaller zur Wiederaufnahme des Spielbetriebs.
 
 Die Meisterschaft selbst wurde gekürzt und die Liga wird nur in einem Durchgang (also ohne Rückrunde) absolviert.
 
-*   [< Zurück](/de/news/nachruf-klaus-dornig/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/679-nachruf-klaus-dornig)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/676-feldkirch-bsc-70-linz-2-6)

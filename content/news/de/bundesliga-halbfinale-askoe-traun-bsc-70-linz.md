@@ -26,5 +26,5 @@ Live-Streams
 Wie auch schon zuletzt im Derby wird es diesmal wieder Live Streams auf YouTube zu sehgen geben.  
 Bis zu 4 Kameras werden die beiden Vereine zur bestmöglichen Live "Berichterstattung" vor Ort haben.
 
-*   [< Zurück](/de/news/bundesliga-start-mit-ooe-derby-am-30-10-2021/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/686-re-live-streams-bundesliga)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/695-bundesliga-start-mit-ooe-derby-am-30-10-2021)
+*   [Weiter >](/de/news/re-live-streams-bundesliga/)

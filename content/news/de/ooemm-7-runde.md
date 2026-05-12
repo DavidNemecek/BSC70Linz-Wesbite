@@ -190,4 +190,4 @@ Es folgen die Spiele gegen Traun II und dann auch noch gegen Vorchdorf II.
 
 ###### 2357
 
-*   [< Zurück](/de/news/ooemm-mannschafts-landesmeistertitel-so-gut-wie-verteidigt/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/28-ooemm-mannschafts-landesmeistertitel-so-gut-wie-verteidigt)

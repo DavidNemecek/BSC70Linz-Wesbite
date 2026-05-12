@@ -17,5 +17,5 @@ Im letzten Spiel der 2. Landesliga Nord konnte die Mannschaft rund um Mannschaft
 
 Detailergebnisse: [BSC 70 Linz III - BC Alkoven III](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=E9BF0563-35B7-4CFE-84BB-AAE8C308BBE0&match=211)
 
-*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/326-erfolgreicher-saisonauftakt-gegen-amtierenden-landesmeister)
+*   [< Zurück](/de/news/erfolgreicher-saisonauftakt-gegen-amtierenden-landesmeister/)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/275-remis-gegen-titelkonkurrenten)

@@ -241,5 +241,5 @@ Spielpunkte
 
 388
 
-*   [< Zurück](/de/news/niederlage-gegen-vrc-im-1-spiel-der-doppelrunde/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/616-niederlage-gegen-vrc-im-1-spiel-der-doppelrunde)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/611-wolfgang-gnedt-mannschaftsstaatsmeister-mit-askoe-traun)

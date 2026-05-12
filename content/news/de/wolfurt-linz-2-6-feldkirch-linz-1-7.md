@@ -32,5 +32,5 @@ Die Spiele werden wieder Live im Stream gebracht.
 
 [Feldkirch - Linz - Sonntag, 10 Uhr Feldkirch](https://www.youtube.com/channel/UCpE6wk0UEMhcL9RbBMHVCFA/featured)
 
-*   [< Zurück](/de/news/bsc-70-linz-moedling-6-2/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/708-bsc-70-linz-moedling-6-2)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/705-doppelrunde-im-laendle)

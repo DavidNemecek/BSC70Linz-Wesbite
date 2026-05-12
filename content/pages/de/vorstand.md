@@ -2,7 +2,7 @@
 title: "Vorstand"
 slug: "vorstand"
 navGroup: "Verein"
-navOrder: 30
+navOrder: 70
 navLabel: "Vorstand"
 translationStatus: "reviewed"
 ---

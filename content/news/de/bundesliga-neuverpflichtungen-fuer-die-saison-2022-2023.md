@@ -35,5 +35,5 @@ eine weitere erfahrene internationale Spielerin für den BSC 70 Linz verpflichte
 
 Der komplette Kader des BSC 70 Linz wird mit 15. August 2022 veröffentlicht und diesen findest du hier [\>>>>](https://www.bsc70linz.at/cms/index.php/mannschaften/team/43/1 "Bundesliga Mannschaft 22/23")
 
-*   [< Zurück](/de/news/saisonplan-bundesliga/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/718-saisonplan-bundesliga)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/713-bsc70linz-mannschaftsmeister-2021-2022)

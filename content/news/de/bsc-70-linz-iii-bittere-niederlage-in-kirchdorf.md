@@ -21,5 +21,5 @@ Im Einsatz für den BSC 70 Linz waren: Kosorus Hilda, Wu Christina bzw. Arnold N
 
 Ergebnisse im Detail: [Union Kirchdorf - BSC 70 Linz III](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=A9240FAE-F3B2-4605-8021-F3A0F040AB71&match=81)
 
-*   [< Zurück](/de/news/bsc-70-linz-iii-und-iv-gewinnen-mit-jeweils-5-3/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/338-bsc-70-linz-iii-und-iv-gewinnen-mit-jeweils-53)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/326-erfolgreicher-saisonauftakt-gegen-amtierenden-landesmeister)

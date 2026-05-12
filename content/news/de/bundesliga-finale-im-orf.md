@@ -14,4 +14,4 @@ translationStatus: "reviewed"
 <iframe src="https://www.youtube.com/embed/bkwWyW8zRZM?rel=0&amp;fs=1&amp;wmode=transparent" width="400" height="300" allow="autoplay; encrypted-media" allowfullscreen="true" frameborder="0" scrolling="no" title="JoomlaWorks AllVideos Player"></iframe>
 
 *   [< Zurück](/de/news/bundesligastart-zur-saison-2014-2015/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/316-spielerverpflichtung-fuer-das-bundesligateam-2014-2015)
+*   [Weiter >](/de/news/spielerverpflichtung-fuer-das-bundesligateam-2014-2015/)

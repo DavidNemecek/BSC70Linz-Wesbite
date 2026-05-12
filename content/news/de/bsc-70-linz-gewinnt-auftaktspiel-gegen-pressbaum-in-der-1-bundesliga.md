@@ -35,4 +35,4 @@ Obmann Reinhard Hechenberger nach dem Spiel: "ein guter Auftrakt in die Saison i
 Spielergebnisse: [Tournamentsoftware](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=F1E68A52-154B-465A-9D1F-2AF6CBA0D1B2&match=12 "1. Runde Bundesliga - Pressbaum-BSC70Linz")
 
 *   [< Zurück](/de/news/bsc-70-linz-moedling-endstand-2-6/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/429-bundesligastart-zur-saison-2014-2015)
+*   [Weiter >](/de/news/bundesligastart-zur-saison-2014-2015/)

@@ -1,9 +1,10 @@
 ---
 title: "Terminkalender"
 slug: "terminkalender"
-navGroup: "Verein"
-navOrder: 80
-navLabel: "Terminkalender"
+navGroup: "Termine"
+navOrder: 55
+navLabel: "Termine"
+navHidden: true
 translationStatus: "reviewed"
 ---
 

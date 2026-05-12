@@ -22,4 +22,4 @@ BSC 70 Linz III - ABV Wels : 8:0
 [hier geht´s zu den Spieldetails](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=B4E7D6F8-6975-4A68-A7EF-24370C4CCF96&match=8)
 
 *   [< Zurück](/de/news/ooe-mannschaftsmeisterschaft-herbstmeistertitel-fuer-bsc-70-linz-ii/)
-*   [Weiter >](/de/news/ooe-mannschaftsmeisterschaft-2-runde/)
+*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/177-ooe-mannschaftsmeisterschaft-2-runde)

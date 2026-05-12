@@ -427,5 +427,5 @@ Spielort
 
  
 
-*   [< Zurück](/de/news/bundesliga-showdown-mit-5-3-an-wien/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/583-bundesliga-showdown-mit-5-3-an-wien)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/577-sieg-und-niederlage-fuer-den-bsc-70-linz)

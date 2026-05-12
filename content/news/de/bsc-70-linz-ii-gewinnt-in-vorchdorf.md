@@ -128,4 +128,4 @@ Waltraud Kronsteine
 Quelle: [obv.tournamentsoftware.com](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=B1885A2D-0662-4B87-A6C3-E863843ADF29&match=79)
 
 *   [< Zurück](/de/news/saisonabschlussfeier-der-3-mannschaft-des-bsc-70-linz/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/10-ooe-mannschaftsmeisterschaft-bsc-70-linz-iiii-sind-herbstmeister)
+*   [Weiter >](/de/news/ooe-mannschaftsmeisterschaft-bsc-70-linz-ii-iii-sind-herbstmeister/)

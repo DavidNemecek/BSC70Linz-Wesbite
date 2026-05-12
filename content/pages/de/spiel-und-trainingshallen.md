@@ -1,9 +1,9 @@
 ---
 title: "Spiel- und Trainingshallen"
 slug: "spiel-und-trainingshallen"
-navGroup: "Verein"
-navOrder: 70
-navLabel: "Spiel- und Trainingshallen"
+navGroup: "Training"
+navOrder: 40
+navLabel: "Hallen"
 translationStatus: "reviewed"
 ---
 

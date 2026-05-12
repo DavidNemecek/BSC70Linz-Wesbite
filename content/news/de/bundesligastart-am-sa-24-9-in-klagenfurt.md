@@ -24,5 +24,5 @@ Auf Seiten des BSC 70 Linz ist Maria Fröhlich, Nika Koncut und Sabina Magyar 
 [Zur gesamten Mannschaft des BSC 70 Linz](https://www.bsc70linz.at/cms/index.php/component/lr/?id=67&view=team&Itemid=27)  
 Auf Seiten des Askö kelag Kärnten sind Delqna Trandeva, Sarina Kohlfürst neu im Team.
 
-*   [< Zurück](/de/news/niederlage-in-der-1-bundesliga/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/172-niederlage-in-der-1-bundesliga)
 *   [Weiter >](/de/news/knalleffekt-am-rande-der-generalversammlung-des-bsc-70-linz/)

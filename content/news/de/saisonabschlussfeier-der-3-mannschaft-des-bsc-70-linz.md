@@ -13,8 +13,6 @@ translationStatus: "reviewed"
 
 nach einer tollen Saison hatte die 3. Mannschaft als Meister und dem Aufstieg in die 2. OÖ. Landesliga einen wirklichen Grund zum Feiern.
 
-![](https://www.bsc70linz.at/media/images/zoom/XFWNIQ/viewsize/P_6040007.JPG)
-
 Wolfgang Sternberger hatte am vergangenen Freitag die Spieler zu einem gemütlichen Abend bei sich zu Hause eingeladen.
 
 Neben Mannschaftsführer und Betreuer Andi Böhm waren auch Barbara Schiefermair, Ursula Edelmüller, Sabine Haberlik, Nikita Arnold, Stephan Ziermayr, Christoph Kainrath und Obmann Reinhard Hechenberger mit von der Partie.

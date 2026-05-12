@@ -2,8 +2,8 @@
 title: "Übersicht Erfolge"
 slug: "uebersicht-erfolge"
 navGroup: "Verein"
-navOrder: 100
-navLabel: "Übersicht Erfolge"
+navOrder: 81
+navLabel: "Erfolge"
 translationStatus: "reviewed"
 ---
 

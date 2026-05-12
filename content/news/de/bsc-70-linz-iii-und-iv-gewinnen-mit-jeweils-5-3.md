@@ -26,4 +26,4 @@ Im Einsatz waren: Regner Sabine bzw. Arnold Nikita, Böhm Andreas, Eckersberger 
 Ergebnisse: [Union Urfahr 3 - BSC 70 Linz IV](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=A9240FAE-F3B2-4605-8021-F3A0F040AB71&match=27 "Union Urfahr 3 - BSC 70 Linz IV")
 
 *   [< Zurück](/de/news/bsc-70-linz-iii-spielte-gegen-union-windischgarsten-unentschieden/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/333-bsc-70-linz-iii-bittere-niederlage-in-kirchdorf)
+*   [Weiter >](/de/news/bsc-70-linz-iii-bittere-niederlage-in-kirchdorf/)

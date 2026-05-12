@@ -1,9 +1,10 @@
 ---
 title: "Vereinsvorstand"
 slug: "vereinsvorstand"
-navGroup: "Verein"
-navOrder: 120
-navLabel: "Vereinsvorstand"
+navGroup: "Kontakt"
+navOrder: 60
+navLabel: "Kontakt"
+navHidden: true
 translationStatus: "reviewed"
 ---
 

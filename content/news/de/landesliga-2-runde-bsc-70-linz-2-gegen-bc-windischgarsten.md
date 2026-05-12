@@ -17,5 +17,5 @@ Da sich auf Seiten der Windischgarstener Denise Sendlhofer einer Knieoperation u
 
 Aber dann kam die Zeit der Herreneinzel. Horvat, Hochgatterer und Walchshofer konnten die Spiele sicher gewinnen und auch das Mixed mit Natalia und Reinhard gab sich letztendlich keine Blöße. Mit diesem 6:2 Sieg sind wir der neue Tabellenführer. Da diese Tabelle nach 2 von 10 Spieltagen nur bedingt  aussagekräftig ist, geht der Blick von Mannschaftsführer Walchshofer schon wieder nach vorne. Schon am kommenden Freitag, den 23.10 um 18:45 Uhr, erwarten wir Askö Traun zum großen Derby in der Halle des BRG Auhof.
 
-*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/511-1-landesliga-bsc-70-linz-2-gegen-union-windischgarsten-1)
-*   [Weiter >](/de/news/landesliga-1-runde-bsc-70-linz-union-ohlsdorf/)
+*   [< Zurück](/de/news/1-landesliga-bsc-70-linz-2-gegen-union-windischgarsten-1/)
+*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/500-landesliga-1-runde-bsc-70-linz-union-ohlsdorf)

@@ -239,5 +239,5 @@ Spielpunkte
 
 316
 
-*   [< Zurück](/de/news/bundesliga-doppelrunde-8-9-1-2011/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/126-1-bundesliga-feldkirch-bsc-70-linz-am-18122010)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/112-askoe-bsc-70-linz-verliert-im-ooe-derby)

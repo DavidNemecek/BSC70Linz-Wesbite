@@ -12,6 +12,7 @@ const labels =
         categories: "News categories",
         all: "All",
         switchTo: "Switch language",
+        backToNews: "Back to news",
       }
     : {
         skip: "Zum Inhalt",
@@ -20,6 +21,7 @@ const labels =
         categories: "News-Kategorien",
         all: "Alle",
         switchTo: "Sprache wechseln",
+        backToNews: "Zurück zu News",
       };
 
 const themeLink = document.getElementById("theme");
@@ -188,7 +190,29 @@ function initNewsEnhancements() {
   grid.parentElement?.insertBefore(filter, grid);
 }
 
+function initNewsBacklink() {
+  const head = document.querySelector(".news-head");
+  if (!(head instanceof HTMLElement)) return;
+
+  const prose = head.closest(".prose");
+  if (!(prose instanceof HTMLElement)) return;
+  if (prose.querySelector("[data-news-backlink]")) return;
+
+  const nav = document.createElement("nav");
+  nav.className = "news-back";
+  nav.setAttribute("data-news-backlink", "true");
+
+  const a = document.createElement("a");
+  a.className = "news-back__link";
+  a.href = `/${lang}/news/`;
+  a.textContent = `\u2190 ${labels.backToNews}`;
+  nav.appendChild(a);
+
+  prose.insertBefore(nav, head);
+}
+
 initNavGroups();
 initNavToggle();
 initLanguageA11y();
 initNewsEnhancements();
+initNewsBacklink();

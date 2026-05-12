@@ -3,15 +3,13 @@ title: "Silber und Bronze bei der Senioren EM 2018 durch Tariq Farooq"
 slug: "silber-und-bronze-bei-der-senioren-em-2018-durch-tariq-farooq"
 date: "2026-05-12"
 category: "mitglieder"
-teaser: "---------------------------------------------------------------------------------------------------------------------------------------- bei der EM 2018\") Vom 24.-30 September 2…"
+teaser: "---------------------------------------------------------------------------------------------------------------------------------------- Vom 24.-30 September 2018 fanden in Guad…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/614-silber-und-bronze-bei-der-senioren-em-2018"
 translationStatus: "reviewed"
 ---
 
 [Silber und Bronze bei der Senioren EM 2018 durch Tariq Farooq](/de/news/silber-und-bronze-bei-der-senioren-em-2018-durch-tariq-farooq/)
 ----------------------------------------------------------------------------------------------------------------------------------------
-
-![](https://www.bsc70linz.at/cms/images/stories/Veranstaltungsfiles/IMG_6621_2.jpg "Die Linzer Delegation (BSC 70 Linz & U. Urfahr-Gerhard Mayr) bei der EM 2018")
 
 Vom 24.-30 September 2018 fanden in Guadalajara/Spanien die Senioren Europameisterschaften statt.  
 Spielberechtigt sind die Geburtsjahre ab 1982.
@@ -50,4 +48,4 @@ Aus Linzer Sicht gab es viele weitere gute Leistungen zu den der Vorstand des Ve
 [Turnierseite - Teilnehmer Österreich](http://bwf.tournamentsoftware.com/sport/matches.aspx?id=69AEA0D3-51D7-4C9A-A076-D6E4D5195C9C&c=AUT)
 
 *   [< Zurück](/de/news/medaillienregen-oem-senioren-2018/)
-*   [Weiter >](/de/news/senioren-europameisterschaften-2018-vorbericht/)
+*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/613-senioren-europameisterschaften-2018-vorbericht)

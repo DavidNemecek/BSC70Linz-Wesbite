@@ -30,6 +30,4 @@ Darüber hinaus haben wir mit Matthias Almer (15 Jahre) einen der hoffnungsvolls
 
 „Mit dem BSC 70 Linz haben meine Kinder die optimalen Voraussetzungen um sich im Badminton Sport weiter zu entwickeln. Hier gibt es ein professionelles Umfeld“ freut sich auch Alexander Almer über die geschlossene Vereinbarung.
 
-![](https://www.bsc70linz.at/cms/typo3temp/pics/3f3bb01716.jpg)
-
 *   [< Zurück](/de/news/homepage-relaunch/)

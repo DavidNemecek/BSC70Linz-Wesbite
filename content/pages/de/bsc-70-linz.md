@@ -2,8 +2,9 @@
 title: "BSC 70 Linz"
 slug: "bsc-70-linz"
 navGroup: "Verein"
-navOrder: 0
+navOrder: 10
 navLabel: "BSC 70 Linz"
+navHidden: true
 translationStatus: "reviewed"
 ---
 

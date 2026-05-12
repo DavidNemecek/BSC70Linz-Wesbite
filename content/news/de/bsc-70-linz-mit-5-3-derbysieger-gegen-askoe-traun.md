@@ -156,5 +156,5 @@ GD
 
 21-13 21-10
 
-*   [< Zurück](/de/news/bundesligateam-mit-sieg-gegen-pressbaum/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/571-bundesligateam-mit-sieg-gegen-pressbaum)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/567-bericht-2-runde-bundesliga-gegeb-wbh-wien)
