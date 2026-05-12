@@ -24,6 +24,12 @@ Kurz, praxisnah, und auf saubere Software-Engineering-Standards ausgerichtet.
 - **Vanilla-first**: keine neuen Frameworks/Toolchains ohne explizite Entscheidung; bevorzugt statisches Hosting-fähig.
 - **Reviewbarkeit**: kleine Diffs, keine massenhaften Reformatierungen, Änderungen nur taskbezogen.
 - **Fertig heißt**: Navigation funktioniert, mobile-first Layout passt, keine toten Links, A11y-Basics eingehalten, Inhalte von `https://bsc70linz.at/` korrekt übernommen.
+- **CI/CD-Pflichtabnahme via Subagent (immer!)**: Bevor der Manager „fertig“ sagt, muss ein **QA-Subagent** unabhängig prüfen:
+  - letzter GitHub Actions Run (Pages Deploy) ist **completed/success**
+  - Deployment ist **sichtbar** auf der Live-URL (nach Wartezeit; GitHub Pages braucht oft ~1–2 Minuten)
+  - Seite/Änderung ist korrekt auf mehreren Viewports (z.B. ~360px, ~768px, ~1280px) und Assets laden ohne Fehler
+  - wenn etwas nicht passt: Subagent liefert konkrete Findings + Fix-Vorschläge; Manager lässt korrigieren und lässt erneut prüfen
+- **GitHub Actions Node-Version (immer!)**: Wegen der Deprecation von Node.js 20 müssen Workflows die **aktuellen Actions-Versionen** verwenden, die Node 24 unterstützen (z.B. `actions/checkout@v6`, `actions/configure-pages@v6`, `actions/upload-pages-artifact@v5`, `actions/deploy-pages@v5`). Keine dauerhaften Workarounds per `env`—stattdessen Actions-Versionen aktuell halten und nach jedem CI-Run die Logs auf Deprecation-Warnings prüfen.
 
 ## Wie AGENTS.md wirkt (Scope)
 - Viele Agent-Tools lesen `AGENTS.md` automatisch aus dem **aktuellen Ordner und Elternordnern**; zusätzliche `AGENTS.md` in Unterordnern können Regeln **präzisieren/überschreiben**.
@@ -71,6 +77,7 @@ Kurz, praxisnah, und auf saubere Software-Engineering-Standards ausgerichtet.
 - Änderung erfüllt die Anforderung und ist minimal-invasiv.
 - Relevante Checks laufen lokal durch (Build/Lint/Test, falls vorhanden).
 - Doku angepasst, falls Setup/Verhalten geändert wurde.
+- CI/CD-Abnahme ist erfolgt: erfolgreicher Workflow-Run + sichtbare Änderung auf der Live-URL + Responsive-Sanity-Check (durch QA-Subagent).
 
 ## Security & Datenschutz
 - **Keine Secrets** (API-Keys, Tokens, Passwörter) einchecken oder ausgeben.
