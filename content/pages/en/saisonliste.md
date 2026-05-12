@@ -7,5 +7,3 @@ navLabel: "Saisonliste"
 translationStatus: "draft"
 translatedFrom: "content/pages/de/saisonliste.md"
 ---
-
-

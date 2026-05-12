@@ -179,6 +179,7 @@ function paginate(items, pageSize) {
 
 function buildNavHtml(pages, { lang, activeUrl }) {
   const navPages = pages.filter((p) => {
+    if (p.published === false) return false;
     if (p.navHidden) return false;
     if (p.slug === "index") return false;
     if (lang === "en" && p.translationStatus === "draft" && isEmptyBody(p.body)) return false;
@@ -294,6 +295,7 @@ function normalizePageMeta({ data, content }, { lang }) {
     navOrder: data.navOrder,
     navLabel: data.navLabel,
     navHidden: data.navHidden === true,
+    published: data.published !== false,
     translationStatus: data.translationStatus,
     translatedFrom: data.translatedFrom,
     description: data.description || data.teaser || descriptionFromMarkdown(content, title),
@@ -480,8 +482,9 @@ async function main() {
 
   async function renderLangPages(lang, pagesThis, pagesOther) {
     for (const p of pagesThis) {
-      const otherExists = pagesOther.some((o) => o.slug === p.slug);
-      const other = otherExists ? findBySlug(pagesOther, p.slug) : null;
+      if (p.published === false) continue;
+      const other = pagesOther.find((o) => o.slug === p.slug && o.published !== false) || null;
+      const otherExists = Boolean(other);
       const activeUrl = p.url;
       const navHtml = buildNavHtml(pagesThis, { lang, activeUrl });
       const langSwitch = buildLangSwitch({ lang, currentUrl: activeUrl, existsOther: otherExists });

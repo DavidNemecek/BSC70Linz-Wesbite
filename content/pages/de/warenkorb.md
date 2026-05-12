@@ -5,6 +5,7 @@ navGroup: "Galerie"
 navOrder: 999
 navLabel: "Fotos"
 navHidden: true
+published: false
 translationStatus: "reviewed"
 ---
 

@@ -5,6 +5,7 @@ navGroup: "Termine"
 navOrder: 55
 navLabel: "Termine"
 navHidden: true
+published: false
 translationStatus: "reviewed"
 ---
 
