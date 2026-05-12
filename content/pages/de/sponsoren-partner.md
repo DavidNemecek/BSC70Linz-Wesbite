@@ -23,7 +23,7 @@ Danke an unsere Sponsoren, Förderer und treuen Freunde des BSC 70 Linz.
     <img src="assets/uploads/ebcont-gelb-p7408-png-5fba906273.jpg" alt="ebcont">
   </a>
   <div class="sponsor-card">
-    <img src="assets/uploads/cc-logo-url-rechts-braun-web-6532fefbf2.jpg" alt="Sponsor">
+    <img src="assets/uploads/cc-logo-url-rechts-braun-web-6532fefbf2.jpg" alt="CC (Sponsor)">
   </div>
   <a class="sponsor-card" href="http://www.pianino.at/pianino/" target="_blank" rel="noreferrer">
     <img src="assets/uploads/pianino-c260bfecdb.jpg" alt="Pianino">
@@ -74,4 +74,3 @@ Danke an unsere Sponsoren, Förderer und treuen Freunde des BSC 70 Linz.
     <img src="assets/uploads/tips-44db766e67.jpg" alt="Tips">
   </a>
 </div>
-

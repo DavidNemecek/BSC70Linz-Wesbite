@@ -37,7 +37,8 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
 .container{ max-width:var(--container); margin:0 auto; padding:0 16px; }
 .header{
   position:sticky; top:0; z-index:5;
-  background:rgba(255,255,255,.9);
+  background:var(--color-bg);
+  background:color-mix(in srgb, var(--color-bg) 92%, transparent);
   backdrop-filter:saturate(180%) blur(12px);
   border-bottom:1px solid var(--color-border);
 }
@@ -46,7 +47,7 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
 .brand__mark{
   width:44px; height:44px; border-radius:12px;
   display:grid; place-items:center;
-  background:var(--color-primary); color:white; font-weight:800;
+  background:var(--color-primary); color:var(--color-bg); font-weight:800;
 }
 .brand__text{ display:flex; flex-direction:column; min-width:0; }
 .brand__name{ font-weight:800; line-height:1.1; }
@@ -113,7 +114,7 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
 .lang:hover{ background:var(--color-surface); }
 .theme-toggle{
   display:inline-flex; align-items:center; justify-content:center;
-  height:38px; padding:0 10px;
+  min-height:44px; padding:0 12px;
   border-radius:10px;
   border:1px solid var(--color-border);
   background:var(--color-bg);
@@ -128,7 +129,7 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
   display:inline-flex; align-items:center; justify-content:center;
   padding:10px 14px; border-radius:12px;
   border:1px solid transparent;
-  background:var(--color-primary); color:white;
+  background:var(--color-primary); color:var(--color-bg);
   font-weight:800; text-decoration:none;
   min-height:44px;
 }
@@ -219,7 +220,7 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
   min-height:96px;
   border-radius:var(--radius);
   border:1px solid var(--color-border);
-  background:var(--color-bg);
+  background:var(--color-surface);
   box-shadow:var(--shadow);
 }
 .sponsor-card img{
@@ -231,6 +232,9 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
   border:0;
   border-radius:0;
   margin:0;
+}
+@media (min-width: 980px){
+  .sponsor-card img{ max-height:72px; }
 }
 
 .news-grid{ display:grid; gap:14px; margin-top:16px; grid-template-columns:1fr; }

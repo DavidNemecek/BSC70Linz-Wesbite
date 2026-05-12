@@ -524,6 +524,7 @@ async function main() {
               { href: `/${lang}/trainingszeiten/`, label: "Training Times" },
               { href: `/${lang}/spiel-und-trainingshallen/`, label: "Sports Halls" },
               { href: `/${lang}/mitgliedschaft/`, label: "Membership" },
+              { href: `/${lang}/schnuppertraining/`, label: "Trial Training" },
               { href: `/${lang}/nachwuchs/`, label: "Youth" },
               { href: `/${lang}/kontakt/`, label: "Contact" },
             ]
@@ -531,6 +532,7 @@ async function main() {
               { href: `/${lang}/trainingszeiten/`, label: "Trainingszeiten" },
               { href: `/${lang}/spiel-und-trainingshallen/`, label: "Hallen" },
               { href: `/${lang}/mitgliedschaft/`, label: "Mitgliedschaft" },
+              { href: `/${lang}/schnuppertraining/`, label: "Schnuppertraining" },
               { href: `/${lang}/nachwuchs/`, label: "Nachwuchs" },
               { href: `/${lang}/kontakt/`, label: "Kontakt" },
             ];
