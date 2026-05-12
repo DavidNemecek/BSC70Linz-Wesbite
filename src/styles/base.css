@@ -111,6 +111,18 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
   color:inherit;
 }
 .lang:hover{ background:var(--color-surface); }
+.theme-toggle{
+  display:inline-flex; align-items:center; justify-content:center;
+  height:38px; padding:0 10px;
+  border-radius:10px;
+  border:1px solid var(--color-border);
+  background:var(--color-bg);
+  font-weight:800;
+  text-decoration:none;
+  color:inherit;
+  cursor:pointer;
+}
+.theme-toggle:hover{ background:var(--color-surface); }
 
 .btn{
   display:inline-flex; align-items:center; justify-content:center;
@@ -193,6 +205,33 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
 .quick-links{ display:flex; flex-wrap:wrap; gap:10px; margin:14px 0 6px; }
 .home-news{ margin-top:26px; }
 .home-news__more{ margin:12px 0 0; }
+
+.sponsor-grid{ display:grid; grid-template-columns:1fr; gap:12px; margin-top:14px; }
+@media (min-width: 680px){
+  .sponsor-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 980px){
+  .sponsor-grid{ grid-template-columns:repeat(4, minmax(0, 1fr)); }
+}
+.sponsor-card{
+  display:flex; align-items:center; justify-content:center;
+  padding:16px;
+  min-height:96px;
+  border-radius:var(--radius);
+  border:1px solid var(--color-border);
+  background:var(--color-bg);
+  box-shadow:var(--shadow);
+}
+.sponsor-card img{
+  max-width:100%;
+  max-height:54px;
+  width:auto;
+  height:auto;
+  object-fit:contain;
+  border:0;
+  border-radius:0;
+  margin:0;
+}
 
 .news-grid{ display:grid; gap:14px; margin-top:16px; grid-template-columns:1fr; }
 @media (min-width: 860px){

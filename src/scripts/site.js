@@ -1,6 +1,7 @@
-import { setTheme } from "./theme.js";
+import { initTheme, toggleTheme } from "./theme.js";
 
 document.documentElement.classList.add("js");
+initTheme();
 
 const lang = (document.documentElement.lang || "de").toLowerCase().startsWith("en") ? "en" : "de";
 const labels =
@@ -24,19 +25,32 @@ const labels =
         backToNews: "Zurück zu News",
       };
 
-const themeLink = document.getElementById("theme");
-if (themeLink) {
-  const saved = localStorage.getItem("theme");
-  if (saved) themeLink.href = `/assets/css/themes/${saved}.css`;
-}
+function initThemeToggle() {
+  const btn = document.querySelector("[data-theme-toggle]");
+  if (!(btn instanceof HTMLButtonElement)) return;
 
-document.querySelectorAll("[data-theme]").forEach((btn) => {
+  const syncLabel = () => {
+    const current = (document.documentElement.dataset.theme || "").toLowerCase();
+    const isDark = current === "dark";
+    btn.setAttribute(
+      "aria-label",
+      lang === "en"
+        ? isDark
+          ? "Switch to light theme"
+          : "Switch to dark theme"
+        : isDark
+          ? "Zum hellen Theme wechseln"
+          : "Zum dunklen Theme wechseln"
+    );
+    btn.textContent = isDark ? (lang === "en" ? "Light" : "Hell") : lang === "en" ? "Dark" : "Dunkel";
+  };
+
+  syncLabel();
   btn.addEventListener("click", () => {
-    const themeName = btn.getAttribute("data-theme");
-    if (!themeName) return;
-    setTheme(themeName);
+    toggleTheme();
+    syncLabel();
   });
-});
+}
 
 function closeOpenNavGroups() {
   const open = [...document.querySelectorAll(".nav__group[open]")];
@@ -130,14 +144,16 @@ function initNewsEnhancements() {
 
   const makeCategoryHref = (cat) => `/${lang}/news/${encodeURIComponent(cat)}/`;
 
-  const upgradeCatEl = (el) => {
-    const cat = (el.textContent || "").trim();
+  const upgradeCatEl = (el, { slug, label } = {}) => {
+    const catLabel = (label ?? el.textContent ?? "").trim();
+    const catSlug = (slug ?? (el instanceof HTMLElement ? el.dataset.category : "") ?? "").trim();
+    const cat = catSlug || catLabel;
     if (!cat) return null;
     const a = document.createElement("a");
     a.className = "news-cat";
     a.href = makeCategoryHref(cat);
     a.rel = "tag";
-    a.textContent = cat;
+    a.textContent = catLabel || cat;
     el.replaceWith(a);
     return a;
   };
@@ -150,12 +166,16 @@ function initNewsEnhancements() {
   if (!(grid instanceof HTMLElement)) return;
 
   const cards = [...grid.querySelectorAll(".news-card")];
-  const cats = new Set();
+  const cats = new Map(); // slug -> label
   for (const card of cards) {
     const catEl = card.querySelector(".news-card__cat");
     if (!catEl) continue;
-    const link = upgradeCatEl(catEl);
-    if (link) cats.add(link.textContent || "");
+    const label = (catEl.textContent || "").trim();
+    const slug = catEl instanceof HTMLElement ? (catEl.dataset.category || "").trim() : "";
+    const effectiveSlug = slug || label;
+    if (!effectiveSlug) continue;
+    cats.set(effectiveSlug, label || effectiveSlug);
+    upgradeCatEl(catEl, { slug: effectiveSlug, label });
   }
 
   if (cats.size === 0) return;
@@ -182,10 +202,9 @@ function initNewsEnhancements() {
   };
 
   addChip(`/${lang}/news/`, labels.all, !activeCat);
-  [...cats]
-    .filter(Boolean)
-    .sort((a, b) => String(a).localeCompare(String(b), lang))
-    .forEach((cat) => addChip(makeCategoryHref(cat), cat, cat === activeCat));
+  [...cats.entries()]
+    .sort((a, b) => String(a[1]).localeCompare(String(b[1]), lang))
+    .forEach(([slug, label]) => addChip(makeCategoryHref(slug), label, slug === activeCat));
 
   grid.parentElement?.insertBefore(filter, grid);
 }
@@ -214,5 +233,6 @@ function initNewsBacklink() {
 initNavGroups();
 initNavToggle();
 initLanguageA11y();
+initThemeToggle();
 initNewsEnhancements();
 initNewsBacklink();

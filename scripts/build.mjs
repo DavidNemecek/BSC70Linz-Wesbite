@@ -157,6 +157,9 @@ function cleanLegacyMarkdown(markdown, { kind }) {
     .replace(/^\[\s*$/gm, "")
     .replace(/^#\s+/gm, "## ")
     .replace(/^([^\n]+)\n={3,}\s*$/gm, "## $1")
+    .replace(/\*{4,}/g, "**")
+    .replace(/\\([\\`*{}\[\]()#+.!_-])/g, "$1")
+    .replace(/^\*\*\s*$/gm, "")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 
@@ -333,10 +336,11 @@ function buildNewsCard(item) {
   const date = escapeHtml(formatDateDisplay(item.date, item.lang));
   const title = escapeHtml(item.title);
   const teaser = escapeHtml(cleanTeaser(item.teaser));
+  const catSlug = escapeHtml(String(item.category || ""));
   return `<article class="news-card">
   <div class="news-card__meta">
     <span class="news-card__date">${date}</span>
-    <span class="news-card__cat">${escapeHtml(displayCategory(item.category, item.lang))}</span>
+    <span class="news-card__cat" data-category="${catSlug}">${escapeHtml(displayCategory(item.category, item.lang))}</span>
   </div>
   <h2 class="news-card__title"><a href="${item.url}">${title}</a></h2>
   ${teaser ? `<p class="news-card__teaser">${teaser}</p>` : ""}
@@ -428,7 +432,7 @@ async function main() {
     <link rel="alternate" hreflang="x-default" href="${envConfig.origin}/">
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/assets/css/base.css" />
-    <link rel="stylesheet" href="/assets/css/themes/default.css" id="theme" />
+    <link rel="stylesheet" href="/assets/css/themes/light.css" id="theme" />
   </head>
   <body>
     <main class="main">
@@ -447,6 +451,13 @@ async function main() {
       </div>
     </main>
     <script type="module">
+      // Theme: system preference + optional saved override
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+      const link = document.getElementById('theme');
+      if (link) link.setAttribute('href', '/assets/css/themes/' + theme + '.css');
+
       const lang = (navigator.language || '').toLowerCase();
       if (lang.startsWith('en')) location.replace('/en/');
       else location.replace('/de/');
@@ -655,7 +666,9 @@ async function main() {
       const bodyHtml = md.render(bodyClean, { assetPrefix: "/assets/" });
       const contentHtml = `<article class="prose"><header class="news-head"><p class="news-head__meta"><span>${escapeHtml(
         formatDateDisplay(it.date, lang)
-      )}</span> · <span>${escapeHtml(displayCategory(it.category, lang))}</span></p><h1>${escapeHtml(displayTitle)}</h1>${
+      )}</span> · <span data-category="${escapeHtml(String(it.category || ""))}">${escapeHtml(
+        displayCategory(it.category, lang)
+      )}</span></p><h1>${escapeHtml(displayTitle)}</h1>${
         teaser ? `<p class="lead">${escapeHtml(teaser)}</p>` : ""
       }</header>${hero}${fallbackNote}${bodyHtml}</article>`;
       const urlDe = lang === "de" ? it.url : otherExists ? it.url.replace("/en/", "/de/") : "/de/news/";
@@ -703,7 +716,7 @@ async function main() {
     <title>Seite nicht gefunden</title>
     <meta name="robots" content="noindex">
     <link rel="stylesheet" href="/assets/css/base.css">
-    <link rel="stylesheet" href="/assets/css/themes/default.css" id="theme">
+    <link rel="stylesheet" href="/assets/css/themes/light.css" id="theme">
   </head>
   <body>
     <main class="main">
