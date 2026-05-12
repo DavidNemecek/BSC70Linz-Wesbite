@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="{{lang}}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{title}}</title>
+    <meta name="description" content="{{description}}" />
+    <link rel="canonical" href="{{canonical}}" />
+
+    {{hreflangLinks}}
+
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/themes/default.css" id="theme" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Zum Inhalt</a>
+
+    {{header}}
+
+    <main id="main" class="main">
+      <div class="container">
+        {{content}}
+      </div>
+    </main>
+
+    {{footer}}
+
+    <script type="module" src="/assets/js/site.js"></script>
+  </body>
+</html>
+
