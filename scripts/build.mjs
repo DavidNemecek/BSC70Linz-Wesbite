@@ -9,6 +9,75 @@ import { createMarkdownRenderer } from "./lib/markdown.mjs";
 
 const PAGE_SIZE = 20;
 
+const NAV_GROUPS = {
+  start: { order: 0, labels: { de: "Start", en: "Home" } },
+  club: { order: 10, labels: { de: "Verein", en: "Club" } },
+  join: { order: 40, labels: { de: "Mitmachen", en: "Join" } },
+  contact: { order: 60, labels: { de: "Kontakt", en: "Contact" } },
+};
+
+const NAV_GROUP_KEY_BY_LABEL = new Map([
+  ["start", "start"],
+  ["home", "start"],
+  ["verein", "club"],
+  ["club", "club"],
+  ["mitmachen", "join"],
+  ["join", "join"],
+  ["kontakt", "contact"],
+  ["contact", "contact"],
+]);
+
+function navGroupKeyFromLabel(label) {
+  const l = String(label || "")
+    .trim()
+    .toLowerCase();
+  if (!l) return "club";
+  return NAV_GROUP_KEY_BY_LABEL.get(l) || "club";
+}
+
+function navGroupLabelFromKey(key, lang) {
+  const g = NAV_GROUPS[key];
+  if (!g) return lang === "en" ? "Club" : "Verein";
+  return g.labels[lang] || g.labels.de;
+}
+
+function assertPageLangParity(pagesDe, pagesEn) {
+  const de = new Map(pagesDe.map((p) => [p.slug, p]));
+  const en = new Map(pagesEn.map((p) => [p.slug, p]));
+  const onlyDe = [...de.keys()].filter((s) => !en.has(s));
+  const onlyEn = [...en.keys()].filter((s) => !de.has(s));
+  if (onlyDe.length || onlyEn.length) {
+    throw new Error(
+      `Page parity error: missing slugs. Only DE: ${onlyDe.join(", ") || "-"}; only EN: ${onlyEn.join(", ") || "-"}`
+    );
+  }
+  const mism = [];
+  for (const [slug, d] of de.entries()) {
+    const e = en.get(slug);
+    if (!e) continue;
+    if (Boolean(d.published) !== Boolean(e.published)) mism.push(`${slug}: published mismatch`);
+    if (Boolean(d.navHidden) !== Boolean(e.navHidden)) mism.push(`${slug}: navHidden mismatch`);
+  }
+  if (mism.length) throw new Error(`Page parity error: ${mism.join("; ")}`);
+}
+
+function canonicalizeNav(pagesThis, pagesCanonical, lang) {
+  const canonBySlug = new Map(pagesCanonical.map((p) => [p.slug, p]));
+  return pagesThis.map((p) => {
+    const canon = canonBySlug.get(p.slug);
+    const groupKey = canon ? canon.navGroupKey : p.navGroupKey;
+    return {
+      ...p,
+      navGroupKey: groupKey,
+      navGroup: navGroupLabelFromKey(groupKey, lang),
+      navOrder: canon && canon.navOrder !== undefined ? canon.navOrder : p.navOrder,
+      navHidden: canon ? canon.navHidden : p.navHidden,
+      published: canon ? canon.published : p.published,
+      navLabel: p.navLabel || (canon ? canon.navLabel : p.navLabel),
+    };
+  });
+}
+
 function parseArgs(argv) {
   const out = { env: process.env.BSC_ENV || "staging" };
   for (let i = 2; i < argv.length; i++) {
@@ -269,7 +338,6 @@ function buildNavHtml(pages, { lang, activeUrl }) {
     if (p.published === false) return false;
     if (p.navHidden) return false;
     if (p.slug === "index") return false;
-    if (lang === "en" && p.translationStatus === "draft" && isEmptyBody(p.body)) return false;
     return true;
   });
   const byGroup = new Map();
@@ -374,12 +442,14 @@ function normalizePageMeta({ data, content }, { lang }) {
   const isHome = slug === "index" || slug === "" || slug === "home";
   const url = isHome ? `/${lang}/` : `/${lang}/${slug}/`;
   const heroImage = data.heroImage ? String(data.heroImage) : "";
+  const navGroupKey = navGroupKeyFromLabel(data.navGroup);
   return {
     kind: "page",
     lang,
     title,
     slug: isHome ? "index" : slug,
     navGroup: data.navGroup,
+    navGroupKey,
     navOrder: data.navOrder,
     navLabel: data.navLabel,
     navHidden: data.navHidden === true,
@@ -573,13 +643,20 @@ async function main() {
   // Content load
   const pageEntriesDe = await loadMarkdownEntries(path.join(paths.contentDir, "pages", "de"));
   const pageEntriesEn = await loadMarkdownEntries(path.join(paths.contentDir, "pages", "en"));
-  const pagesDe = pageEntriesDe.map((e) => normalizePageMeta(e, { lang: "de" }));
-  const pagesEn = pageEntriesEn.map((e) => normalizePageMeta(e, { lang: "en" }));
+  const pagesDeRaw = pageEntriesDe.map((e) => normalizePageMeta(e, { lang: "de" }));
+  const pagesEnRaw = pageEntriesEn.map((e) => normalizePageMeta(e, { lang: "en" }));
 
   const newsEntriesDe = await loadMarkdownEntries(path.join(paths.contentDir, "news", "de"));
   const newsEntriesEn = await loadMarkdownEntries(path.join(paths.contentDir, "news", "en"));
   const newsDe = newsEntriesDe.map((e) => normalizeNewsMeta(e, { lang: "de" })).sort(compareNewsDesc);
   const newsEn = newsEntriesEn.map((e) => normalizeNewsMeta(e, { lang: "en" })).sort(compareNewsDesc);
+
+  // Enforce DE/EN parity for navigation/page availability so the nav cannot diverge.
+  assertPageLangParity(pagesDeRaw, pagesEnRaw);
+
+  // Canonicalize navigation: DE defines ordering + grouping; EN reuses it with translated group labels.
+  const pagesDe = canonicalizeNav(pagesDeRaw, pagesDeRaw, "de");
+  const pagesEn = canonicalizeNav(pagesEnRaw, pagesDeRaw, "en");
 
   // Legacy mapping (used to avoid linking to the old Joomla site)
   const redirects = JSON.parse(await readText(path.join(paths.contentDir, "legacy-redirects.json")));

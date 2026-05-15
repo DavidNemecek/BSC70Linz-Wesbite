@@ -109,6 +109,48 @@ async function checkContentFrontmatter() {
     }
   }
 
+  // Page parity rule: slugs and publish/navHidden must match across DE/EN
+  const pageDirDe = path.join(paths.contentDir, "pages", "de");
+  const pageDirEn = path.join(paths.contentDir, "pages", "en");
+  if ((await fileExists(pageDirDe)) && (await fileExists(pageDirEn))) {
+    const pagesDe = await listFilesRecursive(pageDirDe, { filter: (f) => f.endsWith(".md") });
+    const pagesEn = await listFilesRecursive(pageDirEn, { filter: (f) => f.endsWith(".md") });
+
+    const parse = async (filePath) => {
+      const raw = await readText(filePath);
+      const parsed = matter(raw);
+      const data = parsed.data || {};
+      const slug = String(data.slug || "").trim();
+      const published = data.published !== false;
+      const navHidden = data.navHidden === true;
+      return { slug, published, navHidden, filePath };
+    };
+
+    const de = new Map();
+    for (const fp of pagesDe) {
+      const p = await parse(fp);
+      if (!p.slug) continue;
+      de.set(p.slug, p);
+    }
+
+    const en = new Map();
+    for (const fp of pagesEn) {
+      const p = await parse(fp);
+      if (!p.slug) continue;
+      en.set(p.slug, p);
+    }
+
+    for (const slug of de.keys()) if (!en.has(slug)) issues.push({ file: pageDirEn, issue: `Missing EN page for slug: ${slug}` });
+    for (const slug of en.keys()) if (!de.has(slug)) issues.push({ file: pageDirDe, issue: `Missing DE page for slug: ${slug}` });
+
+    for (const [slug, d] of de.entries()) {
+      const e = en.get(slug);
+      if (!e) continue;
+      if (d.published !== e.published) issues.push({ file: e.filePath, issue: `Published mismatch for slug ${slug} (DE vs EN)` });
+      if (d.navHidden !== e.navHidden) issues.push({ file: e.filePath, issue: `navHidden mismatch for slug ${slug} (DE vs EN)` });
+    }
+  }
+
   return { ok: issues.length === 0, issues };
 }
 

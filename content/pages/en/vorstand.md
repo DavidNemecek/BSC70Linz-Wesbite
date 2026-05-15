@@ -4,7 +4,6 @@ slug: "vorstand"
 navGroup: "Club"
 navOrder: 30
 navLabel: "Board"
-navHidden: true
 translationStatus: "draft"
 translatedFrom: "content/pages/de/vorstand.md"
 ---
