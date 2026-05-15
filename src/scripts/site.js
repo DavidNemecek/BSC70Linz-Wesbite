@@ -117,7 +117,8 @@ function initNavGroups() {
       summary.addEventListener("click", (e) => {
         if (!isHoverDesktop()) return;
         // Desktop hover UX: opening is hover-driven; allow click only to collapse.
-        if (!details.open) e.preventDefault();
+        const isPointerClick = typeof e.detail === "number" && e.detail > 0;
+        if (isPointerClick && !details.open) e.preventDefault();
       });
     }
 
