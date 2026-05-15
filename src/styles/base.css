@@ -343,13 +343,14 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
 .prose blockquote :last-child{ margin-bottom:0; }
 .prose table{
   width:100%;
+  table-layout:fixed;
   border-collapse:collapse;
   border:1px solid var(--color-border);
   border-radius:12px;
   overflow:hidden;
   margin:16px 0;
 }
-.prose th, .prose td{ padding:10px 12px; border-bottom:1px solid var(--color-border); vertical-align:top; }
+.prose th, .prose td{ padding:10px 12px; border-bottom:1px solid var(--color-border); vertical-align:top; overflow-wrap:anywhere; }
 .prose th{ text-align:left; background:var(--color-surface); }
 .prose tr:last-child td{ border-bottom:0; }
 .prose pre{
@@ -359,6 +360,7 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
   border:1px solid var(--color-border);
   background:var(--color-surface);
 }
+.prose iframe{ display:block; width:100%; max-width:100%; }
 .prose :where(img,video){ max-width:100%; height:auto; }
 .prose img{
   display:block;
@@ -441,8 +443,9 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
   border-radius:var(--radius);
   box-shadow:var(--shadow);
   padding:16px;
+  overflow-wrap:anywhere;
 }
-.news-card__meta{ display:flex; gap:10px; color:var(--color-muted); font-size:13px; }
+.news-card__meta{ display:flex; gap:10px; color:var(--color-muted); font-size:13px; flex-wrap:wrap; }
 .news-card__title{ margin:8px 0 0; font-size:18px; }
 .news-card__teaser{ margin:8px 0 0; color:var(--color-muted); }
 .news-head__meta{ color:var(--color-muted); margin:0 0 10px; }
