@@ -101,6 +101,11 @@ function initNavToggle() {
   btn.textContent = labels.menu;
 
   const mq = window.matchMedia("(max-width: 860px)");
+  const ensureDesktopVisible = () => {
+    if (mq.matches) return;
+    if (panel.hidden) panel.hidden = false;
+    btn.setAttribute("aria-expanded", "false");
+  };
   const sync = () => {
     if (mq.matches) {
       panel.hidden = true;
@@ -116,6 +121,10 @@ function initNavToggle() {
   else if (typeof mq.addListener === "function") mq.addListener(sync);
 
   btn.addEventListener("click", () => {
+    if (!mq.matches) {
+      ensureDesktopVisible();
+      return;
+    }
     const willOpen = panel.hidden;
     panel.hidden = !willOpen;
     btn.setAttribute("aria-expanded", willOpen ? "true" : "false");
@@ -126,6 +135,10 @@ function initNavToggle() {
   document.addEventListener(
     "click",
     (e) => {
+      if (!mq.matches) {
+        ensureDesktopVisible();
+        return;
+      }
       if (panel.hidden) return;
       const target = e.target;
       if (!(target instanceof Element)) return;
@@ -141,6 +154,11 @@ function initNavToggle() {
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     const hadGroups = closeOpenNavGroups();
+    if (!mq.matches) {
+      ensureDesktopVisible();
+      syncHeaderHeight();
+      return;
+    }
     if (!panel.hidden) {
       panel.hidden = true;
       btn.setAttribute("aria-expanded", "false");
