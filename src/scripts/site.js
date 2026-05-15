@@ -1,5 +1,6 @@
 import { initTheme, toggleTheme } from "./theme.js";
 
+document.documentElement.classList.remove("no-js");
 document.documentElement.classList.add("js");
 initTheme();
 

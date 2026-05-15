@@ -21,7 +21,6 @@ description: "Badminton in Linz: News, Trainingszeiten, Schnuppertraining und Ko
         <a class="btn btn--ghost" href="/de/trainingszeiten/">Trainingszeiten</a>
       </div>
     </div>
-
     <aside class="hero__card" aria-label="Info">
       <h2 class="hero__card-title">Trainieren & mitspielen</h2>
       <p>Interesse? Starte unkompliziert mit einem <a href="/de/schnuppertraining/">Schnuppertraining</a> oder schau dir die <a href="/de/trainingszeiten/">Trainingszeiten</a> an.</p>

@@ -85,6 +85,8 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
 
 .nav{ display:flex; gap:14px; align-items:center; justify-content:flex-end; }
 .nav__panel{ display:flex; gap:14px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+.nav__panel[hidden]{ display:none !important; }
+.no-js .nav__panel[hidden]{ display:flex !important; }
 .nav__toggle{
   display:none;
   align-items:center; justify-content:center;
@@ -138,6 +140,7 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
   .nav__link, .nav__sublink, .nav__summary{ width:100%; justify-content:space-between; }
   .nav__dropdown{ position:static; box-shadow:none; border-radius:10px; }
 }
+.no-js .nav__toggle{ display:none !important; }
 .lang{
   display:inline-flex; align-items:center; justify-content:center;
   width:40px; height:38px;
@@ -226,6 +229,12 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
   font-size:clamp(16px, 2.2vw, 19px);
 }
 .hero__actions{ display:flex; flex-wrap:wrap; gap:10px; }
+.section--hero .btn--ghost{
+  color:var(--color-hero-text);
+  border-color:color-mix(in srgb, var(--color-hero-text) 24%, transparent);
+  background:color-mix(in srgb, var(--color-hero-bg) 55%, transparent);
+}
+.section--hero .btn--ghost:hover{ background:color-mix(in srgb, var(--color-hero-text) 12%, transparent); }
 .hero__media{
   position:absolute;
   inset:0;

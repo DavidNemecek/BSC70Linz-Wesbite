@@ -22,7 +22,6 @@ description: "Badminton in Linz: news, training times, trial training, and conta
         <a class="btn btn--ghost" href="/en/trainingszeiten/">Training times</a>
       </div>
     </div>
-
     <aside class="hero__card" aria-label="Info">
       <h2 class="hero__card-title">Join a session</h2>
       <p>Interested? Start with a <a href="/en/schnuppertraining/">trial training</a> or check the <a href="/en/trainingszeiten/">training times</a>.</p>
