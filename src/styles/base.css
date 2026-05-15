@@ -116,7 +116,7 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
 }
 .nav__link:hover, .nav__sublink:hover, .nav__summary:hover{ background:var(--color-surface); text-decoration:none; }
 .nav__link.is-active, .nav__sublink.is-active{ border-color:var(--color-border); background:var(--color-surface); }
-.nav__group{ position:relative; }
+.nav__group{ position:relative; display:inline-block; padding-bottom:12px; }
 .nav__summary{ cursor:pointer; list-style:none; }
 .nav__summary::after{ content:"▾"; color:var(--color-muted); font-size:12px; margin-left:8px; }
 .nav__group[open] .nav__summary::after{ content:"▴"; }
@@ -127,8 +127,10 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
   background:color-mix(in srgb, var(--color-hero-text) 10%, transparent);
 }
 .nav__dropdown{
-  position:absolute; right:0; top:100%;
+  position:absolute; left:0; top:100%;
   min-width:220px;
+  width:max-content;
+  max-width:min(360px, calc(100vw - 32px));
   background:var(--color-bg);
   border:1px solid var(--color-border);
   border-radius:12px;
@@ -145,7 +147,7 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
 .nav__dropdown::before{
   content:"";
   position:absolute;
-  left:0; right:0;
+  left:-14px; right:-14px;
   top:-12px;
   height:12px; /* hover bridge so the menu doesn't close when moving down */
 }
@@ -155,6 +157,7 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
   .nav__toggle{ display:inline-flex; }
   .nav__panel{ width:100%; flex-direction:column; align-items:stretch; gap:10px; }
   .nav__list{ flex-direction:column; align-items:stretch; }
+  .nav__group{ display:block; padding-bottom:0; }
   .nav__link, .nav__sublink, .nav__summary{ width:100%; justify-content:space-between; }
   .nav__dropdown{ position:static; box-shadow:none; border-radius:10px; padding-top:8px; }
   .nav__dropdown::before{ display:none; }
