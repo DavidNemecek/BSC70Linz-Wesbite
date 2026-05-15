@@ -121,6 +121,11 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
 .nav__summary::after{ content:"▾"; color:var(--color-muted); font-size:12px; margin-left:8px; }
 .nav__group[open] .nav__summary::after{ content:"▴"; }
 .nav__summary::-webkit-details-marker{ display:none; }
+.nav__group[data-active="true"] > .nav__summary{ border-color:var(--color-border); background:var(--color-surface); }
+.page--home .nav__group[data-active="true"] > .nav__summary{
+  border-color:color-mix(in srgb, var(--color-hero-text) 18%, transparent);
+  background:color-mix(in srgb, var(--color-hero-text) 10%, transparent);
+}
 .nav__dropdown{
   position:absolute; right:0; top:calc(100% + 6px);
   min-width:220px;

@@ -85,11 +85,59 @@ function closeOpenNavGroups() {
 function initNavGroups() {
   const groups = [...document.querySelectorAll(".nav__group")];
   if (groups.length === 0) return;
+
+  const hoverMq = window.matchMedia("(hover: hover) and (pointer: fine)");
+  const mobileMq = window.matchMedia("(max-width: 860px)");
+
+  const isHoverDesktop = () => hoverMq.matches && !mobileMq.matches;
+
+  const closeAll = (except) => {
+    for (const other of groups) {
+      if (other === except) continue;
+      other.open = false;
+    }
+  };
+
   for (const details of groups) {
     details.addEventListener("toggle", () => {
       if (!details.open) return;
-      for (const other of groups) if (other !== details) other.open = false;
+      closeAll(details);
     });
+
+    const summary = details.querySelector(":scope > summary");
+    if (summary instanceof HTMLElement) {
+      let hadPointerDown = false;
+      summary.addEventListener("pointerdown", () => {
+        hadPointerDown = true;
+        setTimeout(() => {
+          hadPointerDown = false;
+        }, 0);
+      });
+      summary.addEventListener("click", (e) => {
+        if (!isHoverDesktop()) return;
+        // Desktop hover UX: pointer clicks should not "stick" it open/closed.
+        if (hadPointerDown) e.preventDefault();
+      });
+    }
+
+    details.addEventListener("pointerenter", () => {
+      if (!isHoverDesktop()) return;
+      details.open = true;
+      closeAll(details);
+    });
+
+    details.addEventListener("pointerleave", () => {
+      if (!isHoverDesktop()) return;
+      details.open = false;
+    });
+
+    const links = [...details.querySelectorAll("a.nav__sublink")];
+    for (const a of links) {
+      a.addEventListener("click", () => {
+        // Close immediately so it doesn't look "stuck" during navigation.
+        details.open = false;
+      });
+    }
   }
 }
 

@@ -218,7 +218,7 @@ function buildNavHtml(pages, { lang, activeUrl }) {
     }
     const anyActive = g.items.some((it) => it.url === activeUrl);
     parts.push(`<li class="nav__item nav__item--group">`);
-    parts.push(`<details class="nav__group"${anyActive ? " open" : ""}>`);
+    parts.push(`<details class="nav__group"${anyActive ? ' data-active="true"' : ""}>`);
     parts.push(`<summary class="nav__summary">${escapeHtml(g.group)}</summary>`);
     parts.push(`<div class="nav__dropdown" role="group" aria-label="${escapeHtml(g.group)}">`);
     for (const it of g.items) {
