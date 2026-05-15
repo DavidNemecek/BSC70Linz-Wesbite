@@ -1,7 +1,7 @@
 ---
 title: "Vorankündigung Sommerfest + Generalversammlung"
 slug: "vorankuendigung-sommerfest-generalversammlung"
-date: "2026-05-12"
+date: "2011-04-01"
 category: "mitglieder"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/145-vorankuendigung-sommerfest--generalversammlung"
 translationStatus: "draft"

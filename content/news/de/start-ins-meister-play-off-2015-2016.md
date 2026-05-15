@@ -1,7 +1,7 @@
 ---
 title: "Start ins Meister Play-off 2015/2016"
 slug: "start-ins-meister-play-off-2015-2016"
-date: "2016-04-09"
+date: "2016-04-01"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------------------------------- Am Sonntag, den 3. April 2016, ab 11 Uhr kämpft die 1. Mannschaft des BSC 70 Linz im Bunde…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/549-start-ins-meister-play-off-2015-2016"
@@ -60,5 +60,5 @@ hier:
   
 [http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=3BC7846C-E2AD-43B6-9537-78AD83EB3B09&match=81](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=3BC7846C-E2AD-43B6-9537-78AD83EB3B09&match=81)
 
-*   [< Zurück](/de/news/rueckspiel-im-bundesliga-halbfinale-2015-2016/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/552-rueckspiel-im-bundesliga-halbfinale-2015-2016)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/546-vorbericht-bundesliga-gegen-serienmeister-wien-2)

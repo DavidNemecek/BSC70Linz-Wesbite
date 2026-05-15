@@ -1,7 +1,7 @@
 ---
 title: "OÖMM – 2 mal gegen UBC Neuhofen"
 slug: "ooemm-2-mal-gegen-ubc-neuhofen"
-date: "2026-05-12"
+date: "2015-11-19"
 category: "ooe-meisterschaft"
 teaser: "--------------------------------------------------------------------------- Am Mittwoch, den 18.11. spielten unsere 2er und 4er Mannschaft gleichzeitig in Neuhofen das Abschluss…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/518-ooemm-2-mal-gegen-ubc-neuhofen"
@@ -25,5 +25,5 @@ Details BSC 70 Linz II: [Tournamentsoftware](http://obv.tournamentsoftware.com/s
 
 Details BSC 70 Linz IV: [Tournamentsoftware](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=63EC460E-E2B5-4C0D-8531-319750A7FDF2&match=132)
 
-*   [< Zurück](/de/news/3-herbstmeistertitel-fuer-die-teams-des-bsc-70-linz/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/521-3x-herbstmeistertitel-fuer-die-team-des-bsc-70-linz)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/511-1-landesliga-bsc-70-linz-2-gegen-union-windischgarsten-1)

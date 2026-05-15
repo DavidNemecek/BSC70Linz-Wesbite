@@ -1,7 +1,7 @@
 ---
 title: "Bundesligastart zur Saison 2016/2017"
 slug: "bundesligastart-zur-saison-2016-2017"
-date: "2016-10-15"
+date: "2016-10-09"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------------------------------- Am Sa. 15.10.2016 startet der Askö BSC 70 Linz gegen den Mannschaftsstaatsmeister der Sais…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/563-bundesligastart-zur-saison-2016-2017"

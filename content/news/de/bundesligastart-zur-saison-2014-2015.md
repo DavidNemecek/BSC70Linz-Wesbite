@@ -1,7 +1,7 @@
 ---
 title: "Bundesligastart zur Saison 2014/2015"
 slug: "bundesligastart-zur-saison-2014-2015"
-date: "2014-10-11"
+date: "2014-10-08"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------------------------------- Am Sa. 11.10.2014 startet der Askö BSC 70 Linz 5 Monate nach dem Vize-Staatsmeistertitel i…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/429-bundesligastart-zur-saison-2014-2015"

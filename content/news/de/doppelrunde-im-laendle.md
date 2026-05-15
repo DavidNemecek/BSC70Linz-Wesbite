@@ -1,7 +1,7 @@
 ---
 title: "Doppelrunde im Ländle"
 slug: "doppelrunde-im-laendle"
-date: "2022-02-13"
+date: "2022-02-11"
 category: "bundesliga"
 teaser: "--------------------------------------------------------- am 12.2. und 13.2.2022 wird es in einer zusätzlichen Doppelrunde spannend für den BSC 70 Linz. Am Samstag folgt das pla…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/705-doppelrunde-im-laendle"

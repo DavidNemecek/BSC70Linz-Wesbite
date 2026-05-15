@@ -1,11 +1,9 @@
 ---
 title: "Warenkorb"
 slug: "warenkorb"
-navGroup: "Galerie"
-navOrder: 999
-navLabel: "Fotos"
-navHidden: true
-published: false
+navGroup: "Verein"
+navOrder: 10
+navLabel: "Warenkorb"
 translationStatus: "reviewed"
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: "8. Runde in der OÖ Landesliga gegen BC Windischgarsten"
 slug: "8-runde-in-der-ooe-landesliga-gegen-bc-windischgarsten"
-date: "2026-05-12"
+date: "2014-03-03"
 category: "ooe-meisterschaft"
 teaser: "--------------------------------------------------------------------------------------------------------------------------- In der 1. Landesliga spielte der BSC 70 Linz 3 am Fas…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/374-8-runde-in-der-ooe-landesliga-gegen-bc-windischgarsten"

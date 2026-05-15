@@ -1,7 +1,7 @@
 ---
 title: "OÖ. DERBY gegen Traun"
 slug: "ooe-derby-gegen-traun"
-date: "2010-11-21"
+date: "2010-11-16"
 category: "bundesliga"
 teaser: "-------------------------------------------------------- kommendes Wochenende kämpft unsere Bundesligamannschaft gegen Titelverteidiger Traun im OÖ. Derby Askö BSC 70 Linz gegen…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/103-23-runde-bundesliga"
@@ -10,6 +10,8 @@ translationStatus: "reviewed"
 
 [OÖ. DERBY gegen Traun](/de/news/ooe-derby-gegen-traun/)
 --------------------------------------------------------
+
+![](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2010_5ru_traun.jpg)
 
 kommendes Wochenende kämpft unsere Bundesligamannschaft gegen Titelverteidiger Traun im OÖ. Derby
 

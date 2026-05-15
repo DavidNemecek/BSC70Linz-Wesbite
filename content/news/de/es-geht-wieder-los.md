@@ -1,7 +1,7 @@
 ---
 title: "Es geht wieder los"
 slug: "es-geht-wieder-los"
-date: "2021-05-21"
+date: "2021-05-19"
 category: "mitglieder"
 teaser: "-------------------------------------------------- ENDLICH, es kann wieder losgehen! Die Mitglieder haben in einem persönlichen Mail die detaillierten Infos erhalten. Trainingss…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/688-es-geht-wieder-los"

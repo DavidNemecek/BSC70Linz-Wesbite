@@ -1,7 +1,7 @@
 ---
 title: "Sommertraining für Erwachsene & Nachwuchs"
 slug: "sommertraining-fuer-erwachsene-nachwuchs"
-date: "2026-05-12"
+date: "2014-06-11"
 category: "mitglieder"
 teaser: "----------------------------------------------------------------------------------------------- Auch im Jahre 2014 (11.-14. August 2014) wollen wir wieder Trainingskurse für uns…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/411-sommertraining-fuer-erwachsene-nachwuchs"

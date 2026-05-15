@@ -1,7 +1,7 @@
 ---
 title: "ASV Pressbaum gewinnt 3. Halbfinale"
 slug: "asv-pressbaum-gewinnt-3-halbfinale"
-date: "2026-05-12"
+date: "2010-04-11"
 category: "bundesliga"
 teaser: "----------------------------------------------------------------------------------- ASV Pressbaum - Askö BSC 70 Linz ENDstand: 4:4 (10:8 Sätzen) Auch im 3. Halbfinale konnte sic…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/77-3-halbfinale-bundesliga"

@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga Halbfinale - Askö Traun - BSC 70 Linz"
 slug: "bundesliga-halbfinale-askoe-traun-bsc-70-linz"
-date: "2021-04-10"
+date: "2021-04-02"
 category: "bundesliga"
 teaser: "----------------------------------------------------------------------------------------------------------- Am 10.4.2021, 15 Uhr (live auf YouTube) wird das brisante OÖ. Derby u…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/687-bundesliga-halbfinale-askoe-traun-bsc-70-linz"
@@ -27,4 +27,4 @@ Wie auch schon zuletzt im Derby wird es diesmal wieder Live Streams auf YouTube 
 Bis zu 4 Kameras werden die beiden Vereine zur bestmöglichen Live "Berichterstattung" vor Ort haben.
 
 *   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/695-bundesliga-start-mit-ooe-derby-am-30-10-2021)
-*   [Weiter >](/de/news/re-live-streams-bundesliga/)
+*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/686-re-live-streams-bundesliga)

@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz III - bittere Niederlage in Kirchdorf"
 slug: "bsc-70-linz-iii-bittere-niederlage-in-kirchdorf"
-date: "2026-05-12"
+date: "2013-10-17"
 category: "ooe-meisterschaft"
 teaser: "-------------------------------------------------------------------------------------------------------------- Der BSC 70 Linz III unterlag in der 1. Landesliga gegen Union Kirc…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/333-bsc-70-linz-iii-bittere-niederlage-in-kirchdorf"
@@ -21,5 +21,5 @@ Im Einsatz für den BSC 70 Linz waren: Kosorus Hilda, Wu Christina bzw. Arnold N
 
 Ergebnisse im Detail: [Union Kirchdorf - BSC 70 Linz III](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=A9240FAE-F3B2-4605-8021-F3A0F040AB71&match=81)
 
-*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/338-bsc-70-linz-iii-und-iv-gewinnen-mit-jeweils-53)
+*   [< Zurück](/de/news/bsc-70-linz-iii-und-iv-gewinnen-mit-jeweils-5-3/)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/326-erfolgreicher-saisonauftakt-gegen-amtierenden-landesmeister)

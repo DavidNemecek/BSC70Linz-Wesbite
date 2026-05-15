@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga - Neuverpflichtungen für die Saison 2022/2023"
 slug: "bundesliga-neuverpflichtungen-fuer-die-saison-2022-2023"
-date: "2026-05-12"
+date: "2022-08-11"
 category: "bundesliga"
 teaser: "----------------------------------------------------------------------------------------------------------------------------- Mit dem gewinn des Mannschaft Staatsmeistertitels h…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/716-bundesliga-neuverpflichtungen-fuer-die-saison-2022-2023"
@@ -35,5 +35,5 @@ eine weitere erfahrene internationale Spielerin für den BSC 70 Linz verpflichte
 
 Der komplette Kader des BSC 70 Linz wird mit 15. August 2022 veröffentlicht und diesen findest du hier [\>>>>](https://www.bsc70linz.at/cms/index.php/mannschaften/team/43/1 "Bundesliga Mannschaft 22/23")
 
-*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/718-saisonplan-bundesliga)
+*   [< Zurück](/de/news/saisonplan-bundesliga/)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/713-bsc70linz-mannschaftsmeister-2021-2022)

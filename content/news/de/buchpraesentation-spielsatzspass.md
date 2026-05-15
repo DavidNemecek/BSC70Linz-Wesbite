@@ -1,7 +1,7 @@
 ---
 title: "Buchpräsentation \"SpielSatzSpass\""
 slug: "buchpraesentation-spielsatzspass"
-date: "2026-05-12"
+date: "2019-10-12"
 category: "mitglieder"
 teaser: "------------------------------------------------------------------------------- Die Buchpräsentation SPIELSATZSPASS im alten Rathaus, Linz war ein voller Erfolg! Der Pressesaal …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/645-buchpraesentation"
@@ -21,4 +21,4 @@ Danke an alle Gäste, Vizebürgermeisterin Karin Hörzing und den Egoth Verlag.
 [![Buchpraesentation 2019](assets/uploads/blank-f9b611bf8e.gif)](https://www.bsc70linz.at/cms/index.php/fotos/event/Buchpraesentation2019) [![Buchpraesentation 2019](assets/uploads/blank-f9b611bf8e.gif)](https://www.bsc70linz.at/cms/index.php/fotos/event/Buchpraesentation2019) [![Buchpraesentation 2019](assets/uploads/blank-f9b611bf8e.gif)](https://www.bsc70linz.at/cms/index.php/fotos/event/Buchpraesentation2019) [![Buchpraesentation 2019](assets/uploads/blank-f9b611bf8e.gif)](https://www.bsc70linz.at/cms/index.php/fotos/event/Buchpraesentation2019) [![Buchpraesentation 2019](assets/uploads/blank-f9b611bf8e.gif)](https://www.bsc70linz.at/cms/index.php/fotos/event/Buchpraesentation2019)
 
 *   [< Zurück](/de/news/buchankauf-spielsatzspass-mitgliederaktion/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/643-merchandising-spielsatzspass)
+*   [Weiter >](/de/news/merchandising-spielsatzspass-at/)

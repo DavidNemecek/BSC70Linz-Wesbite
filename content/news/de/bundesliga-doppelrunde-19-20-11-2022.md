@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga Doppelrunde 19./20.11.2022"
 slug: "bundesliga-doppelrunde-19-20-11-2022"
-date: "2022-11-20"
+date: "2022-11-18"
 category: "bundesliga"
 teaser: "--------------------------------------------------------------------------------------- \"Traun und Wolfurt werden echte Gradmesser und wir müssen wieder zu unseren Stärken der v…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/722-bundesliga-doppelrunde-19-20-11-2022"

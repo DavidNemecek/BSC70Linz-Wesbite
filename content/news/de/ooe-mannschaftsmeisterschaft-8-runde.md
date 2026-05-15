@@ -1,7 +1,7 @@
 ---
 title: "OÖ. Mannschaftsmeisterschaft - 8. Runde"
 slug: "ooe-mannschaftsmeisterschaft-8-runde"
-date: "2026-05-12"
+date: "2012-03-06"
 category: "ooe-meisterschaft"
 teaser: "----------------------------------------------------------------------------------------- 2\\. + 3. Mannschaft weiter ungeschlagen in der OÖ. Meisterschaft Der Paarlauf in Richtu…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/210-ooe-mannschaftsmeisterschaft-8-runde"
@@ -40,4 +40,4 @@ Auch unser Damendoppel (Edelmüller/Schiefermair) konnte sich gegen die gute Dam
 [](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=B4E7D6F8-6975-4A68-A7EF-24370C4CCF96&match=29)
 
 [](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=B4E7D6F8-6975-4A68-A7EF-24370C4CCF96&match=29)*   [](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=B4E7D6F8-6975-4A68-A7EF-24370C4CCF96&match=29)[< Zurück](/de/news/bsc-70-linz-iii-mannschaftsmeister-2011-2012/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/208-2-3-mannschaft-weiter-ungeschlagen-in-der-ooe-meisterschaft)
+*   [Weiter >](/de/news/ooe-mannschaftsmeisterschaft-7-runde/)

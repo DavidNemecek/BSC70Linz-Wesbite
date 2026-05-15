@@ -1,7 +1,7 @@
 ---
 title: "Niederlage gegen VRC im 1. Spiel der Doppelrunde"
 slug: "niederlage-gegen-vrc-im-1-spiel-der-doppelrunde"
-date: "2026-05-12"
+date: "2018-10-14"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------------------------------- Mit schlechten Vorzeichen gingen wir in die Begegnung im Wiener Max…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/616-niederlage-gegen-vrc-im-1-spiel-der-doppelrunde"
@@ -360,5 +360,5 @@ Spielpunkte
 
 764
 
-*   [< Zurück](/de/news/tabellenplatz-2-nach-der-bundesliga-doppelrunde/)
-*   [Weiter >](/de/news/8-0-auftaktsieg-gegen-alkoven/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/617-tabellenplatz-2-nachder-bundesliga-doppelrunde)
+*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/615-8-0-auftaktsieg-gegen-alkoven)

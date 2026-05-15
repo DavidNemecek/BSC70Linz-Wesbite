@@ -1,7 +1,7 @@
 ---
 title: "Bericht Doppelrunde Bundesliga gegen WBH Wien & Wolfurt"
 slug: "bericht-doppelrunde-bundesliga-gegen-wbh-wien-wolfurt"
-date: "2016-10-29"
+date: "2016-10-30"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------------------------------------------------------------------- BSC 70 Linz gewinnt Heimspiel Premiere gegen WBH Wien …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/567-bericht-2-runde-bundesliga-gegeb-wbh-wien"
@@ -265,4 +265,4 @@ GD
 13-21 21-12 13-21
 
 *   [< Zurück](/de/news/bsc-70-linz-mit-5-3-derbysieger-gegen-askoe-traun/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/566-vorbericht-bundesliga-doppelrunde-24-25-10-2016)
+*   [Weiter >](/de/news/vorbericht-bundesliga-doppelrunde-29-30-10-2016/)

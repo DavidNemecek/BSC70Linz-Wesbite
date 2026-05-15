@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga - 7. Runde"
 slug: "bundesliga-7-runde"
-date: "2026-05-12"
+date: "2008-12-07"
 category: "bundesliga"
 teaser: "----------------------------------------------------- Bericht -7. Runde Bundesliga BSC 70 Linz - ASV Pressbaum - 4 : 4 Die 7. Runde der Badminton Bundesliga zwischen BSC 70 Linz…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/37-bundesliga-7-runde"

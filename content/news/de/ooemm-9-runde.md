@@ -1,7 +1,7 @@
 ---
 title: "OÖMM - 9. Runde"
 slug: "ooemm-9-runde"
-date: "2026-05-12"
+date: "2009-03-10"
 category: "ooe-meisterschaft"
 teaser: "------------------------------------------ BSC 70 Linz II - OÖ. Landesmeister 2008/2009 in der Mannschaft Das Team des BSC 70 Linz II hat am gestrigen Montag mit einem 6:2 Sieg …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/15-ooemm-3-runde"
@@ -195,4 +195,4 @@ Arnold Nikita, Baumgartner Hermann, Böhm Andreas, Farooq Tariq, Hechenberger RE
 ###### 3092
 
 *   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/17-2-runde-ooemm)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/28-ooemm-mannschafts-landesmeistertitel-so-gut-wie-verteidigt)
+*   [Weiter >](/de/news/ooemm-mannschafts-landesmeistertitel-so-gut-wie-verteidigt/)

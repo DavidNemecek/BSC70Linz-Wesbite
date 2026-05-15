@@ -1,7 +1,7 @@
 ---
 title: "Vorbericht 2. Semifinale Bundesliga"
 slug: "vorbericht-2-semifinale-bundesliga"
-date: "2026-05-12"
+date: "2014-04-09"
 category: "bundesliga"
 teaser: "----------------------------------------------------------------------------------- „unser Ziel ist der Aufstieg in das Bundesliga Finale, die Tür zum Finale haben wir geöffnet …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/385-vorbericht-2-semifinale-bundesliga"
@@ -47,5 +47,5 @@ Bundesliga Finale:  
 3.    Spiel So. 4. Mai 2014   (ENTSCHEIDUNGSSPIEL - nur bei jeweils 1 Sieg der Teams)  
   
 
-*   [< Zurück](/de/news/bsc-70-linz-zieht-in-das-bundesliga-finale-ein/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/386-bsc-70-linz-zieht-in-das-bundesliga-liga-finale-ein)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/384-spielstand-1-halbfinale-bsc-70-linz-as-moedling)

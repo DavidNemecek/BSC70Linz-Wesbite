@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga Halbfinal Niederlage im OÖ. Derby gegen Traun"
 slug: "bundesliga-halbfinal-niederlage-im-ooe-derby-gegen-traun"
-date: "2026-05-12"
+date: "2023-03-11"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------------------------------------------------ 6:0 Niederlage im OÖ. Derby gegen Askö Traun im Bu…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/729-halbfinal-niederlage-im-ooe-derby-gegen-traun"
@@ -22,5 +22,5 @@ Damit ist die Saison als amtierenden Mannschaftsmeister endgültig vorbei und di
 
 Damit heißt es für uns die Planung für die Saison 2023/2024 zu starten.
 
-*   [< Zurück](/de/news/bundesliga-start-im-laendle-14-10-2023/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/731-bundesliga-start-im-laendle-14-10-2023)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/728-niederlage-im-ooe-derby-28-2-2023)

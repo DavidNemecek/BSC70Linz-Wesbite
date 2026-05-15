@@ -1,7 +1,7 @@
 ---
 title: "Senioren Europameisterschaften 2018 - Vorbericht"
 slug: "senioren-europameisterschaften-2018-vorbericht"
-date: "2026-05-12"
+date: "2018-09-21"
 category: "mitglieder"
 teaser: "------------------------------------------------------------------------------------------------------------ Vom 24.-30 September 2018 finden in Guadalajara/Spanien die Senioren…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/613-senioren-europameisterschaften-2018-vorbericht"
@@ -25,5 +25,5 @@ Durch ihre Leistungen bei den vergangenen Großerveranstaltungen wurden auch Har
   
 [Turnierseite - Teilnehmer Österreich](http://bwf.tournamentsoftware.com/sport/matches.aspx?id=69AEA0D3-51D7-4C9A-A076-D6E4D5195C9C&c=AUT)
 
-*   [< Zurück](/de/news/silber-und-bronze-bei-der-senioren-em-2018-durch-tariq-farooq/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/614-silber-und-bronze-bei-der-senioren-em-2018)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/590-christa-lechner)

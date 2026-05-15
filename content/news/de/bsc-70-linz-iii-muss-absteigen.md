@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz III muss absteigen"
 slug: "bsc-70-linz-iii-muss-absteigen"
-date: "2026-05-12"
+date: "2011-04-10"
 category: "ooe-meisterschaft"
 teaser: "-------------------------------------------------------------------------- nichts wurde aus dem Wunder in der letzten Runde der 2. Landesliga Nord nach dem letztjährigen Aufstie…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/147-bsc-70-iii"

@@ -1,7 +1,7 @@
 ---
 title: "Bundesligastart 2010/2011"
 slug: "bundesligastart-2010-2011"
-date: "2026-05-12"
+date: "2010-09-09"
 category: "bundesliga"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/22-bundesligastart-20092010"
 translationStatus: "draft"

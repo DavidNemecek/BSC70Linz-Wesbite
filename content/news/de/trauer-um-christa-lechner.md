@@ -1,7 +1,7 @@
 ---
 title: "Trauer um Christa Lechner"
 slug: "trauer-um-christa-lechner"
-date: "2017-07-24"
+date: "2017-07-26"
 category: "mitglieder"
 teaser: "---------------------------------------------------------------- Der Vorstand des BSC 70 Linz muss leider mitteilen, dass das ehemalige Vorstandsmitglied Christa Lechner (Mutter…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/590-christa-lechner"

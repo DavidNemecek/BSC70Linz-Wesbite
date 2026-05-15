@@ -1,7 +1,7 @@
 ---
 title: "OÖ. Mannschaftsmeisterschaft"
 slug: "ooe-mannschaftsmeisterschaft"
-date: "2026-05-12"
+date: "2016-04-09"
 category: "ooe-meisterschaft"
 teaser: "---------------------------------------------------------------------- Die Mannschaften des BSC 70 Linz der OÖ. Mannschaftsmeisterschaft haben alle 3 Ligen gewonnen. Eindrucksvo…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/554-ooe-mannschaftsmeisterschaft"
@@ -28,5 +28,5 @@ Wir gratulieren allen 3 Mannschaften recht herzlich.
 
 ![](assets/uploads/mannschaften15-16-2-73247dd204.jpg "Teams des BSC 70 Linz 2015/2016")
 
-*   [< Zurück](/de/news/doppelrunde-der-ooemm-in-der-solar-city/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/562-doppelrunde-der-ooemm-in-der-solar-city)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/551-meisterfeier-der-2-und-4-mannschaft-des-bsc-70-linz)

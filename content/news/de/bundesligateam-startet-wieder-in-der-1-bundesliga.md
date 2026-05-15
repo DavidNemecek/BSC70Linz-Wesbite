@@ -1,7 +1,7 @@
 ---
 title: "Bundesligateam startet wieder in der 1. Bundesliga"
 slug: "bundesligateam-startet-wieder-in-der-1-bundesliga"
-date: "2020-10-24"
+date: "2020-10-21"
 category: "bundesliga"
 teaser: "----------------------------------------------------------------------------------------------------------------- BSC 70 Linz startet in die neue Badminton Bundesliga Saison Lin…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/675-bundesligateam-startet-wieder-in-der-1-bundesliga"
@@ -184,5 +184,5 @@ Status
 
 * * *
 
-*   [< Zurück](/de/news/feldkirch-bsc-70-linz-2-6/)
-*   [Weiter >](/de/news/bundesliga-doppelrunde-am-25-26-1-2020/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/676-feldkirch-bsc-70-linz-2-6)
+*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/660-bundesliga-doppelrunde-am-25-26-1-2020)

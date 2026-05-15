@@ -1,7 +1,7 @@
 ---
 title: "Niederlage im OÖ. Derby 28.2.2023"
 slug: "niederlage-im-ooe-derby-28-2-2023"
-date: "2023-02-28"
+date: "2023-02-19"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------------------------- 2:6 Niederlage im OÖ. Derby gegen Askö Traun. Für uns als amtierenden Mannschaftsmeister wird es…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/728-niederlage-im-ooe-derby-28-2-2023"
@@ -37,4 +37,4 @@ Es ist angerichtet für eine spannende Schlussoffenive! Wolfurt wird gegen Press
 [Spielergebnisse Linz - Traun](https://obv.tournamentsoftware.com/league/717BA115-2D2F-4C60-B559-426E43BF54D0/team-match/155 "Linz - Traun 18.2.2023")
 
 *   [< Zurück](/de/news/bundesliga-halbfinal-niederlage-im-ooe-derby-gegen-traun/)
-*   [Weiter >](/de/news/bundesliga-doppelrunde-28-29-1-2023/)
+*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/727-bundesliga-doppelrund-28-29-1-2023)

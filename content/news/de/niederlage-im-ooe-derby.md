@@ -1,7 +1,7 @@
 ---
 title: "Niederlage im OÖ. Derby"
 slug: "niederlage-im-ooe-derby"
-date: "2021-02-14"
+date: "2021-02-17"
 category: "bundesliga"
 teaser: "------------------------------------------------------------ Im Spitzenspiel und Langzeitduell zwischen dem Askö Traun und dem BSC 70 Linz setzte sich das Team aus Traun mit 6:2…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/684-niederlage-im-ooe-derby"
@@ -23,5 +23,5 @@ Die Streams findet man auf YouTube -- [Feld 1](https://www.youtube.com/watch?v=J
 
 [Details zum Spieltag](https://obv.tournamentsoftware.com/league/9988dad4-32fa-45ad-8dcc-e5fda0727450/team-match/22)
 
-*   [< Zurück](/de/news/live-score/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/682-live-score)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/683-bsc-70-linz-gegen-wolfurt-4-4)

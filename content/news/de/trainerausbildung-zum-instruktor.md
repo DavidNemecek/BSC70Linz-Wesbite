@@ -1,7 +1,7 @@
 ---
 title: "Trainerausbildung zum Instruktor"
 slug: "trainerausbildung-zum-instruktor"
-date: "2026-05-12"
+date: "2011-07-24"
 category: "mitglieder"
 teaser: "------------------------------------------------------------------------------ Erfolgreich konnte die ersten beiden Abschnitte des Badminton Instruktorkurses (vormals Lehrwartek…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/155-trainerausbildung-zum-instruktor"
@@ -32,4 +32,4 @@ und bei soooo viel Stunden bleibt "Gott sei Dank" auch ein wenig Zeit für Blöd
 (hier mit Verena Fastenbauer)
 
 *   [< Zurück](/de/news/sommertraining-des-askoe-bsc-70-linz-2012/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/152-gv-des-askoe-bsc-70-linz)
+*   [Weiter >](/de/news/generalversammlung-2011-des-askoe-bsc-70-linz/)

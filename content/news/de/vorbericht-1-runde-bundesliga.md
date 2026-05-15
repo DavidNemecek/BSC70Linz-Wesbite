@@ -1,7 +1,7 @@
 ---
 title: "Vorbericht - 1. Runde Bundesliga"
 slug: "vorbericht-1-runde-bundesliga"
-date: "2010-09-18"
+date: "2010-09-14"
 category: "bundesliga"
 teaser: "--------------------------------------------------------------------------- ASKÖ BSC 70 Linz gegen Vizemeister ASV Pressbaum Sa. 18.9.2010, 15 Uhr AHS Solar City - 3fach Halle, …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/21-vorbericht-1-runde-bundesliga"
@@ -36,5 +36,5 @@ Im ersten Heimspiel gehen wir aber aus unserer Sicht als Außenseiter in die Beg
 
   
 
-*   [< Zurück](/de/news/askoe-bsc-70-linz-gewinnt-den-spannenden-auftakt/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/100-askoe-bsc-70-linz-gewinnt-den-spannenden-auftakt)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/22-bundesligastart-20092010)

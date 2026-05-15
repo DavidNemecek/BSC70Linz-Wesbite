@@ -1,7 +1,7 @@
 ---
 title: "Meisterfeier der 2. und 4. Mannschaft des BSC 70 Linz"
 slug: "meisterfeier-der-2-und-4-mannschaft-des-bsc-70-linz"
-date: "2016-04-05"
+date: "2016-04-06"
 category: "ooe-meisterschaft"
 teaser: "---------------------------------------------------------------------------------------------------------------------- Die 2. Mannschaft des BSC 70 Linz feiert den 14. OÖ. Lande…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/551-meisterfeier-der-2-und-4-mannschaft-des-bsc-70-linz"
@@ -29,4 +29,4 @@ Aber der Blick geht schon wieder nach vorne denn am Wochenende könnte unsere 1 
 Am Samstag und hoffentlich auch Sonntag, spielt dann unsere 1er Mannschaft gegen UBSC Wolfurt um den Aufstieg ins Bundesliga-Finale. Mit dem Rückenwind von hoffentlich 3 Titeln wollen wir auch überregional zeigen, dass der BSC 70 Linz auch mit der ersten Mannschaft den Titel nach Linz holen will. Und mit der Unterstützung unserer anderen Mannschaften sollte der Einzug ins Bundesligafinale gegen die starken Vorarlberger am Wochenende auch gelingen.
 
 *   [< Zurück](/de/news/ooe-mannschaftsmeisterschaft/)
-*   [Weiter >](/de/news/14-ooe-mannschafts-landesmeistertitel-fuer-den-bsc-70-linz/)
+*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/543-14-ooe-mannschafts-landesmeistertitel-fuer-den-bsc-70-linz)

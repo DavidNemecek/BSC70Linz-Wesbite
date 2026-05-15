@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz II gewinnt in Vorchdorf"
 slug: "bsc-70-linz-ii-gewinnt-in-vorchdorf"
-date: "2026-05-12"
+date: "2010-01-16"
 category: "ooe-meisterschaft"
 teaser: "------------------------------------------------------------------------------------ Mit einem 6-2 Sieg beim Auswärtsspiel gegen UBC Vorchdorf II konnte der BSC 70 Linz II den V…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/55-bsc-70-linz-ii-gewinnt-in-vorchdorf"
@@ -128,4 +128,4 @@ Waltraud Kronsteine
 Quelle: [obv.tournamentsoftware.com](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=B1885A2D-0662-4B87-A6C3-E863843ADF29&match=79)
 
 *   [< Zurück](/de/news/saisonabschlussfeier-der-3-mannschaft-des-bsc-70-linz/)
-*   [Weiter >](/de/news/ooe-mannschaftsmeisterschaft-bsc-70-linz-ii-iii-sind-herbstmeister/)
+*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/10-ooe-mannschaftsmeisterschaft-bsc-70-linz-iiii-sind-herbstmeister)

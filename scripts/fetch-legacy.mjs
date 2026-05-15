@@ -227,7 +227,105 @@ function guessIsoDate({ title, url, text, headers }) {
     const d = new Date(lastMod);
     if (!Number.isNaN(d.getTime())) return d.toISOString().slice(0, 10);
   }
-  return new Date().toISOString().slice(0, 10);
+  return null;
+}
+
+function isoDateFromPubDate(pubDate) {
+  const d = new Date(String(pubDate || "").trim());
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString().slice(0, 10);
+}
+
+function readFrontmatterDate(raw) {
+  const m = String(raw || "").match(/\ndate:\s*\"([^\"]+)\"/);
+  return m ? m[1] : null;
+}
+
+function upsertFrontmatterField(raw, key, jsonStringValue) {
+  const text = String(raw || "");
+  const fmMatch = text.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n/);
+  if (!fmMatch) return text;
+  const fmBlock = fmMatch[0];
+  const body = text.slice(fmBlock.length);
+  const lineRe = new RegExp(`(^${key}:\\s*).*$`, "m");
+  if (lineRe.test(fmBlock)) {
+    const replaced = fmBlock.replace(lineRe, `$1${jsonStringValue}`);
+    return `${replaced}${body}`;
+  }
+  const insertAt = fmBlock.lastIndexOf("\n---");
+  if (insertAt === -1) return text;
+  const before = fmBlock.slice(0, insertAt);
+  const after = fmBlock.slice(insertAt);
+  return `${before}\n${key}: ${jsonStringValue}${after}${body}`;
+}
+
+async function readExistingDate(filePath) {
+  if (!(await fileExists(filePath))) return null;
+  const raw = await readText(filePath);
+  return readFrontmatterDate(raw);
+}
+
+async function crawlRssDateMap(feedUrl) {
+  const out = new Map(); // absolute url -> isoDate
+  let start = 0;
+  let noNewPages = 0;
+
+  while (true) {
+    const u = new URL(feedUrl);
+    u.searchParams.set("start", String(start));
+    const res = await fetchWithRetry(u.toString());
+    const $ = load(res.text, { xmlMode: true });
+    const items = $("item").toArray();
+    if (items.length === 0) break;
+
+    let added = 0;
+    for (const it of items) {
+      const link = $(it).find("link").first().text().trim();
+      const pub = $(it).find("pubDate").first().text().trim();
+      if (!link) continue;
+      const iso = isoDateFromPubDate(pub);
+      if (!iso) continue;
+      if (!out.has(link)) {
+        out.set(link, iso);
+        added++;
+      }
+    }
+
+    if (added === 0) noNewPages++;
+    else noNewPages = 0;
+    if (noNewPages >= 3) break;
+
+    start += items.length;
+    if (start > 10000) break;
+  }
+
+  return out;
+}
+
+function rssUrlFor(listUrl) {
+  const u = new URL(listUrl);
+  u.searchParams.set("format", "feed");
+  u.searchParams.set("type", "rss");
+  return u.toString();
+}
+
+function isNewsDetailUrl(url) {
+  try {
+    const u = new URL(url);
+    if (u.hostname !== HOSTNAME) return false;
+    if (!u.pathname.startsWith("/cms/index.php/news/")) return false;
+    const parts = u.pathname.split("/").filter(Boolean);
+    // cms index.php news <category> <id>-<slug>
+    if (parts.length < 5) return false;
+    const category = parts[3] || "";
+    const last = parts[parts.length - 1] || "";
+    if (!/^\d+-/.test(last)) return false;
+    // Turniere has an extra level of subcategories (e.g. /news-turniere/28-turniere/699-...)
+    if (category === "news-turniere") return parts.length >= 6;
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function main() {
@@ -390,11 +488,24 @@ async function main() {
       const $l = load(res.text, { xmlMode: true });
       const main = $l("#content_in");
 
-      // Turniere root can contain cat-children instead of posts; still has links we want.
-      main.find("h2 a[href], .items-more a[href], .cat-children a[href]").each((_i, a) => {
+      main.find("h2 a[href], .items-more a[href]").each((_i, a) => {
         const abs = absUrl($l(a).attr("href"), url);
-        if (abs && isInternal(abs) && abs.includes("/index.php/news/")) newsDetailUrls.set(abs, { category });
+        if (abs && isNewsDetailUrl(abs)) newsDetailUrls.set(abs, { category });
       });
+
+      // Turniere: traverse category children as additional listing pages (not detail posts).
+      if (category === "turniere") {
+        main.find(".cat-children a[href]").each((_i, a) => {
+          const abs = absUrl($l(a).attr("href"), url);
+          if (abs && isInternal(abs) && abs.includes("/index.php/news/news-turniere/")) pending.push(abs);
+        });
+      } else {
+        // Other categories sometimes contain cat-children; those are not posts, but can contain posts.
+        main.find(".cat-children a[href]").each((_i, a) => {
+          const abs = absUrl($l(a).attr("href"), url);
+          if (abs && isInternal(abs) && abs.includes("/index.php/news/")) pending.push(abs);
+        });
+      }
 
       main.find(".pagination a[href]").each((_i, a) => {
         const abs = absUrl($l(a).attr("href"), url);
@@ -405,6 +516,31 @@ async function main() {
 
   for (const c of NEWS_CATEGORIES) await discoverNewsListing(c.url, c.category);
   console.log(`Discovered news detail urls: ${newsDetailUrls.size}`);
+
+  // Dates: crawl RSS feeds to get real publish dates (Joomla article pages often don't render them).
+  const rssDates = new Map();
+  const feeds = [
+    "https://www.bsc70linz.at/cms/?format=feed&type=rss", // includes some Turniere items
+    ...NEWS_CATEGORIES.filter((c) => c.url && c.url !== "https://www.bsc70linz.at/cms/index.php/news/news-turniere").map((c) =>
+      rssUrlFor(c.url)
+    ),
+  ];
+  // Add turniere subcategory feeds based on what we actually discovered.
+  for (const u of newsDetailUrls.keys()) {
+    if (!u.includes("/index.php/news/news-turniere/")) continue;
+    const p = new URL(u).pathname.split("/").filter(Boolean);
+    // .../news-turniere/<subcat>/<id>-...
+    const subcat = p[4];
+    if (!subcat) continue;
+    const subListing = `https://www.bsc70linz.at/cms/index.php/news/news-turniere/${subcat}`;
+    feeds.push(rssUrlFor(subListing));
+  }
+  const uniqueFeeds = [...new Set(feeds)];
+  for (const feed of uniqueFeeds) {
+    const m = await crawlRssDateMap(feed);
+    for (const [k, v] of m.entries()) if (!rssDates.has(k)) rssDates.set(k, v);
+  }
+  console.log(`RSS date map entries: ${rssDates.size}`);
 
   // Import pages (DE) + create EN skeletons
   const menuOrder = new Map();
@@ -469,7 +605,11 @@ async function main() {
     const markdownBody = td.turndown(localizedHtml).trim();
     const fixedMarkdown = rewriteMarkdownLinks(markdownBody, redirects);
     const teaser = deriveTeaser(fixedMarkdown);
-    const isoDate = guessIsoDate({ title, url, text: fixedMarkdown, headers: res.headers });
+    const outDe = path.join(paths.contentDir, "news", "de", `${slug}.md`);
+    const existingDate = await readExistingDate(outDe);
+    const rssDate = rssDates.get(url) || null;
+    const guessedDate = guessIsoDate({ title, url, text: fixedMarkdown, headers: res.headers });
+    const isoDate = rssDate || guessedDate || existingDate || "2000-01-01";
 
     const fmDe = frontmatterForNews({
       title,
@@ -480,11 +620,15 @@ async function main() {
       sourceUrl: url,
       lang: "de",
     });
-    const outDe = path.join(paths.contentDir, "news", "de", `${slug}.md`);
     await writeText(outDe, `${fmDe}\n${fixedMarkdown}\n`);
 
     const outEn = path.join(paths.contentDir, "news", "en", `${slug}.md`);
-    if (!(await fileExists(outEn))) {
+    if (await fileExists(outEn)) {
+      const rawEn = await readText(outEn);
+      let updatedEn = upsertFrontmatterField(rawEn, "date", safeJsonString(isoDate));
+      updatedEn = upsertFrontmatterField(updatedEn, "sourceUrl", safeJsonString(url));
+      if (updatedEn !== rawEn) await writeText(outEn, updatedEn);
+    } else {
       const fmEn = frontmatterForNews({
         title,
         slug,
@@ -501,6 +645,23 @@ async function main() {
     newsItems.push({ title, slug, category, date: isoDate, url });
     return { ok: true, url, slug };
   });
+
+  // Cleanup: remove stale news files (e.g. previous runs accidentally imported listing pages as articles).
+  const expectedNewsSlugs = new Set(newsItems.map((n) => n.slug));
+  for (const lang of ["de", "en"]) {
+    const dir = path.join(paths.contentDir, "news", lang);
+    if (!(await fileExists(dir))) continue;
+    const files = await listFilesRecursive(dir, { filter: (f) => f.endsWith(".md") });
+    for (const filePath of files) {
+      const slug = path.basename(filePath, ".md");
+      if (expectedNewsSlugs.has(slug)) continue;
+      const raw = await readText(filePath);
+      const src = String(raw).match(/\nsourceUrl:\s*\"([^\"]+)\"/);
+      if (src && String(src[1] || "").includes(HOSTNAME)) {
+        await fs.unlink(filePath);
+      }
+    }
+  }
 
   // Post-pass: rewrite remaining legacy internal links using the final redirects map
   for (const root of [path.join(paths.contentDir, "pages", "de"), path.join(paths.contentDir, "news", "de")]) {

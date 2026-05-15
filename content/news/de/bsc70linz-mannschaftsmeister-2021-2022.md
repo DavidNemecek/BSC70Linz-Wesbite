@@ -1,7 +1,7 @@
 ---
 title: "BSC70Linz - Mannschaftsmeister 2021/2022"
 slug: "bsc70linz-mannschaftsmeister-2021-2022"
-date: "2022-04-12"
+date: "2022-04-11"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------------------------------------- WIR SIND MEISTER!!! nach 29 Jahren gelang es einem der erfolgreichsten Badminton Ver…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/713-bsc70linz-mannschaftsmeister-2021-2022"
@@ -62,4 +62,4 @@ Wir bedanken uns bei unserer tollen Mannschaft, die mitgereisten Fans hier in P
 Selbstverständlich auch an all die kleinen Helfer im Verein, egal ob Linienrichter, Buffethelfer, Fotograph - aber selbstverständlich und daher auch hier ein großes DANKESCHÖN an unsere treuen Sponsoren die diesen Weg mit uns über viele Jahre gingen.
 
 *   [< Zurück](/de/news/bundesliga-neuverpflichtungen-fuer-die-saison-2022-2023/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/712-bsc-70-linz-gewinnt-1-finale-gegen-pressbaum-5-3)
+*   [Weiter >](/de/news/bsc-70-linz-gewinnt-1-finale-gegen-pressbaum-5-3/)

@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz II wird Vize-Landesmeister 2010/2011"
 slug: "bsc-70-linz-ii-wird-vize-landesmeister-2010-2011"
-date: "2026-05-12"
+date: "2011-03-22"
 category: "ooe-meisterschaft"
 teaser: "-------------------------------------------------------------------------------------------------------------- Die 2. Mannschaft des BSC 70 Linz konnte in der aktuellen Saison d…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/144-bsc-70-linz-ii-wird-vizemeister-20102011"
@@ -21,5 +21,5 @@ Bereits 1 Runde vor Schluss konnte man nun die zweite Position fixieren. Diese g
   
 Die Spiele des Askö BSC 70 Linz II findest du hier [\>>>](http://obv.tournamentsoftware.com/sport/teammatches.aspx?id=7D72D424-BCF5-4403-8B37-A011889CAEAF&tid=15 "Spiele BSC 70 Linz II - Saison 2010/2011")
 
-*   [< Zurück](/de/news/spannung-pur-in-der-2-landesliga-nord/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/146-spannung-pur-in-der-2-landesliga-nord)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/115-ooe-landesliga-23-mannschaft)

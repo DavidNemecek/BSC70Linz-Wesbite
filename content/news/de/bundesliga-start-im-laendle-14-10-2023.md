@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga Start im Ländle 14.10.2023"
 slug: "bundesliga-start-im-laendle-14-10-2023"
-date: "2023-10-14"
+date: "2023-10-12"
 category: "bundesliga"
 teaser: "----------------------------------------------------------------------------------------- am Samstag 24.10.2023 startet unsere Bundesliga Mannschaft in die neue Saison. einige n…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/731-bundesliga-start-im-laendle-14-10-2023"
@@ -26,4 +26,4 @@ Auch aufgrund unserer Ausfälle zu Beginn der Saison wird es auch zu einem wohl 
 [Liveticker der Begegnung Samstag 14.10.2023, Beginn 15 Uhr](https://raiffeisenbscwolfurt.badmintonticker.de)
 
 *   [< Zurück](/de/news/knappe-niederlage-in-wolfurt-zum-auftakt/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/729-halbfinal-niederlage-im-ooe-derby-gegen-traun)
+*   [Weiter >](/de/news/bundesliga-halbfinal-niederlage-im-ooe-derby-gegen-traun/)

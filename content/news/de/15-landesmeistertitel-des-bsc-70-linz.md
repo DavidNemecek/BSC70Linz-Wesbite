@@ -1,7 +1,7 @@
 ---
 title: "15. Landesmeistertitel des BSC 70 Linz"
 slug: "15-landesmeistertitel-des-bsc-70-linz"
-date: "2026-05-12"
+date: "2017-03-27"
 category: "ooe-meisterschaft"
 teaser: "------------------------------------------------------------------------------------------ Am Freitag 24.3. war es wieder einmal so weit. Unsere zweite Mannschaft bestritt die 9…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/585-15-landesmeistertitel-des-bsc-70-linz"
@@ -28,4 +28,4 @@ Doch der Blick geht natürlich auch schon wieder nach vorne, denn am 9. April st
 Detailergebnisse: [Tournamentsoftware](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=96E388BE-2235-45B2-8120-49D5FD067A39&match=92)
 
 *   [< Zurück](/de/news/unsere-teams-starten-in-die-neue-saison-2017-2018-gedanken-zur-spielerrangliste/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/568-ueberzeugender-sieg-im-kleinen-derby)
+*   [Weiter >](/de/news/ueberzeugender-sieg-im-kleinen-derby/)

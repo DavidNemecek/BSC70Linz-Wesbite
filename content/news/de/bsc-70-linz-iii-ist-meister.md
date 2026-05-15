@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz III ist Meister"
 slug: "bsc-70-linz-iii-ist-meister"
-date: "2026-05-12"
+date: "2013-04-09"
 category: "ooe-meisterschaft"
 teaser: "-------------------------------------------------------------------- In der letzten Runde der 2. Landesliga Nord konnte sich die Mannschaft des BSC 70 Linz III den Meistertitel …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/67-bsc-70-linz-iii-ist-meister"
@@ -17,5 +17,5 @@ Im letzten Spiel der 2. Landesliga Nord konnte die Mannschaft rund um Mannschaft
 
 Detailergebnisse: [BSC 70 Linz III - BC Alkoven III](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=E9BF0563-35B7-4CFE-84BB-AAE8C308BBE0&match=211)
 
-*   [< Zurück](/de/news/erfolgreicher-saisonauftakt-gegen-amtierenden-landesmeister/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/275-remis-gegen-titelkonkurrenten)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/326-erfolgreicher-saisonauftakt-gegen-amtierenden-landesmeister)
+*   [Weiter >](/de/news/remis-gegen-titelkonkurrenten/)

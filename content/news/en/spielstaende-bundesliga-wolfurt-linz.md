@@ -1,7 +1,7 @@
 ---
 title: "Spielstände Bundesliga Wolfurt - Linz"
 slug: "spielstaende-bundesliga-wolfurt-linz"
-date: "2026-05-12"
+date: "2010-10-30"
 category: "bundesliga"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/108-spielstaende-bundesliga-wolfurt-linz"
 translationStatus: "draft"

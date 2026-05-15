@@ -1,7 +1,7 @@
 ---
 title: "OÖ. Mannschaftsmeisterschaft - BSC 70 Linz II+III sind Herbstmeister"
 slug: "ooe-mannschaftsmeisterschaft-bsc-70-linz-ii-iii-sind-herbstmeister"
-date: "2026-05-12"
+date: "2009-12-04"
 category: "ooe-meisterschaft"
 teaser: "---------------------------------------------------------------------------------------------------------------------------------------------------- Durch ein w.o. Spiel gegen A…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/10-ooe-mannschaftsmeisterschaft-bsc-70-linz-iiii-sind-herbstmeister"
@@ -23,7 +23,7 @@ Gratulation an die ganze Mannschaft
 
 [Tabelle - 1. Landesliga](http://obv.tournamentsoftware.com/sport/draw.aspx?id=B1885A2D-0662-4B87-A6C3-E863843ADF29&draw=3)
 
-*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/55-bsc-70-linz-ii-gewinnt-in-vorchdorf)
+*   [< Zurück](/de/news/bsc-70-linz-ii-gewinnt-in-vorchdorf/)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/13-4-runde-ooemm)
 
 _

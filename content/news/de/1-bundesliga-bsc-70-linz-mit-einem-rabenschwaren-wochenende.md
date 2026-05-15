@@ -1,7 +1,7 @@
 ---
 title: "1. Bundesliga |  BSC 70 Linz mit einem rabenschwaren Wochenende"
 slug: "1-bundesliga-bsc-70-linz-mit-einem-rabenschwaren-wochenende"
-date: "2014-01-25"
+date: "2014-01-26"
 category: "bundesliga"
 teaser: "---------------------------------------------------------------------------------------------------------------------------------------- mit einer Niederlage und einem Unentschi…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/364-1-bundesliga-bsc-70-linz-mit-einem-rabenschwaren-wochenende"
@@ -499,5 +499,5 @@ Sa 08.02.2014 15:00
 
  
 
-*   [< Zurück](/de/news/1-bundesliga-bsc-70-linz-verliert-im-laendle/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/368-1-bundesliga-bsc-70-linz-verliert-im-laendle)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/363-bundesligadoppelrunde-am-252612014)

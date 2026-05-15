@@ -1,7 +1,7 @@
 ---
 title: "Niederlage in der Bundesliga gegen Wolfurt"
 slug: "niederlage-in-der-bundesliga-gegen-wolfurt"
-date: "2026-05-12"
+date: "2017-02-12"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------------------------------------------- wieder einmal hängen wichtige Punkte und Matches in Wolfurt am seidenen Faden.…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/580-niederlage-in-der-bundesliga-gegen-wolfurt"
@@ -427,5 +427,5 @@ Spielort
 
  
 
-*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/583-bundesliga-showdown-mit-5-3-an-wien)
+*   [< Zurück](/de/news/bundesliga-showdown-mit-5-3-an-wien/)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/577-sieg-und-niederlage-fuer-den-bsc-70-linz)

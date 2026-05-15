@@ -1,7 +1,7 @@
 ---
 title: "Start in die neue Saison 2018/2019"
 slug: "start-in-die-neue-saison-2018-2019"
-date: "2026-05-12"
+date: "2018-09-18"
 category: "ooe-meisterschaft"
 teaser: "---------------------------------------------------------------------------------- Am 14. September 2018 begann mit dem Auswärtsspiel gegen Bundesliga Absteiger Vorchdorf unsere…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/612-start-in-die-neue-saison-2018-2019"

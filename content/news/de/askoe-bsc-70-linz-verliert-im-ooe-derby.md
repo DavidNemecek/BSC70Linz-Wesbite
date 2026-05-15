@@ -1,7 +1,7 @@
 ---
 title: "Askö BSC 70 Linz verliert im OÖ. Derby"
 slug: "askoe-bsc-70-linz-verliert-im-ooe-derby"
-date: "2026-05-12"
+date: "2010-11-21"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------------- riesen Pech für die Cracks des BSC 70 Linz im großem OÖ. Derby gegen Askö Traun. Man …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/112-askoe-bsc-70-linz-verliert-im-ooe-derby"

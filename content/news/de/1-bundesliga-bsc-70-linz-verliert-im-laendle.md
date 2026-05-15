@@ -582,4 +582,4 @@ Sa 01.03.2014 16:00
  
 
 *   [< Zurück](/de/news/erneute-niederlage-im-letzten-spiel-dieser-saison-in-der-2-bundesliga/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/364-1-bundesliga-bsc-70-linz-mit-einem-rabenschwaren-wochenende)
+*   [Weiter >](/de/news/1-bundesliga-bsc-70-linz-mit-einem-rabenschwaren-wochenende/)

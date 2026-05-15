@@ -1,7 +1,7 @@
 ---
 title: "4. Runde Bundesliga"
 slug: "4-runde-bundesliga"
-date: "2012-11-10"
+date: "2012-11-08"
 category: "bundesliga"
 teaser: "---------------------------------------------------- in der 4. Runde kommt es zum Aufeinandertreffen mit Klagenfurt und Feldkirch. In der 1. Bundesliga treffen wir am Samstag,10…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/250-4-runde-bundesliga"

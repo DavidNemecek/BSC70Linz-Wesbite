@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga TEAMS 2010/2011"
 slug: "bundesliga-teams-2010-2011"
-date: "2010-04-30"
+date: "2010-05-02"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------ nachdem der Nennschluss für die Bundesligasaison 2010/2011 am 30.4.2010 abgelaufen ist, haben folgende Mannsch…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/83-bundesliga-teams-20102011"

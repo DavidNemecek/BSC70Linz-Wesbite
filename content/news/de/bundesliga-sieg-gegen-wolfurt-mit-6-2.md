@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga - Sieg gegen Wolfurt mit 6:2"
 slug: "bundesliga-sieg-gegen-wolfurt-mit-6-2"
-date: "2026-05-12"
+date: "2023-01-08"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------------ Askö BSC 70 Linz konnte auch das Rückspiel gegen Wolfurt mit 6:2 (auswärts) für sich e…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/726-bundesliga-rueckrunden-start-gegen-wolfurt-2"
@@ -39,5 +39,5 @@ Den mit Spannung erwarteten Auftritt von Neuverpflichtung Daniel Aria Dinata kon
 5.  Wolfurt             10
 6.  Wien                2
 
-*   [< Zurück](/de/news/bundesliga-doppelrunde-28-29-1-2023/)
-*   [Weiter >](/de/news/bundesliga-niederlage-gegen-vizemeister-pressbaum/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/727-bundesliga-doppelrund-28-29-1-2023)
+*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/724-bundesliga-niederlage-gegen-vizemeister-pressbaum)

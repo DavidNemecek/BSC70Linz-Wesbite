@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga Showdown mit 5:3 an Wien"
 slug: "bundesliga-showdown-mit-5-3-an-wien"
-date: "2026-05-12"
+date: "2017-03-05"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------ Der Kampf um jeden Punkt war das bestimmende Element beim Bundesliga showdown der regulären …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/583-bundesliga-showdown-mit-5-3-an-wien"
@@ -142,4 +142,4 @@ GD
 21-15 21-23 21-7
 
 *   [< Zurück](/de/news/bsc-70-linz-mit-sieg-in-die-2-bundesliga-gestartet/)
-*   [Weiter >](/de/news/niederlage-in-der-bundesliga-gegen-wolfurt/)
+*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/580-niederlage-in-der-bundesliga-gegen-wolfurt)

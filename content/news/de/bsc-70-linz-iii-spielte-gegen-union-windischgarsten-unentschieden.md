@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz III spielte gegen Union Windischgarsten unentschieden"
 slug: "bsc-70-linz-iii-spielte-gegen-union-windischgarsten-unentschieden"
-date: "2026-05-12"
+date: "2013-11-04"
 category: "ooe-meisterschaft"
 teaser: "------------------------------------------------------------------------------------------------------------------------------------------------ Der BSC 70 Linz trat daheim gege…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/342-bsc-70-linz-iii-spielte-gegen-union-windischgarsten-unentschieden"
@@ -20,4 +20,4 @@ Im Einsatz waren: Edelmüller Ursula, Hofinger Natalie bzw. Hechenberger Reinhar
 Details: [BSC 70 Linz III - Union Windischgarsten I](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=A9240FAE-F3B2-4605-8021-F3A0F040AB71&match=104 "BSC 70 Linz III - Union Windischgarsten I")
 
 *   [< Zurück](/de/news/bsc-70-linz-iii-verabschiedet-sich-mit-einem-sieg-in-die-winterpause/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/338-bsc-70-linz-iii-und-iv-gewinnen-mit-jeweils-53)
+*   [Weiter >](/de/news/bsc-70-linz-iii-und-iv-gewinnen-mit-jeweils-5-3/)

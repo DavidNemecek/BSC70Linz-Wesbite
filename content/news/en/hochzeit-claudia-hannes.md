@@ -1,7 +1,7 @@
 ---
 title: "Hochzeit Claudia & Hannes"
 slug: "hochzeit-claudia-hannes"
-date: "2014-06-14"
+date: "2014-06-15"
 category: "mitglieder"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/412-hochzeit-clauida-hannes"
 translationStatus: "draft"

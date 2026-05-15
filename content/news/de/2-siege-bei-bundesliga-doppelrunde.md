@@ -1,7 +1,7 @@
 ---
 title: "2. Siege bei Bundesliga Doppelrunde"
 slug: "2-siege-bei-bundesliga-doppelrunde"
-date: "2026-05-12"
+date: "2018-02-11"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------ die Rückrunde startet mit 2 Heimspielen in Linz. Gegner waren Alkoven und Ohlsdorf. Beide Sp…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/606-2-siege-in-badminton-doppelrunde"

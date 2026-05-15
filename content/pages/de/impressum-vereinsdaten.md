@@ -2,9 +2,8 @@
 title: "Impressum/Vereinsdaten"
 slug: "impressum-vereinsdaten"
 navGroup: "Verein"
-navOrder: 90
+navOrder: 130
 navLabel: "Impressum/Vereinsdaten"
-navHidden: true
 translationStatus: "reviewed"
 ---
 

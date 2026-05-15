@@ -1,7 +1,7 @@
 ---
 title: "Remis gegen Titelkonkurrenten"
 slug: "remis-gegen-titelkonkurrenten"
-date: "2026-05-12"
+date: "2013-02-09"
 category: "ooe-meisterschaft"
 teaser: "------------------------------------------------------------------------ Die dritte Mannschaft spielte gegen den direkten Titelkonkurrenten BC Alkoven 2 unentschieden und konnte…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/275-remis-gegen-titelkonkurrenten"
@@ -19,5 +19,5 @@ Im Einsatz für den BSC waren Ursula Edelmüller, Christina Wu sowie Nikita Arno
 
 Ergebnisse im Detail: [BC Alkoven II - BSC 70 Linz III](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=E9BF0563-35B7-4CFE-84BB-AAE8C308BBE0&match=219 "BC Alkoven II - BSC 70 Linz III")
 
-*   [< Zurück](/de/news/bsc-70-linz-iii-ist-meister/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/67-bsc-70-linz-iii-ist-meister)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/260-bsc-70-linz-iii-ist-herbstmeister-in-der-2-landesliga-nord)

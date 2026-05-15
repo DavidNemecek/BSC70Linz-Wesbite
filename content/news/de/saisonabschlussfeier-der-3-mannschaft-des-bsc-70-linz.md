@@ -1,7 +1,7 @@
 ---
 title: "Saisonabschlussfeier der 3. Mannschaft des BSC 70 Linz"
 slug: "saisonabschlussfeier-der-3-mannschaft-des-bsc-70-linz"
-date: "2026-05-12"
+date: "2010-06-08"
 category: "ooe-meisterschaft"
 teaser: "------------------------------------------------------------------------------------------------------------------------- nach einer tollen Saison hatte die 3. Mannschaft als Me…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/86-saisonabschlussfeier-der-3-mannschaft-des-bsc-70-linz"
@@ -12,6 +12,8 @@ translationStatus: "reviewed"
 -------------------------------------------------------------------------------------------------------------------------
 
 nach einer tollen Saison hatte die 3. Mannschaft als Meister und dem Aufstieg in die 2. OÖ. Landesliga einen wirklichen Grund zum Feiern.
+
+![](https://www.bsc70linz.at/media/images/zoom/XFWNIQ/viewsize/P_6040007.JPG)
 
 Wolfgang Sternberger hatte am vergangenen Freitag die Spieler zu einem gemütlichen Abend bei sich zu Hause eingeladen.
 

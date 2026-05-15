@@ -1,7 +1,7 @@
 ---
 title: "OÖ. Mannschaftsmeisterschaft - 1. Runde"
 slug: "ooe-mannschaftsmeisterschaft-1-runde"
-date: "2026-05-12"
+date: "2011-09-27"
 category: "ooe-meisterschaft"
 teaser: "----------------------------------------------------------------------------------------- Markelloser Start unserer Mannschaften in die neue Saison BSC 70 Linz II + III ließ dem…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/173-ooe-mannschaftsmeisterschaft-1-runde"
@@ -24,5 +24,5 @@ die 3. Mannschaft den sofortigen Wiederaufstieg in die 2. Landesliga.
 [Spieldetails BSC 70 Linz II - BC Alkoven II : 8 - 0](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=B4E7D6F8-6975-4A68-A7EF-24370C4CCF96&match=108)  
 [Spieldetails BSC 70 Linz III - SK VÖEST II : 8 - 0](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=B4E7D6F8-6975-4A68-A7EF-24370C4CCF96&match=24)
 
-*   [< Zurück](/de/news/ooe-mannschaftsmeisterschaft-2-runde/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/170-ooe-mannschaftsmeisterschaft-start-in-die-neue-saison)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/177-ooe-mannschaftsmeisterschaft-2-runde)
+*   [Weiter >](/de/news/ooe-mannschaftsmeisterschaft-start-in-die-neue-saison/)

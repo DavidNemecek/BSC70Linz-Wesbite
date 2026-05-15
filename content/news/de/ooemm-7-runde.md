@@ -1,7 +1,7 @@
 ---
 title: "OÖMM - 7. Runde"
 slug: "ooemm-7-runde"
-date: "2026-05-12"
+date: "2009-02-15"
 category: "ooe-meisterschaft"
 teaser: "------------------------------------------ Ohlsdorf I-BSC 70 Linz II - 2:6 Neuhofen - BSC 70 Linz III - 2:6 In der 7. Runde kam es zum wahrscheinlich vorentscheidenden Duell mit…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/30-ooemm-7-runde"
@@ -190,4 +190,4 @@ Es folgen die Spiele gegen Traun II und dann auch noch gegen Vorchdorf II.
 
 ###### 2357
 
-*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/28-ooemm-mannschafts-landesmeistertitel-so-gut-wie-verteidigt)
+*   [< Zurück](/de/news/ooemm-mannschafts-landesmeistertitel-so-gut-wie-verteidigt/)

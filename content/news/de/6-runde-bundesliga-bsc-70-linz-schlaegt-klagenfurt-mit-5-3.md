@@ -139,4 +139,4 @@ GD
 weiterer Beicht folgt.....
 
 *   [< Zurück](/de/news/7-runde-bundesliga-gg-pressbaum/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/186-bericht-bundesliga-pressbau-bsc-70-linz)
+*   [Weiter >](/de/news/bericht-4-runde-bundesliga/)

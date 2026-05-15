@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz verliert das 1. Spiel im Finale"
 slug: "bsc-70-linz-verliert-das-1-spiel-im-finale"
-date: "2026-05-12"
+date: "2014-05-01"
 category: "bundesliga"
 teaser: "--------------------------------------------------------------------------------------------------- das Team verliert das 1. Spiel nach hartem Kampf mit 2:4. Die Begegnung wurde…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/388-bsc-70-linz-verliert-das-1-spiel-im-finale"

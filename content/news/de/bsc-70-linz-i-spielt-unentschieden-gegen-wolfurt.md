@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz I spielt Unentschieden gegen Wolfurt"
 slug: "bsc-70-linz-i-spielt-unentschieden-gegen-wolfurt"
-date: "2026-05-12"
+date: "2010-10-31"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------------------------------------------------------- Im Bundesligaspiel Wolfurt gegen Askö BSC 70 Linz trennten sich di…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/109-bsc-70-linz-i-spielt-unentschieden-gegen-wolfurt"

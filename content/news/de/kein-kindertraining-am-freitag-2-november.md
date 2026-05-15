@@ -1,7 +1,7 @@
 ---
 title: "KEIN Kindertraining am Freitag, 2. November"
 slug: "kein-kindertraining-am-freitag-2-november"
-date: "2026-05-12"
+date: "2012-10-31"
 category: "mitglieder"
 teaser: "-------------------------------------------------------------------------------------------------- Am Freitag, den 2. November findet KEIN Kindertraining statt. Ein entsprechend…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/254-kein-kindertraining-am-freitag-2-november"

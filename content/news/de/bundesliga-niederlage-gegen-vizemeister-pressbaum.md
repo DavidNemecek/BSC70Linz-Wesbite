@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga - Niederlage gegen Vizemeister Pressbaum"
 slug: "bundesliga-niederlage-gegen-vizemeister-pressbaum"
-date: "2023-01-06"
+date: "2022-12-04"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------------------------------------ mit einem 1:7 ging es für das Bundesligateam für dieses Jahr z…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/724-bundesliga-niederlage-gegen-vizemeister-pressbaum"
@@ -21,5 +21,5 @@ Gleich zu Beginn des Jahres warten die Spiele in Wolfurt (6.1.2023) und Mödling
 
 Für Linz muss es nach einer durchwachsenen Hinrunde endlich mal eine gesamter Kader zur Verfügung stehen! Dann sollten die Spiele im Jänner gut verlaufen.
 
-*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/726-bundesliga-rueckrunden-start-gegen-wolfurt-2)
+*   [< Zurück](/de/news/bundesliga-sieg-gegen-wolfurt-mit-6-2/)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/723-sieg-und-niederlage-in-der-doppelrunde)

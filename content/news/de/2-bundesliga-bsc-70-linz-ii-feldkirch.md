@@ -1,7 +1,7 @@
 ---
 title: "2. Bundesliga | BSC 70 Linz II - Feldkirch"
 slug: "2-bundesliga-bsc-70-linz-ii-feldkirch"
-date: "2026-05-12"
+date: "2013-10-12"
 category: "bundesliga"
 teaser: "---------------------------------------------------------------------------------------------- 1\\. Runde in der 2. Bundesliga Feldkirch - BSC 70 Linz II -- 8:0 bittere niederlag…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/331-2-bundesliga--bsc-70-linz-ii-feldkirch"

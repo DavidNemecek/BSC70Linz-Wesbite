@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga Start mit OÖ. Derby am 30.10.2021"
 slug: "bundesliga-start-mit-ooe-derby-am-30-10-2021"
-date: "2021-10-30"
+date: "2021-10-28"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------------------------ Am 30.10.2021, 16 Uhr startet das Bundesliga Team des BSC 70 Linz in die S…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/695-bundesliga-start-mit-ooe-derby-am-30-10-2021"

@@ -1,7 +1,7 @@
 ---
 title: "Showdown in der 1. Landesliga"
 slug: "showdown-in-der-1-landesliga"
-date: "2026-05-12"
+date: "2012-03-17"
 category: "ooe-meisterschaft"
 teaser: "----------------------------------------------------------------------- Showdown morgen in der 1. Landesliga. 2\\. Runden vor Schluss hat das Team um Mannschaftsführer Christoph …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/214-showdown-in-der-1-landesliga"
@@ -244,4 +244,4 @@ Spielpunkte
 2491
 
 *   [< Zurück](/de/news/bsc-70-linz-ii-ist-ooe-landesmeister-2011-2012/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/212-bsc-70-linz-iii-ist-mannschaftsmeister-20112012)
+*   [Weiter >](/de/news/bsc-70-linz-iii-mannschaftsmeister-2011-2012/)

@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz III verliert ganz knapp mit 5:3 in Ohlsdorf"
 slug: "bsc-70-linz-iii-verliert-ganz-knapp-mit-5-3-in-ohlsdorf"
-date: "2026-05-12"
+date: "2014-01-13"
 category: "ooe-meisterschaft"
 teaser: "---------------------------------------------------------------------------------------------------------------------------- Herbstmeister und Rekordlandesmeister BSC 70 Linz ge…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/361-bsc-70-linz-iii-verliert-ganz-knapp-mit-53-in-ohlsdorf"
@@ -22,4 +22,4 @@ Nach dieser knappen Niederlage gilt es für unsere Mannschaft nach vorne zu scha
 [Spieldetails...](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=A9240FAE-F3B2-4605-8021-F3A0F040AB71&match=79)
 
 *   [< Zurück](/de/news/7-runde-in-der-landesliga-fuer-den-bsc-70-linz-3/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/353-bsc-70-linz-iii-verabschiedet-sich-mit-einem-sieg-in-die-winterpause)
+*   [Weiter >](/de/news/bsc-70-linz-iii-verabschiedet-sich-mit-einem-sieg-in-die-winterpause/)

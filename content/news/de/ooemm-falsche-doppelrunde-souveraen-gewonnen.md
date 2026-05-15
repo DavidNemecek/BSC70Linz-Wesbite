@@ -1,7 +1,7 @@
 ---
 title: "OÖMM - „Falsche Doppelrunde“ souverän gewonnen"
 slug: "ooemm-falsche-doppelrunde-souveraen-gewonnen"
-date: "2026-05-12"
+date: "2016-01-29"
 category: "ooe-meisterschaft"
 teaser: "-------------------------------------------------------------------------------------------------------- Am 29. Jänner spielten in Linz-Auhof und Alkoven unsere 2er und 3er Mann…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/538-falsche-doppelrunde-souveraen-gewonnen"

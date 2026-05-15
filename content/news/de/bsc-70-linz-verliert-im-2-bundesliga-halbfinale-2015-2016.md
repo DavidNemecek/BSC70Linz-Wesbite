@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz verliert im 2. Bundesliga Halbfinale 2015/2016"
 slug: "bsc-70-linz-verliert-im-2-bundesliga-halbfinale-2015-2016"
-date: "2026-05-12"
+date: "2016-04-10"
 category: "bundesliga"
 teaser: "--------------------------------------------------------------------------------------------------------------------------------- die Enttäuschung kurz nach dem Spiel ist enorm …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/553-bsc-70-linz-verliert-im-bundesliga-halbfinale"
@@ -246,4 +246,4 @@ Im Zuge der obligatorischen Abschlussbesprechung bedankte sich die Vereinsführu
 Zu Ende ist aber auch die Bundesligakoordination durch Reinhard Hechenberger. Nach 15 Jahren ist es Zeit für neuen Schwung zu sorgen.
 
 *   [< Zurück](/de/news/staatsmeisterin-sonja-langthaler-wechselt-zum-bsc-70-linz/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/552-rueckspiel-im-bundesliga-halbfinale-2015-2016)
+*   [Weiter >](/de/news/rueckspiel-im-bundesliga-halbfinale-2015-2016/)

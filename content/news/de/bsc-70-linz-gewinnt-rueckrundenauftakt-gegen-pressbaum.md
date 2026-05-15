@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz gewinnt Rückrundenauftakt gegen Pressbaum"
 slug: "bsc-70-linz-gewinnt-rueckrundenauftakt-gegen-pressbaum"
-date: "2026-05-12"
+date: "2015-01-11"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------------------------------------------- Mit einem Sieg startet der BSC 70 Linz in die Bundeslig…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/454-bsc-70-linz-gewinnt-rueckrundenauftakt-gegen-pressbaum"
@@ -143,5 +143,5 @@ GD
 
 Spielergebnisse: [Tournamentsoftware](https://obv.tournamentsoftware.com/sport/teammatch.aspx?id=F1E68A52-154B-465A-9D1F-2AF6CBA0D1B2&match=7 "6. Runde Bundesliga - BSC70Linz-Pressbaum")
 
-*   [< Zurück](/de/news/bundesliga-doppelrunde-24-25-jaenner-2015/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/461-bundesliga-doppelrund-24-25-jaenner-2015)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/450-bsc-70-linz-mit-einem-rabenschwarem-spiel)

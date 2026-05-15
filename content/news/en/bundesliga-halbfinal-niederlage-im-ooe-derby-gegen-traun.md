@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga Halbfinal Niederlage im OÖ. Derby gegen Traun"
 slug: "bundesliga-halbfinal-niederlage-im-ooe-derby-gegen-traun"
-date: "2026-05-12"
+date: "2023-03-11"
 category: "bundesliga"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/729-halbfinal-niederlage-im-ooe-derby-gegen-traun"
 translationStatus: "draft"

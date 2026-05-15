@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga Sieg gegen Alkoven"
 slug: "bundesliga-sieg-gegen-alkoven"
-date: "2026-05-12"
+date: "2019-01-14"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------ mit einem 5:3 im auswärtsspiel sind wir aus der Winterpause zurückgekommen und den zweiten Platz verteid…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/628-bundesliga-sieg-gegen-alkoven"

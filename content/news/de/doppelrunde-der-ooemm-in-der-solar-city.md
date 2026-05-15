@@ -1,7 +1,7 @@
 ---
 title: "Doppelrunde der OÖMM in der Solar City"
 slug: "doppelrunde-der-ooemm-in-der-solar-city"
-date: "2026-05-12"
+date: "2016-10-03"
 category: "ooe-meisterschaft"
 teaser: "------------------------------------------------------------------------------------------- Am Donnerstag, den 29.September fand die erste Runde der OÖMM unserer zweiten und dri…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/562-doppelrunde-der-ooemm-in-der-solar-city"
@@ -22,4 +22,4 @@ Gleichzeitig spielte unsere 3er Mannschaft gegen die Urfahraner. Für den BSC 70
 [Detailergebnisse BSC 70 Linz III - Union Urfahr](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=96E388BE-2235-45B2-8120-49D5FD067A39&match=185)
 
 *   [< Zurück](/de/news/ueberzeugender-sieg-im-kleinen-derby/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/554-ooe-mannschaftsmeisterschaft)
+*   [Weiter >](/de/news/ooe-mannschaftsmeisterschaft/)

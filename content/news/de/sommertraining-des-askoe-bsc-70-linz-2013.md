@@ -1,7 +1,7 @@
 ---
 title: "Sommertraining des Askö BSC 70 Linz 2013"
 slug: "sommertraining-des-askoe-bsc-70-linz-2013"
-date: "2026-05-12"
+date: "2013-07-17"
 category: "mitglieder"
 teaser: "----------------------------------------------------------------------------------------------- nachdem wir nunmehr auch das offizielle OK der Stadt Linz für ein Sommertraining …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/315-sommertraining-des-askoe-bsc-70-linz-2013"

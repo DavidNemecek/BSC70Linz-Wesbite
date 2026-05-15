@@ -1,7 +1,7 @@
 ---
 title: "OÖ. Mannschaftsmeisterschaft - auch BSC 70 Linz III (Herbst)meisterlich"
 slug: "ooe-mannschaftsmeisterschaft-auch-bsc-70-linz-iii-herbst-meisterlich"
-date: "2026-05-12"
+date: "2011-11-23"
 category: "ooe-meisterschaft"
 teaser: "--------------------------------------------------------------------------------------------------------------------------------------------------------- auch unsere 3. Mannscha…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/189-ooe-meisterschaft-auch-bsc-70-linz-iii-herbstmeisterlich"
@@ -123,5 +123,5 @@ GD
 
 21-14 21-12
 
-*   [< Zurück](/de/news/bsc-70-linz-ii-und-iii-starteten-erfolgreich-in-die-rueckrunde/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/201-bsc-70-linz-ii-und-iii-starteten-erfolgreich-in-die-rueckrund)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/188-ooe-mannschaftsmeisterschaft-herbstmeistertitel-fuer-bsc-70-linz-ii)

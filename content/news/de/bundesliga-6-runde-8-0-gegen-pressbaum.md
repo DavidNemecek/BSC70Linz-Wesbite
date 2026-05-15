@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga - 6. Runde 8:0 gegen Pressbaum"
 slug: "bundesliga-6-runde-8-0-gegen-pressbaum"
-date: "2026-05-12"
+date: "2009-12-21"
 category: "bundesliga"
 teaser: "--------------------------------------------------------------------------------------------- ein sensationelles Ergebnis gab es heute gegen den Tabellenführer und Herbstmeister…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/7-bundesliga-gegen-asv-pressbaum"

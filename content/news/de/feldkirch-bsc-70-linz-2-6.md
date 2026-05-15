@@ -428,4 +428,4 @@ GD
 16-21 17-21
 
 *   [< Zurück](/de/news/1-bundesliga-startet-am-30-1-2021-wieder/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/675-bundesligateam-startet-wieder-in-der-1-bundesliga)
+*   [Weiter >](/de/news/bundesligateam-startet-wieder-in-der-1-bundesliga/)

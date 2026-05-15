@@ -1,7 +1,7 @@
 ---
 title: "Bundesligateam mit Sieg gegen Pressbaum"
 slug: "bundesligateam-mit-sieg-gegen-pressbaum"
-date: "2026-05-12"
+date: "2016-12-11"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------------------------------------- zum Saisonabschluss in der Bundesliga bekamen noch einmal zahlreiche Sportfans tolle…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/571-bundesligateam-mit-sieg-gegen-pressbaum"

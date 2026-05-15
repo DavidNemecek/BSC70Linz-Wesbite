@@ -1,7 +1,7 @@
 ---
 title: "Rückspiel im Bundesliga Halbfinale 2015/2016"
 slug: "rueckspiel-im-bundesliga-halbfinale-2015-2016"
-date: "2026-05-12"
+date: "2016-04-06"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------------------------- Am kommenden Wochenende geht es für die 1. Mannschaft des BSC 70 Linz im …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/552-rueckspiel-im-bundesliga-halbfinale-2015-2016"
@@ -41,5 +41,5 @@ hier:
   
 [http://obv.tournamentsoftware.com/sport/draw.aspx?id=3BC7846C-E2AD-43B6-9537-78AD83EB3B09&draw=4](http://obv.tournamentsoftware.com/sport/draw.aspx?id=3BC7846C-E2AD-43B6-9537-78AD83EB3B09&draw=4)
 
-*   [< Zurück](/de/news/bsc-70-linz-verliert-im-2-bundesliga-halbfinale-2015-2016/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/549-start-ins-meister-play-off-2015-2016)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/553-bsc-70-linz-verliert-im-bundesliga-halbfinale)
+*   [Weiter >](/de/news/start-ins-meister-play-off-2015-2016/)

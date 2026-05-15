@@ -1,7 +1,7 @@
 ---
 title: "Live Score"
 slug: "live-score"
-date: "2026-05-12"
+date: "2021-03-06"
 category: "bundesliga"
 teaser: "---------------------------------- <iframe style=\"border: 0;\" src=\"https://badmintonticker.de/ticker/miniticker.php?n=bsc70linz\" width=\"600\" height=\"300\"</iframe - Live Streams"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/682-live-score"
@@ -16,4 +16,4 @@ translationStatus: "reviewed"
 [Youtube Channel](https://www.youtube.com/channel/UCsfAzyXLSMDMKt2IMxNrncw/videos?view=2&live_view=502) - Live Streams
 
 *   [< Zurück](/de/news/re-live-streams-bundesliga/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/684-niederlage-im-ooe-derby)
+*   [Weiter >](/de/news/niederlage-im-ooe-derby/)

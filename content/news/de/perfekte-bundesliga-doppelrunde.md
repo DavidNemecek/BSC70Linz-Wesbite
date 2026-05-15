@@ -1,7 +1,7 @@
 ---
 title: "Perfekte Bundesliga Doppelrunde"
 slug: "perfekte-bundesliga-doppelrunde"
-date: "2022-02-13"
+date: "2022-02-01"
 category: "bundesliga"
 teaser: "---------------------------------------------------------------------------- Perfektes Bundesliga Wochenende gegen Mannschaftsmeister Traun und Vize-Meister Pressbaum 2 Siege mi…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/703-perfekte-bundesliga-doppelrunde"

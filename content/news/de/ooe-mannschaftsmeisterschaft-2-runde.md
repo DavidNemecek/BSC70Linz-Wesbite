@@ -1,7 +1,7 @@
 ---
 title: "OÖ. Mannschaftsmeisterschaft - 2. Runde"
 slug: "ooe-mannschaftsmeisterschaft-2-runde"
-date: "2026-05-12"
+date: "2011-10-10"
 category: "ooe-meisterschaft"
 teaser: "----------------------------------------------------------------------------------------- auch in der heute stattgefundenen 2. Runde der OÖ. Mannschaftsmeisterschaft konnte die …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/177-ooe-mannschaftsmeisterschaft-2-runde"
@@ -20,4 +20,4 @@ auch heute konnte das Team mit einer geschlossenen Mannschaftsleistung gegen den
 [Zu den Spieldetails geht´s hier >>>](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=B4E7D6F8-6975-4A68-A7EF-24370C4CCF96&match=87)
 
 *   [< Zurück](/de/news/ooe-mannschaftsmeisterschaft-4-runde/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/173-ooe-mannschaftsmeisterschaft-1-runde)
+*   [Weiter >](/de/news/ooe-mannschaftsmeisterschaft-1-runde/)

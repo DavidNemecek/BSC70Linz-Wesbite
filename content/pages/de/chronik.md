@@ -2,7 +2,7 @@
 title: "Chronik"
 slug: "chronik"
 navGroup: "Verein"
-navOrder: 80
+navOrder: 90
 navLabel: "Chronik"
 translationStatus: "reviewed"
 ---

@@ -2,9 +2,8 @@
 title: "BSC 70 Linz"
 slug: "bsc-70-linz"
 navGroup: "Verein"
-navOrder: 10
+navOrder: 0
 navLabel: "BSC 70 Linz"
-navHidden: true
 translationStatus: "reviewed"
 ---
 
@@ -43,7 +42,7 @@ Nach den ersten 3 Jahren als Obmann steht Stephan Ziermayr dem Verein weiter vor
 Neben der Rückschau auf die abgelaufene Periode wurde auch die Neuausrichtung und die Anpassung der Höhe der Mitgliedsbeiträge beschlossen. Der Vorstand der letzten Periode wurde durch die Rechnungsprüfer entlastet und die Generalversammlung hat dem einstimmig zugestimmt.  
 Als eine der für den Verein größten Veränderung war der Beschluss zum Ausstieg aus der Badminton Bundesliga nach über 50 Jahren ununterbrochener Teilnahme. Dieser Schritt wurde bewusst mit der Neuorientierung des Vereins getroffen.
 
-Den aktullen Vorstand findest du [hier....](https://www.bsc70linz.at/cms/index.php/vorstand)
+Den aktullen Vorstand findest du [hier....](/de/vorstand/)
 
 [Weiterlesen...](https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/736-neuer-vereinsvorstand)
 

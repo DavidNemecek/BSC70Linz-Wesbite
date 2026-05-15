@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz verliert Auftaktspiel gegen Meister Mödling"
 slug: "bsc-70-linz-verliert-auftaktspiel-gegen-meister-moedling"
-date: "2015-10-10"
+date: "2015-10-11"
 category: "bundesliga"
 teaser: "----------------------------------------------------------------------------------------------------------------------------- Mit einer Niederlage startet der BSC 70 Linz in die…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/502-bsc-70-linz-verliert-auftaktspiel-gegen-meister-moedling"
@@ -150,5 +150,5 @@ GD
 
 Spielergebnisse: [Tournamentsoftware](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=3BC7846C-E2AD-43B6-9537-78AD83EB3B09&match=36 "Mödling - BSC 70 Linz")
 
-*   [< Zurück](/de/news/sieg-und-niederlage-fuer-das-bundesligateam/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/510-sieg-und-niederlage-fuer-das-bundesligateam)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/499-bundesligastart-zur-saison-2015-2016)

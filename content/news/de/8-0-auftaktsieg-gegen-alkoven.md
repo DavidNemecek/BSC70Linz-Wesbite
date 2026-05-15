@@ -1,7 +1,7 @@
 ---
 title: "8:0 Auftaktsieg gegen Alkoven"
 slug: "8-0-auftaktsieg-gegen-alkoven"
-date: "2026-05-12"
+date: "2018-10-07"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------ Mit einem nicht erwarteten Sieg in dieser Höhe steigt der BSC 70 Linz in der 2. Bundesliga an die Spitze…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/615-8-0-auftaktsieg-gegen-alkoven"
@@ -241,5 +241,5 @@ Spielpunkte
 
 388
 
-*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/616-niederlage-gegen-vrc-im-1-spiel-der-doppelrunde)
+*   [< Zurück](/de/news/niederlage-gegen-vrc-im-1-spiel-der-doppelrunde/)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/611-wolfgang-gnedt-mannschaftsstaatsmeister-mit-askoe-traun)

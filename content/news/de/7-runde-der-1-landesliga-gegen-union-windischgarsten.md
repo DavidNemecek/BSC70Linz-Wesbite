@@ -1,7 +1,7 @@
 ---
 title: "7. Runde der 1. Landesliga gegen Union Windischgarsten"
 slug: "7-runde-der-1-landesliga-gegen-union-windischgarsten"
-date: "2026-05-12"
+date: "2015-02-15"
 category: "ooe-meisterschaft"
 teaser: "------------------------------------------------------------------------------------------------------------------------- Am Valentinstag (gleichzeitig Faschingssamstag) trat un…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/469-7-runde-der-1-landesliga-gegen-union-windischgarsten"
@@ -29,5 +29,5 @@ Somit war der Endstand von 7:1 fixiert. Darauf wurde dann gemeinsam mit den gast
 
 Detailergebnisse: [Tournamentsoftware](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=414506CF-DAC2-4A7B-8F1A-4292B7DFF04D&match=83)
 
-*   [< Zurück](/de/news/1-landesliga-bsc-70-linz-ii-bc-windischgarsten/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/474-1-landesliga-bsc-70-linz-ii-bc-windischgarsten)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/444-1-landesliga-5-runde-bsc-70-linz-2-gegen-union-urfahr-1)

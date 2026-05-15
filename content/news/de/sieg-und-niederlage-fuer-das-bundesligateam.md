@@ -1,7 +1,7 @@
 ---
 title: "Sieg und Niederlage für das Bundesligateam"
 slug: "sieg-und-niederlage-fuer-das-bundesligateam"
-date: "2026-05-12"
+date: "2015-10-25"
 category: "bundesliga"
 teaser: "--------------------------------------------------------------------------------------------------- Verhextes Wochenende für das Team des BSC 70 Linz. BSC 70 Linz gg. Wolfurt - …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/510-sieg-und-niederlage-fuer-das-bundesligateam"
@@ -258,4 +258,4 @@ GD
 22-20 21-18
 
 *   [< Zurück](/de/news/bundesliga-niederlage-gegen-pressbaum-in-der-5-runde-2/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/502-bsc-70-linz-verliert-auftaktspiel-gegen-meister-moedling)
+*   [Weiter >](/de/news/bsc-70-linz-verliert-auftaktspiel-gegen-meister-moedling/)

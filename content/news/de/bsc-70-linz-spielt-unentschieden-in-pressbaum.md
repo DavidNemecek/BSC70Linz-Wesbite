@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz spielt Unentschieden in Pressbaum"
 slug: "bsc-70-linz-spielt-unentschieden-in-pressbaum"
-date: "2015-04-11"
+date: "2015-04-12"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------------------------------------------------- am 11.4.2015 startet das Bundesligateam im Mittleren Play-off gegen ASV …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/476-bsc-70-linz-spielt-unentschieden-in-pressbaum"

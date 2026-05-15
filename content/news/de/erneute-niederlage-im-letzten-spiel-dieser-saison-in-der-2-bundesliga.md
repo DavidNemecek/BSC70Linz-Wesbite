@@ -1,7 +1,7 @@
 ---
 title: "Erneute Niederlage im letzten Spiel dieser Saison in der 2. Bundesliga"
 slug: "erneute-niederlage-im-letzten-spiel-dieser-saison-in-der-2-bundesliga"
-date: "2026-05-12"
+date: "2014-03-02"
 category: "bundesliga"
 teaser: "--------------------------------------------------------------------------------------------------------------------------------------------------------- Auch im letzten Spiel d…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/372-erneute-niederlage-im-letzten-spiel-dieser-saison-in-der-2-bundesliga"
@@ -25,5 +25,5 @@ Voller Zuversicht geht es nun daran, sich für das Aufstiegsturnier gegen die ne
 
 Detialergebnisse: [WBH Wien II - BSC 70 Linz II](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=1AC83C88-25D9-410E-9CB9-130794508BD4&match=68)
 
-*   [< Zurück](/de/news/1-bundesliga-wbh-wien-bsc-70-linz-i-8-0/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/373-1-bundesliga-wbh-wien-bsc-70-linz-i-8-0)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/368-1-bundesliga-bsc-70-linz-verliert-im-laendle)

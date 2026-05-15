@@ -1,7 +1,7 @@
 ---
 title: "Bundesligastart am Sa 13.10.2012"
 slug: "bundesligastart-am-sa-13-10-2012"
-date: "2012-10-13"
+date: "2012-10-11"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------ am Sa. 13.10.2012 startet der Askö BSC 70 Linz mit 2 Teams in die Bundesligasaison. Für unsere 2. …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/241-bundesligastart-am-sa-13102012"

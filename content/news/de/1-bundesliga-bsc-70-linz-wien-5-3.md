@@ -1,9 +1,9 @@
 ---
 title: "1. Bundesliga | BSC 70 Linz - Wien 5:3"
 slug: "1-bundesliga-bsc-70-linz-wien-5-3"
-date: "2026-05-12"
+date: "2013-10-27"
 category: "bundesliga"
-teaser: "-------------------------------------------------------------------------------------- auch im Sonntagspiel konnte die 1. Mannschaft mit 5:3 gewinnen. Disziplin \\- Ergebnis HD1 …"
+teaser: "-------------------------------------------------------------------------------------- auch im Sonntagspiel konnte die 1. Mannschaft mit 5:3 gewinnen. Harald Dostal\") Disziplin …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/339-1-bundesliga-bsc-70-linz-wolfurt-53"
 translationStatus: "reviewed"
 ---
@@ -12,6 +12,8 @@ translationStatus: "reviewed"
 --------------------------------------------------------------------------------------
 
 auch im Sonntagspiel konnte die 1. Mannschaft mit 5:3 gewinnen.
+
+![(c) Harald Dostal](https://www.bsc70linz.at/cms/images/Spieler/BSC70%20Linz1.jpg "(c) Harald Dostal")
 
 [BSC 70 Linz I - WBH Wien](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=1AC83C88-25D9-410E-9CB9-130794508BD4&match=11)[: 5-3](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=1AC83C88-25D9-410E-9CB9-130794508BD4&match=11)
 

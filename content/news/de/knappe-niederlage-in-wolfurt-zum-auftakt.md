@@ -1,7 +1,7 @@
 ---
 title: "knappe Niederlage in Wolfurt zum Auftakt"
 slug: "knappe-niederlage-in-wolfurt-zum-auftakt"
-date: "2026-05-12"
+date: "2023-10-15"
 category: "bundesliga"
 teaser: "---------------------------------------------------------------------------------------------- 3:5 auswärts gegen Wolfurt Von einer 7:1 Niederlage, bis zu einem Sieg war alles m…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/732-knappe-niederlage-in-wolfurt-zum-auftakt"
@@ -23,5 +23,5 @@ Durch die Vorgabe, dass weder die Nr. 1 bei den Herren, noch bei den Damen von d
 
 [Spielergebnisse im Detail](https://obv.tournamentsoftware.com/league/86783531-AD61-48B7-BEF8-60870A78FDD8/team-match/28)
 
-*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/733-ooe-derby-gegen-traun-am-12-12-2023)
+*   [< Zurück](/de/news/ooe-derby-gegen-traun-am-12-12-2023/)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/731-bundesliga-start-im-laendle-14-10-2023)

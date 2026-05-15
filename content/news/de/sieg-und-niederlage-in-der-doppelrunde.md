@@ -1,7 +1,7 @@
 ---
 title: "Sieg und Niederlage in der Doppelrunde"
 slug: "sieg-und-niederlage-in-der-doppelrunde"
-date: "2026-05-12"
+date: "2022-11-20"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------------ das gestrige Spiel gegen Traun ging leider viel zu klar an die Trauner Sportfreunde. W…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/723-sieg-und-niederlage-in-der-doppelrunde"

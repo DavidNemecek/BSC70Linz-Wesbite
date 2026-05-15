@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga OÖ. Derby BSC 70 Linz - Traun"
 slug: "bundesliga-ooe-derby-bsc-70-linz-traun"
-date: "2009-12-04"
+date: "2009-12-06"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------------------------------------- Askö BSC 70 Linz gegen Traun - 4:4 Vorchdorf gegen BSC 70 Linz - 0:8 Am Freitag den …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/9-ooe-derby-bsc-70-linz-traun"

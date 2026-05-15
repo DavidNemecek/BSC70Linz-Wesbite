@@ -1,7 +1,7 @@
 ---
 title: "Ordentliche Generalversammlung 2013 des BSC 70 Linz"
 slug: "ordentliche-generalversammlung-2013-des-bsc-70-linz"
-date: "2013-06-26"
+date: "2013-05-17"
 category: "mitglieder"
 teaser: "-------------------------------------------------------------------------------------------------------------------- Gemäß unserer Statuten halten wir am 28. Juni 2013, ab 18 Uh…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/309-ordentliche-generalversammlung"

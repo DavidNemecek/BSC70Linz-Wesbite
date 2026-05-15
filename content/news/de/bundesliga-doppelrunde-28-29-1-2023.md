@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga Doppelrunde 28./29.1.2023"
 slug: "bundesliga-doppelrunde-28-29-1-2023"
-date: "2023-01-29"
+date: "2023-01-28"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------- Dieses Wochenende geht es gegen Mödling und Pressbaum um die nächsten wichtigen Punkte Rich…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/727-bundesliga-doppelrund-28-29-1-2023"
@@ -32,5 +32,5 @@ Leider konnten wir nicht über ein 4:4 hinaus Punkte machen
 
 Hinsichtlich des Meister Playoffs wird es nun wirklich ganz knapp. Aber noch besteht Hoffnung
 
-*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/728-niederlage-im-ooe-derby-28-2-2023)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/726-bundesliga-rueckrunden-start-gegen-wolfurt-2)
+*   [< Zurück](/de/news/niederlage-im-ooe-derby-28-2-2023/)
+*   [Weiter >](/de/news/bundesliga-sieg-gegen-wolfurt-mit-6-2/)

@@ -1,7 +1,7 @@
 ---
 title: "4. Runde OÖMM"
 slug: "4-runde-ooemm"
-date: "2026-05-12"
+date: "2009-11-10"
 category: "ooe-meisterschaft"
 teaser: "----------------------------------------- BSC 70 Linz II siegt gegen Tabellenführer Ohlsdorf mit 6:2 am gestrigen Abend bekamen wir es mit dem Tabellenführer Union Ohlsdorf zu t…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/13-4-runde-ooemm"

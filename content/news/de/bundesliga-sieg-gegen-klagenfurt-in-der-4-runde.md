@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga | Sieg gegen Klagenfurt in der 4. Runde"
 slug: "bundesliga-sieg-gegen-klagenfurt-in-der-4-runde"
-date: "2026-05-12"
+date: "2015-11-08"
 category: "bundesliga"
 teaser: "--------------------------------------------------------------------------------------------------------------- das erwartet harte Match lieferten sich die beiden Teams in der 1…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/515-bundesliga-sieg-gegen-klagenfurt-in-4-runde"

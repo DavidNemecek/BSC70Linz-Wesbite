@@ -1,7 +1,7 @@
 ---
 title: "1. Landesliga: BSC 70 Linz II - BC Windischgarsten"
 slug: "1-landesliga-bsc-70-linz-ii-bc-windischgarsten"
-date: "2026-05-12"
+date: "2015-03-16"
 category: "ooe-meisterschaft"
 teaser: "--------------------------------------------------------------------------------------------------------------- In der 9. und vorletzten Runde in der 1. Landesliag kam es zum Au…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/474-1-landesliga-bsc-70-linz-ii-bc-windischgarsten"
@@ -24,4 +24,4 @@ Daniel Walchsholfer holte ebenso wie Daniel Springer die weiteren Siegpunkte, so
 Detailergebnisse: [Tournamentsoftware](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=414506CF-DAC2-4A7B-8F1A-4292B7DFF04D&match=99)
 
 *   [< Zurück](/de/news/1-runde-bsc-70-linz-iii-gegen-sv-kematen/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/469-7-runde-der-1-landesliga-gegen-union-windischgarsten)
+*   [Weiter >](/de/news/7-runde-der-1-landesliga-gegen-union-windischgarsten/)

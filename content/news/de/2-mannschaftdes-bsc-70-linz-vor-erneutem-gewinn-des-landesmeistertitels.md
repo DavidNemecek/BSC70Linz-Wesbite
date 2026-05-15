@@ -1,7 +1,7 @@
 ---
 title: "2. Mannschaftdes BSC 70 Linz vor erneutem Gewinn des Landesmeistertitels"
 slug: "2-mannschaftdes-bsc-70-linz-vor-erneutem-gewinn-des-landesmeistertitels"
-date: "2026-05-12"
+date: "2019-02-09"
 category: "ooe-meisterschaft"
 teaser: "-------------------------------------------------------------------------------------------------------------------------------------------------------------- Unsere 2. Mannscha…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/633-2-mannschaftdes-bsc-70-linz-vor-erneutem-gewinn-des-landesmeistertitels"

@@ -1,7 +1,7 @@
 ---
 title: "OÖMM - Mannschafts Landesmeistertitel (so gut wie) verteidigt"
 slug: "ooemm-mannschafts-landesmeistertitel-so-gut-wie-verteidigt"
-date: "2009-03-09"
+date: "2009-03-03"
 category: "ooe-meisterschaft"
 teaser: "------------------------------------------------------------------------------------------------------------------------------------- OÖ. Mannschafts Landesmeistertitel (so gut …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/28-ooemm-mannschafts-landesmeistertitel-so-gut-wie-verteidigt"
@@ -189,5 +189,5 @@ Dann werden wir wohl auf die Titelverteidigung anstossen, freut sich Mannschafts
 
 ###### 2715
 
-*   [< Zurück](/de/news/ooemm-9-runde/)
-*   [Weiter >](/de/news/ooemm-7-runde/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/15-ooemm-3-runde)
+*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/30-ooemm-7-runde)

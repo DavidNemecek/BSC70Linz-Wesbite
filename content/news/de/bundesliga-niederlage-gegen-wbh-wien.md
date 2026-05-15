@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga Niederlage gegen WBH Wien"
 slug: "bundesliga-niederlage-gegen-wbh-wien"
-date: "2019-01-12"
+date: "2018-12-02"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------------------------------- einen schlechten Tag erwischten die Spieler des BSC 70 Linz. Nicht viel lief am letzten Sp…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/624-bundesliga-niederlage-gegen-wbh-wien"

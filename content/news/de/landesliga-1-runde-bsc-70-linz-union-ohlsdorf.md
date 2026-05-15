@@ -1,7 +1,7 @@
 ---
 title: "Landesliga – 1. Runde BSC 70 Linz-Union Ohlsdorf"
 slug: "landesliga-1-runde-bsc-70-linz-union-ohlsdorf"
-date: "2026-05-12"
+date: "2015-10-04"
 category: "ooe-meisterschaft"
 teaser: "----------------------------------------------------------------------------------------------------------- Am Freitag den 2. Oktober trafen sich 2 äußerst starke Mannschaft in …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/500-landesliga-1-runde-bsc-70-linz-union-ohlsdorf"
@@ -25,5 +25,5 @@ Mannschaftsführer Daniel Walchshofer resümierte, dass das Ergebnis klarer auss
 
 Spieldetails: [Tournamentsoftware](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=63EC460E-E2B5-4C0D-8531-319750A7FDF2&match=96)
 
-*   [< Zurück](/de/news/landesliga-2-runde-bsc-70-linz-2-gegen-bc-windischgarsten/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/505-landesliga-2-runde-bsc-70-linz-2-gegen-bc-windischgarsten)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/501-1-runde-bsc-70-linz-iii-gegen-sv-kematen)

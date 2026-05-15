@@ -1,7 +1,7 @@
 ---
 title: "2 Niederlagen in der  Doppelrunde Bundesliga vom 29./30.1.2011"
 slug: "2-niederlagen-in-der-doppelrunde-bundesliga-vom-29-30-1-2011"
-date: "2011-01-30"
+date: "2011-01-31"
 category: "bundesliga"
 teaser: "--------------------------------------------------------------------------------------------------------------------------------------- Askö BSC 70 Linz - Askö kelag Kärnten - 2…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/133-bericht-doppelrunde-bundesliga-293012011"

@@ -148,4 +148,4 @@ GD
 19-21 13-21
 
 *   [< Zurück](/de/news/bsc-70-linz-verliert-das-1-spiel-im-finale/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/385-vorbericht-2-semifinale-bundesliga)
+*   [Weiter >](/de/news/vorbericht-2-semifinale-bundesliga/)

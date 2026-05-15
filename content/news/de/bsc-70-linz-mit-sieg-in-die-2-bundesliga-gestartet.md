@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz mit Sieg in die 2. Bundesliga gestartet"
 slug: "bsc-70-linz-mit-sieg-in-die-2-bundesliga-gestartet"
-date: "2017-10-22"
+date: "2017-10-01"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------------------------------------- der BSC 70 Linz zeigte mit einem souveränen 6:2 Auswärtssieg …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/595-bsc-70-linz-mit-sieg-in-die-2-bundesliga-gestartet"

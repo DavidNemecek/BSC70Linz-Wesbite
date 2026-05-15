@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga | Unentschieden gegen Meister Mödling in der 6. Runde"
 slug: "bundesliga-unentschieden-gegen-meister-moedling-in-der-6-runde"
-date: "2026-05-12"
+date: "2016-01-10"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------------------------------------------------------------------------------------- das erwartet harte Match lieferten s…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/531-bundesliga-unentschieden-gegen-meister-moedling-in-6-runde"
@@ -151,4 +151,4 @@ GD
 21-11 25-23
 
 *   [< Zurück](/de/news/bundesliga-sieg-gegen-kelag-kaernten-in-der-7-runde/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/524-bundesliga-niederlage-gegen-pressbaum-in-der-5-runde)
+*   [Weiter >](/de/news/bundesliga-niederlage-gegen-pressbaum-in-der-5-runde/)

@@ -1,7 +1,7 @@
 ---
 title: "Vorbericht zum Rückrundenstart der 1. Bundesliga"
 slug: "vorbericht-zum-rueckrundenstart-der-1-bundesliga"
-date: "2017-01-07"
+date: "2017-01-04"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------------------------------------------------------- Am Sa. 7.1.2017, 15 Uhr startet der Askö BSC 70 Linz gegen den Man…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/573-vorbericht-zum-rueckrundenstart-der-1-bundesliga"

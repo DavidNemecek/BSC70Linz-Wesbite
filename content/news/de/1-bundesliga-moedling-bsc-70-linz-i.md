@@ -1,7 +1,7 @@
 ---
 title: "1. Bundesliga | Mödling - BSC 70 Linz I"
 slug: "1-bundesliga-moedling-bsc-70-linz-i"
-date: "2013-10-26"
+date: "2013-10-14"
 category: "bundesliga"
 teaser: "----------------------------------------------------------------------------------------- Niederlage in Mödling für unsere 1. Mannschaft BSC 70 Linz I verliert in Mödling mit 2:…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/332-1-bundesliga-moedling-bsc-70-linz-i"

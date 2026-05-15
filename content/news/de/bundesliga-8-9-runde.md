@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga 8.+9. Runde"
 slug: "bundesliga-8-9-runde"
-date: "2009-01-04"
+date: "2009-01-01"
 category: "bundesliga"
 teaser: "-------------------------------------------------------- 1\\. Bundesliga 8.+9. Runde: (Rückrundenstart) So. 4.1.2009 – BSC 70 Linz gg. Wr. Neustadt ( 7:1 ) Di. 6.1.2009 – BSC 70 …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/35-bundesliga-89-runde"

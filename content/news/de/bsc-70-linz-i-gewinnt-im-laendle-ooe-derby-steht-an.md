@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz I gewinnt im Ländle - OÖ. Derby steht an"
 slug: "bsc-70-linz-i-gewinnt-im-laendle-ooe-derby-steht-an"
-date: "2010-01-09"
+date: "2010-01-06"
 category: "bundesliga"
 teaser: "--------------------------------------------------------------------------------------------------------------------- Mit einem 5:3 Sieg gegen Wolfurt (auswärts) konnten wir an …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/53-bsc-70-linz-i-gewinnt-im-laendle"

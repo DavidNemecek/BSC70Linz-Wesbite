@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz - Mödling - Endstand 2:6"
 slug: "bsc-70-linz-moedling-endstand-2-6"
-date: "2026-05-12"
+date: "2014-10-25"
 category: "bundesliga"
 teaser: "----------------------------------------------------------------------------------- Endstand im Top-Spiel der Runde - 2:6 Spielübersicht Disziplin \\- Ergebnis HD1 \\- 21-18 21-18…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/437-bsc-70-linz-moedling-endstand-2-6"

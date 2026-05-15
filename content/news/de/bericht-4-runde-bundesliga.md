@@ -1,7 +1,7 @@
 ---
 title: "Bericht 4. Runde Bundesliga"
 slug: "bericht-4-runde-bundesliga"
-date: "2026-05-12"
+date: "2011-11-13"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------- im gestrigen Spiel gegen einen der Titelaspiranten - ASV Pressbaum - mussten wir erneut eine 0:8 Niederlage h…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/186-bericht-bundesliga-pressbau-bsc-70-linz"
@@ -40,5 +40,5 @@ Im abschließenden Mixed konnten auch Natalie Hofinger und Reinhard Hechenberger
 [Details zum Bundesligaspiel ASV Pressbaum - Askö BSC 70 Linz](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=43766155-EA03-461F-A322-45BFE89D8405&match=23)  
 ![Flo Baumgartner](assets/uploads/img-1004-a5221db153.jpg)
 
-*   [< Zurück](/de/news/6-runde-bundesliga-bsc-70-linz-schlaegt-klagenfurt-mit-5-3/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/197-1-bundesliga-bsc-70-linz-schlaegt-klagenfurt-mit-53)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/185-bundesliga-4-runde-pressbaum-gg-bsc-70-linz)

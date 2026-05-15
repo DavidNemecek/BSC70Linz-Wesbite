@@ -1,7 +1,7 @@
 ---
 title: "Senioren Europameisterschaften 2018 - Vorbericht"
 slug: "senioren-europameisterschaften-2018-vorbericht"
-date: "2026-05-12"
+date: "2018-09-21"
 category: "mitglieder"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/613-senioren-europameisterschaften-2018-vorbericht"
 translationStatus: "draft"

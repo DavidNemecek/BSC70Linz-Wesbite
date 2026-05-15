@@ -1,7 +1,7 @@
 ---
 title: "1. Runde Bundesliga"
 slug: "1-runde-bundesliga"
-date: "2026-05-12"
+date: "2009-09-20"
 category: "bundesliga"
 teaser: "---------------------------------------------------- Glücklos gestartet: BSC 70 Linz verliert in Wien mit 3:5 Glücklos und der uns eingeräumten Favoritenrolle nicht gerecht gewo…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/20-1-runde-bundesliga"

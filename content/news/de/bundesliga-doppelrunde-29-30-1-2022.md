@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga Doppelrunde 29./30.1.2022"
 slug: "bundesliga-doppelrunde-29-30-1-2022"
-date: "2022-01-30"
+date: "2022-01-28"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------- Dieses Wochenende wird durch die einzelnen Begegnungen zu einer kleinen Vorentscheidung Ric…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/702-bundesliga-doppelrunde-29-30-1-2022"
@@ -39,4 +39,4 @@ Auch wir versuchen über unsere Damen zu wichtigen Punkten gegen Pressbaum zu ko
 Auch hier wird die Tagesform über Sieg und Niederlage entscheiden. Beide Teams haben hohes Potential!
 
 *   [< Zurück](/de/news/perfekte-bundesliga-doppelrunde/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/701-bundesligaspiel-feldkirch-gegen-bsc-70-linz-verschoben)
+*   [Weiter >](/de/news/bundesligaspiel-feldkirch-gegen-bsc-70-linz-verschoben/)

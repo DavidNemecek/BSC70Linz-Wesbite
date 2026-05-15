@@ -1,7 +1,7 @@
 ---
 title: "45 Jahre BSC 70 Linz"
 slug: "45-jahre-bsc-70-linz"
-date: "2015-01-30"
+date: "2015-01-31"
 category: "mitglieder"
 teaser: "------------------------------------------------------ Mit einem tollen Fest zum 45. Geburtstag feierte sich der BSC 70 Linz am 30.1.2015 im Casino Linz. Fast auf dem Tag genau …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/465-45-jahre-bsc-70-linz"

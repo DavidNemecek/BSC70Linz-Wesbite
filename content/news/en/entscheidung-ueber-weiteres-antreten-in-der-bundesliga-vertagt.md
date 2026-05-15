@@ -1,7 +1,7 @@
 ---
 title: "Entscheidung über weiteres Antreten in der Bundesliga vertagt."
 slug: "entscheidung-ueber-weiteres-antreten-in-der-bundesliga-vertagt"
-date: "2010-04-28"
+date: "2010-04-27"
 category: "bundesliga"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/81-entscheidung-ueber-weiteres-antreten-in-der-bundesliga-vertagt"
 translationStatus: "draft"

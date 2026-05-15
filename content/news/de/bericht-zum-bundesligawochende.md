@@ -1,7 +1,7 @@
 ---
 title: "Bericht zum Bundesligawochende"
 slug: "bericht-zum-bundesligawochende"
-date: "2026-05-12"
+date: "2010-10-11"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------------------- Kelag Kärnten - Askö BSC 70 Linz - 6:2 Askö BSC 70 Linz - WBH Wien - 5:3 ein durchwachsenen Wochenende…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/106-bericht-zum-bundesligawochende"

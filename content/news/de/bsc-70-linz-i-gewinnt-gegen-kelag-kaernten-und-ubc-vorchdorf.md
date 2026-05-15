@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz I gewinnt gegen Kelag Kärnten und UBC Vorchdorf"
 slug: "bsc-70-linz-i-gewinnt-gegen-kelag-kaernten-und-ubc-vorchdorf"
-date: "2026-05-12"
+date: "2010-02-20"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------------------------------------------------------- Die Bundesligamannschaft des BSC 70 Linz ge…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/66-bsc-70-linz-i-gewinnt-gegen-kelag-kaernten"
@@ -26,6 +26,8 @@ Unsere Hoffnung war es gegen die Kärntner zumindest ein Unentschieden wird. All
 
 Heute gegen Vorchdorf:
 
+![](https://www.bsc70linz.at/media/images/zoom/BXRIVB/viewsize/TEAM_21_2_2010.jpg)
+
 Premiere für unsere Jungsters - Matthias & Chrstoph Almer.
 
 Für beide war es das erste Antreten in der 1. Bundesliga überhaupt.
@@ -43,6 +45,8 @@ Auch der Rest der Mannschaft konnte heute ohne größere Probleme ihre Spiele ge
 Bemerkenswert der Auftritt von Staatsmeisterin Claudia Mayer die ihrer Gegnerin absolut keine Chance ließ und glatt in zwei Sätzen gewann.
 
 Gratulation an die gesamte Mannschaft zum Erreichen des Semifinales der Badminton Bundesliga 2009/2010
+
+![Doppel Chrissi & Matthias Almer](https://www.bsc70linz.at/media/images/zoom/BXRIVB/viewsize/Doppel_Chrissi_Matthias.jpg)
 
 *   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/71-bundesliga-am-2732010-letzte-runde-im-grunddurchgang)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/65-bundesliga-doppelrunde-am-2021-februar-2010)

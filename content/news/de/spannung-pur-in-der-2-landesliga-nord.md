@@ -1,7 +1,7 @@
 ---
 title: "Spannung PUR in der 2. Landesliga Nord"
 slug: "spannung-pur-in-der-2-landesliga-nord"
-date: "2026-05-12"
+date: "2011-04-06"
 category: "ooe-meisterschaft"
 teaser: "----------------------------------------------------------------------------------------- in der 2. OÖ. Landesliga ist Spannung PUR angesagt. Am letzten Spieltag musste der Aufs…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/146-spannung-pur-in-der-2-landesliga-nord"
@@ -25,4 +25,4 @@ Die Mannschaft rund um Mannschaftführer Andi Böhm blicken gspannt auf die beid
 [Hier geht´s zur Liga](http://obv.tournamentsoftware.com/sport/draw.aspx?id=7D72D424-BCF5-4403-8B37-A011889CAEAF&draw=8 "2. LL - Nord")
 
 *   [< Zurück](/de/news/bsc-70-linz-iii-muss-absteigen/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/144-bsc-70-linz-ii-wird-vizemeister-20102011)
+*   [Weiter >](/de/news/bsc-70-linz-ii-wird-vize-landesmeister-2010-2011/)

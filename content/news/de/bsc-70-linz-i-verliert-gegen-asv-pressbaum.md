@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz I verliert gegen ASV Pressbaum"
 slug: "bsc-70-linz-i-verliert-gegen-asv-pressbaum"
-date: "2010-04-05"
+date: "2010-03-27"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------------------------------------------- im letzten Spiel des Grunddurchganges der Bundesliga wurde das Spiel gegen Tab…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/73-bsc-70-linz-i-verliert-gegen-asv-pressbaum"
@@ -51,7 +51,7 @@ Die Beginnzeiten der Begegnungen wurden jeweils ab 15 Uhr festgelegt.
 
 [Spieldetails](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=C89038EA-D735-4E25-96D2-369CA896DB0D&match=43)
 
-*   [< Zurück](/de/news/bundesliga-halbfinale-bsc-70-linz-asv-pressbaum/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/74-bundesliga-halbfinale-bsc-70-linz-asv-pressbaum)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/71-bundesliga-am-2732010-letzte-runde-im-grunddurchgang)
 
 **

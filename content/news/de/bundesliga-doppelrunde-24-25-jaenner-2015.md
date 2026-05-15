@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga Doppelrunde - 24./25. Jänner 2015"
 slug: "bundesliga-doppelrunde-24-25-jaenner-2015"
-date: "2026-05-12"
+date: "2015-01-25"
 category: "bundesliga"
 teaser: "--------------------------------------------------------------------------------------------------- ein schwieriges und entscheidendes Wochenende in der Badminton Bundesliga sta…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/461-bundesliga-doppelrund-24-25-jaenner-2015"
@@ -247,4 +247,4 @@ Ergebnis
 21-14 15-21 16-21
 
 *   [< Zurück](/de/news/bsc-70-linz-spielt-unentschieden-in-pressbaum/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/454-bsc-70-linz-gewinnt-rueckrundenauftakt-gegen-pressbaum)
+*   [Weiter >](/de/news/bsc-70-linz-gewinnt-rueckrundenauftakt-gegen-pressbaum/)

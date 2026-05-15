@@ -1,7 +1,7 @@
 ---
 title: "Bundesligastart am Sa 24.9. in Klagenfurt"
 slug: "bundesligastart-am-sa-24-9-in-klagenfurt"
-date: "2011-09-24"
+date: "2011-09-21"
 category: "bundesliga"
 teaser: "----------------------------------------------------------------------------------------------- kommenden Samstag startet unsere Bundesligamannschaft gegen Askö kelag Kärnten in…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/171-bundesligastart-am-sa-249-in-klagenfut"
@@ -24,5 +24,5 @@ Auf Seiten des BSC 70 Linz ist Maria Fröhlich, Nika Koncut und Sabina Magyar 
 [Zur gesamten Mannschaft des BSC 70 Linz](https://www.bsc70linz.at/cms/index.php/component/lr/?id=67&view=team&Itemid=27)  
 Auf Seiten des Askö kelag Kärnten sind Delqna Trandeva, Sarina Kohlfürst neu im Team.
 
-*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/172-niederlage-in-der-1-bundesliga)
+*   [< Zurück](/de/news/niederlage-in-der-1-bundesliga/)
 *   [Weiter >](/de/news/knalleffekt-am-rande-der-generalversammlung-des-bsc-70-linz/)

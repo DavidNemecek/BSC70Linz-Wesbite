@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz III und IV gewinnen mit jeweils 5:3"
 slug: "bsc-70-linz-iii-und-iv-gewinnen-mit-jeweils-5-3"
-date: "2026-05-12"
+date: "2013-10-21"
 category: "ooe-meisterschaft"
 teaser: "------------------------------------------------------------------------------------------------------------ Am Montag waren die dritte und vierte Mannschaft im Einsatz. BSC 70 …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/338-bsc-70-linz-iii-und-iv-gewinnen-mit-jeweils-53"
@@ -25,5 +25,5 @@ Im Einsatz waren: Regner Sabine bzw. Arnold Nikita, Böhm Andreas, Eckersberger 
 
 Ergebnisse: [Union Urfahr 3 - BSC 70 Linz IV](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=A9240FAE-F3B2-4605-8021-F3A0F040AB71&match=27 "Union Urfahr 3 - BSC 70 Linz IV")
 
-*   [< Zurück](/de/news/bsc-70-linz-iii-spielte-gegen-union-windischgarsten-unentschieden/)
-*   [Weiter >](/de/news/bsc-70-linz-iii-bittere-niederlage-in-kirchdorf/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/342-bsc-70-linz-iii-spielte-gegen-union-windischgarsten-unentschieden)
+*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/333-bsc-70-linz-iii-bittere-niederlage-in-kirchdorf)

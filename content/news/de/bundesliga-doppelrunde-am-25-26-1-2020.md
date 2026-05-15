@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga Doppelrunde am 25./26.1.2020"
 slug: "bundesliga-doppelrunde-am-25-26-1-2020"
-date: "2020-01-26"
+date: "2020-01-25"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------------- mit einem 6:2 Heimsieg gegen Ohlsdorf konnten wir unseren Platz im Play-off um den Au…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/660-bundesliga-doppelrunde-am-25-26-1-2020"
@@ -234,5 +234,5 @@ GD
 
 21-15 11-21 21-11
 
-*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/675-bundesligateam-startet-wieder-in-der-1-bundesliga)
+*   [< Zurück](/de/news/bundesligateam-startet-wieder-in-der-1-bundesliga/)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/653-herbstmeister)

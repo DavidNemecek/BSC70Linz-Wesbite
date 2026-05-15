@@ -1,7 +1,7 @@
 ---
 title: "Hochzeit Claudia & Hannes"
 slug: "hochzeit-claudia-hannes"
-date: "2014-06-14"
+date: "2014-06-15"
 category: "mitglieder"
 teaser: "-------------------------------------------------------------- am Samstag, 14.6.2014 gaben sich unser ehemaliges Vorstandsmitglied Hannes Gruber und seine Claudia das JA-Wort. D…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/412-hochzeit-clauida-hannes"

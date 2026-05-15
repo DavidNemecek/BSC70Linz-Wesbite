@@ -19,5 +19,5 @@ Im Einvernehmen mit den beiden Mannschaften und in Abstimmung mit den ÖBV Regul
 
 Voraussichtlich wird die Begegnung am 13.2.2022 nachgeholt!
 
-*   [< Zurück](/de/news/bundesliga-doppelrunde-29-30-1-2022/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/702-bundesliga-doppelrunde-29-30-1-2022)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/700-5-3-auswaertssieg-gegen-moedling-in-bundesliga)

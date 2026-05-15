@@ -1,7 +1,7 @@
 ---
 title: "Nachruf Klaus Dornig"
 slug: "nachruf-klaus-dornig"
-date: "2026-05-12"
+date: "2021-01-22"
 category: "bundesliga"
 teaser: "------------------------------------------------------ Der Vereinsvorstand muss die sehr traurige Nachricht vom Ableben von Klaus Dornig bekanntgeben. Klaus wurde 29 Jahre alt. …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/679-nachruf-klaus-dornig"

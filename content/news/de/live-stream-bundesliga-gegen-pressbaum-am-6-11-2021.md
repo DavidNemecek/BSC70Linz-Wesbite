@@ -1,7 +1,7 @@
 ---
 title: "Live Stream Bundesliga gegen Pressbaum am 6.11.2021"
 slug: "live-stream-bundesliga-gegen-pressbaum-am-6-11-2021"
-date: "2021-11-06"
+date: "2021-11-03"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------------------------------------------------------------- Das Spiel gegen den Titelfavoriten ASV Pressbaum wird am kom…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/697-live-stream-bundesliga-gegen-pressbaum-am-6-11-2021"
@@ -21,4 +21,4 @@ Für die Spieler des BSC 70 Linz wird es keine leichte Aufgabe werden.
 Ab der Doppelrunde gegen Wolfurt und Feldkirch beginnt für uns die "echte" Saison, nachdem gegen den Meister und des Vizemeister die Spiele absolviert wurden!
 
 *   [< Zurück](/de/news/5-3-auswaertssieg-gegen-moedling-in-bundesliga/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/696-auftaktniederlage-in-traun-mit-6-2)
+*   [Weiter >](/de/news/auftaktniederlage-in-traun-mit-6-2/)

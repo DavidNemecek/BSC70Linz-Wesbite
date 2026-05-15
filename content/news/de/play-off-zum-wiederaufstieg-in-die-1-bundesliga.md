@@ -1,7 +1,7 @@
 ---
 title: "Play-off zum Wiederaufstieg in die 1. Bundesliga"
 slug: "play-off-zum-wiederaufstieg-in-die-1-bundesliga"
-date: "2026-05-12"
+date: "2019-04-14"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------------------------------- nach 2 Spieltagen ist die Chance auf den Wiederaufstieg nach wie vo…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/636-play-off-zum-wiederaufstieg-in-die-1-bundesliga"

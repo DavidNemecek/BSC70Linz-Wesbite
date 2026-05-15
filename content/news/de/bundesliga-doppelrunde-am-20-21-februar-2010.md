@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga Doppelrunde am 20./21. Februar 2010"
 slug: "bundesliga-doppelrunde-am-20-21-februar-2010"
-date: "2010-02-20"
+date: "2010-02-18"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------------------------------------------------- Der BSC 70 Linz greift nach dem Semifinalplatz der Badminton Bundesliga …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/65-bundesliga-doppelrunde-am-2021-februar-2010"

@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga Finale im ORF"
 slug: "bundesliga-finale-im-orf"
-date: "2026-05-12"
+date: "2014-05-15"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------- <iframe src=\"https://www.youtube.com/embed/bkwWyW8zRZM?rel=0&amp;fs=1&amp;wmode=transparent\" width=\"400\" height=\"3…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/396-bundesliga-finale-im-orf"

@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga 10. Runde - OÖ. Derby"
 slug: "bundesliga-10-runde-ooe-derby"
-date: "2026-05-12"
+date: "2012-03-10"
 category: "bundesliga"
 teaser: "--------------------------------------------------------------------------- großes OÖ Derby in der 1. Bundesliga Askö BSC 70 Linz - Askö Traun 4 : 4 Unentschieden das große OÖ D…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/191-bundesliga-ooe-derby"

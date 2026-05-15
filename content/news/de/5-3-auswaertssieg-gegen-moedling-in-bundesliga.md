@@ -1,7 +1,7 @@
 ---
 title: "5:3 Auswärtssieg gegen Mödling in Bundesliga"
 slug: "5-3-auswaertssieg-gegen-moedling-in-bundesliga"
-date: "2026-05-12"
+date: "2021-12-19"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------------------------------------------------- Mit einem 5:3 Auswärtserfolg konnte unser Bundesligateam das schwierige …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/700-5-3-auswaertssieg-gegen-moedling-in-bundesliga"

@@ -1,7 +1,7 @@
 ---
 title: "Bundesligastart zur Saison 2013/2014"
 slug: "bundesligastart-zur-saison-2013-2014"
-date: "2013-10-12"
+date: "2013-10-05"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------------------------------- Am Sa. 12.10.2013 startet der Askö BSC 70 Linz wieder mit 2 Teams in die Bundesligasaison.…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/330-bundesligastart-zur-saison-20132014"

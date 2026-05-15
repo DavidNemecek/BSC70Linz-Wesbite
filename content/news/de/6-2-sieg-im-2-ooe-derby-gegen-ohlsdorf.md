@@ -1,7 +1,7 @@
 ---
 title: "6:2 Sieg im 2. OÖ Derby gegen Ohlsdorf"
 slug: "6-2-sieg-im-2-ooe-derby-gegen-ohlsdorf"
-date: "2026-05-12"
+date: "2023-12-03"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------------ 6:2 zu Hause gegen Ohsdorf nach dem Unentschieden gegen Traun und den Sieg im 2. Lokal…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/735-6-2-sieg-im-2-ooe-derby-gegen-ohlsdorf"
@@ -26,4 +26,4 @@ nach dem Unentschieden gegen Traun und den Sieg im 2. Lokalderby können wir zuf
 
 [Spielergebnisse im Detail](https://obv.tournamentsoftware.com/league/86783531-AD61-48B7-BEF8-60870A78FDD8/team-match/26)
 
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/733-ooe-derby-gegen-traun-am-12-12-2023)
+*   [Weiter >](/de/news/ooe-derby-gegen-traun-am-12-12-2023/)

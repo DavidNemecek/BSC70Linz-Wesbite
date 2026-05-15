@@ -1,7 +1,7 @@
 ---
 title: "KEIN Kindertraining am Freitag,30. November 2012"
 slug: "kein-kindertraining-am-freitag-30-november-2012"
-date: "2026-05-12"
+date: "2012-11-19"
 category: "mitglieder"
 teaser: "------------------------------------------------------------------------------------------------------------- Am Freitag, den 30. November 2012 findet KEIN Kindertraining statt.…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/256-kein-kindertraining-am-freitag30-november-2012"

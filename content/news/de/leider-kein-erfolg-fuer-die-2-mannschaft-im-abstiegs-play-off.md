@@ -1,7 +1,7 @@
 ---
 title: "Leider kein Erfolg für die 2. Mannschaft im Abstiegs-Play-Off"
 slug: "leider-kein-erfolg-fuer-die-2-mannschaft-im-abstiegs-play-off"
-date: "2026-05-12"
+date: "2013-04-06"
 category: "bundesliga"
 teaser: "---------------------------------------------------------------------------------------------------------------------------------------- Während die erste Mannschaft daheim gege…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/303-leider-kein-erfolg-fuer-die-2-mannschaft-im-abstiegs-play-off"

@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga OÖ. Derby BSC 70 Linz gegen Traun"
 slug: "bundesliga-ooe-derby-bsc-70-linz-gegen-traun"
-date: "2017-01-28"
+date: "2017-01-25"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------------------------ Its´s Derby Time again: BSC 70 Linz gegen Askö Traun Sa. 28.1.2017, 15 Uhr…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/575-ooe-derby-bsc-70-linz-gegen-traun"

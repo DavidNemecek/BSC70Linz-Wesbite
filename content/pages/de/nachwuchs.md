@@ -1,7 +1,7 @@
 ---
 title: "Nachwuchs"
 slug: "nachwuchs"
-navGroup: "Nachwuchs"
+navGroup: "Verein"
 navOrder: 20
 navLabel: "Nachwuchs"
 translationStatus: "reviewed"

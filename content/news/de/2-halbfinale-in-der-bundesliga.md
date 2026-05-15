@@ -1,7 +1,7 @@
 ---
 title: "2. Halbfinale in der BUNDESLIGA"
 slug: "2-halbfinale-in-der-bundesliga"
-date: "2026-05-12"
+date: "2010-04-10"
 category: "bundesliga"
 teaser: "---------------------------------------------------------------------------- Die Entscheidung wurde auf Sonntag vertagt: ASV Pressbaum gegen Askö BSC 70 Linz 2\\. Halbfinale 4:4;…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/76-heute-2-halbfinale-in-der-bundesliga"

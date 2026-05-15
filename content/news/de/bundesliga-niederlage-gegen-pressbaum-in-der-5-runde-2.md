@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga | Niederlage gegen Pressbaum in der 5. Runde"
 slug: "bundesliga-niederlage-gegen-pressbaum-in-der-5-runde-2"
-date: "2026-05-12"
+date: "2015-11-08"
 category: "bundesliga"
 teaser: "--------------------------------------------------------------------------------------------------------------------------- das erwartet harte Match lieferten sich die beiden Te…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/523-bundesliga-sieg-gegen-klagenfurt-in-4-runde-2"

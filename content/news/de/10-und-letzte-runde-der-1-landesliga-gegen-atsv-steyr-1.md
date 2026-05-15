@@ -1,7 +1,7 @@
 ---
 title: "10. und letzte Runde der 1. Landesliga gegen ATSV Steyr 1"
 slug: "10-und-letzte-runde-der-1-landesliga-gegen-atsv-steyr-1"
-date: "2026-05-12"
+date: "2014-04-01"
 category: "ooe-meisterschaft"
 teaser: "------------------------------------------------------------------------------------------------------------------------------- Am Montag, den 31.März fand die letzte Runde der …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/382-10-und-letzte-runde-der-1-landesliga-gegen-atsv-steyr-1"
@@ -28,4 +28,4 @@ Wobei in unserer 3er Mannschaft sicher viel mehr stecken würde, aber wenn man n
 Details in der [Tournamentsoftware](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=A9240FAE-F3B2-4605-8021-F3A0F040AB71&match=89)
 
 *   [< Zurück](/de/news/1-landesliga-1-runde-gegen-ubc-neuhofen-1/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/378-9-runde-in-der-ooe-landesliga-gegen-union-windischgarsten)
+*   [Weiter >](/de/news/9-runde-in-der-ooe-landesliga-gegen-union-windischgarsten/)

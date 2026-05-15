@@ -1,7 +1,7 @@
 ---
 title: "Neuer Vereinsvorstand ab Juni 2024"
 slug: "neuer-vereinsvorstand-ab-juni-2024"
-date: "2026-05-12"
+date: "2024-07-02"
 category: "mitglieder"
 teaser: "---------------------------------------------------------------------------------- Mit der ordentlichen Generalversammlung des BSC 70 Linz wurde auch die Zukunft für den Verein …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/736-neuer-vereinsvorstand"

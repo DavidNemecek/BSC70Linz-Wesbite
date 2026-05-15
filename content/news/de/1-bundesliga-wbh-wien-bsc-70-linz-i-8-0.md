@@ -1,7 +1,7 @@
 ---
 title: "1. Bundesliga | WBH Wien - BSC 70 Linz I: 8:0"
 slug: "1-bundesliga-wbh-wien-bsc-70-linz-i-8-0"
-date: "2014-03-01"
+date: "2014-03-02"
 category: "bundesliga"
 teaser: "--------------------------------------------------------------------------------------------------- BSC 70 Linz 1 verliert beim Meister WBH Wien mit 0:8 und kassiert die höchste…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/373-1-bundesliga-wbh-wien-bsc-70-linz-i-8-0"
@@ -498,4 +498,4 @@ Ergebnis
 5-3
 
 *   [< Zurück](/de/news/bsc-70-linz-gewinnt-das-1-halbfinale/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/372-erneute-niederlage-im-letzten-spiel-dieser-saison-in-der-2-bundesliga)
+*   [Weiter >](/de/news/erneute-niederlage-im-letzten-spiel-dieser-saison-in-der-2-bundesliga/)

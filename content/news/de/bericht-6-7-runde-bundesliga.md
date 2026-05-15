@@ -1,7 +1,7 @@
 ---
 title: "Bericht - 6. + 7. Runde Bundesliga"
 slug: "bericht-6-7-runde-bundesliga"
-date: "2026-05-12"
+date: "2012-01-09"
 category: "bundesliga"
 teaser: "---------------------------------------------------------------------------- ein toller Start in das neue Jahr gelang unserem Bundesligateam. Mit einem 5:3 gegen Askö Kelag Kärn…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/199-bericht-6-7-runde-bundesliga"

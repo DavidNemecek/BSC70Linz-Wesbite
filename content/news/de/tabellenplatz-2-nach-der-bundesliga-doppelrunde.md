@@ -1,7 +1,7 @@
 ---
 title: "Tabellenplatz 2 nach der Bundesliga Doppelrunde"
 slug: "tabellenplatz-2-nach-der-bundesliga-doppelrunde"
-date: "2018-11-10"
+date: "2018-10-14"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------------------------------ Nach den Strapazen und der daraus folgenden Niederlage am gestrigen …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/617-tabellenplatz-2-nachder-bundesliga-doppelrunde"
@@ -352,4 +352,4 @@ Spielpunkte
 1123
 
 *   [< Zurück](/de/news/unentschieden-im-topspiel-gegen-wr-neustadt/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/616-niederlage-gegen-vrc-im-1-spiel-der-doppelrunde)
+*   [Weiter >](/de/news/niederlage-gegen-vrc-im-1-spiel-der-doppelrunde/)

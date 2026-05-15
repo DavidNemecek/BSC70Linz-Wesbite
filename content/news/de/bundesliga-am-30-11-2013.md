@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga am 30.11.2013"
 slug: "bundesliga-am-30-11-2013"
-date: "2013-11-30"
+date: "2013-11-26"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------- am Samstag 30.11 geht es für unsere 1. Mannschaft gegen Askö kelag Kärnten und für die 2. Mannschaft gegen Vorchdo…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/349-bundesliga-am-30112013"

@@ -1,8 +1,8 @@
 ---
 title: "Trainingszeiten"
 slug: "trainingszeiten"
-navGroup: "Training"
-navOrder: 30
+navGroup: "Verein"
+navOrder: 60
 navLabel: "Trainingszeiten"
 translationStatus: "reviewed"
 ---

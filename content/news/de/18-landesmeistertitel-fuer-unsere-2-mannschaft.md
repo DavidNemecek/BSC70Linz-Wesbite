@@ -1,7 +1,7 @@
 ---
 title: "18. Landesmeistertitel für unsere 2. Mannschaft"
 slug: "18-landesmeistertitel-fuer-unsere-2-mannschaft"
-date: "2026-05-12"
+date: "2020-03-05"
 category: "ooe-meisterschaft"
 teaser: "------------------------------------------------------------------------------------------------------------ Im heutigen Spiel kam es zu einer Vorentscheidung im Kampf um deN la…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/667-18-landesmeistertitel-fuer-unsere-2-mannschaft"

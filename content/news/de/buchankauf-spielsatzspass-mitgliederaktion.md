@@ -1,7 +1,7 @@
 ---
 title: "Buchankauf \"SpielSatzSpass\" Mitgliederaktion"
 slug: "buchankauf-spielsatzspass-mitgliederaktion"
-date: "2026-05-12"
+date: "2019-10-12"
 category: "mitglieder"
 teaser: "---------------------------------------------------------------------------------------------------- Mitglieder können das Buch SpielSatzSpass exklusiv über den BSC 70 Linz bezi…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/646-buchankauf-spielsatzspass-mitgliederaktion"

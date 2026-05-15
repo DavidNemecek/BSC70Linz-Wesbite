@@ -1,7 +1,7 @@
 ---
 title: "Herbstmeister 2. Bundesliga 2019/2020"
 slug: "herbstmeister-2-bundesliga-2019-2020"
-date: "2026-05-12"
+date: "2019-11-30"
 category: "bundesliga"
 teaser: "--------------------------------------------------------------------------------------- Wir sind Herbstmeister der 2. Bundesliga! Mit einem 6:2 auswärts gegen Serienmeister WBH …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/653-herbstmeister"

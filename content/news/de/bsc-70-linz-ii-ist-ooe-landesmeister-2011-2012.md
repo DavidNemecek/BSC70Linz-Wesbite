@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz II ist OÖ. Landesmeister 2011/2012"
 slug: "bsc-70-linz-ii-ist-ooe-landesmeister-2011-2012"
-date: "2026-05-12"
+date: "2012-03-22"
 category: "ooe-meisterschaft"
 teaser: "---------------------------------------------------------------------------------------------------------- trotz der ersten Niederlage in dieser Saison war der Askö BSC 70 Linz …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/72-bsc-70-linz-ii-ist-ooe-landesmeister"
@@ -60,5 +60,5 @@ Askö Linz
 
 4
 
-*   [< Zurück](/de/news/kantersieg-gegen-mitfavoriten-um-den-meistertitel/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/247-kantersieg-gegen-mitfavoriten)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/214-showdown-in-der-1-landesliga)

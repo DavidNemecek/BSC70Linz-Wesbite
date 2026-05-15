@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz weiterhin in der 1. Bundesliga"
 slug: "bsc-70-linz-weiterhin-in-der-1-bundesliga"
-date: "2026-05-12"
+date: "2010-04-29"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------------------- das entschied der Vereinsvorstand in seiner 2. Sitzung. Gleichzeitig wurden heu…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/82-bsc-70-linz-weiterhin-in-der-1-bundesliga"

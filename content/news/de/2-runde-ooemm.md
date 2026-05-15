@@ -1,7 +1,7 @@
 ---
 title: "2. Runde OÖMM"
 slug: "2-runde-ooemm"
-date: "2026-05-12"
+date: "2009-10-16"
 category: "ooe-meisterschaft"
 teaser: "----------------------------------------- OÖ. Mannschafts-Meisterschaft 2009/2010 2 Siege in der 2. Runde mit 2 Siegen in dieser Woche haben sie die 2. + 3. Mannschaft des BSC 7…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/17-2-runde-ooemm"

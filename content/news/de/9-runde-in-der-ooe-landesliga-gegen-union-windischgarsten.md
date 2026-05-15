@@ -1,7 +1,7 @@
 ---
 title: "9. Runde in der OÖ Landesliga gegen Union Windischgarsten"
 slug: "9-runde-in-der-ooe-landesliga-gegen-union-windischgarsten"
-date: "2026-05-12"
+date: "2014-03-15"
 category: "ooe-meisterschaft"
 teaser: "--------------------------------------------------------------------------------------------------------------------------------- Am Donnerstag den 13. März 2014 bestritt unsere…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/378-9-runde-in-der-ooe-landesliga-gegen-union-windischgarsten"
@@ -19,5 +19,5 @@ Mit diesem Sieg überholen uns die Windischgarstner auch in der Tabelle und sind
 
 Für den BSC 70 Linz 3 im Einsatz waren: Christoph Kainrath, Harald Hochgatterer, Andi Böhm, Hilda Kosorus, Ursula Edelmüller und Mannschaftsführer Daniel Walchshofer
 
-*   [< Zurück](/de/news/10-und-letzte-runde-der-1-landesliga-gegen-atsv-steyr-1/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/382-10-und-letzte-runde-der-1-landesliga-gegen-atsv-steyr-1)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/374-8-runde-in-der-ooe-landesliga-gegen-bc-windischgarsten)

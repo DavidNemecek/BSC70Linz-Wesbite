@@ -1,7 +1,7 @@
 ---
 title: "Senioren Staatsmeisterschaften 2023"
 slug: "senioren-staatsmeisterschaften-2023"
-date: "2026-05-12"
+date: "2023-11-22"
 category: "news"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-turniere/25-oebv-turniere/734-senioren-staatsmeisterschaften-2023"
 translationStatus: "draft"

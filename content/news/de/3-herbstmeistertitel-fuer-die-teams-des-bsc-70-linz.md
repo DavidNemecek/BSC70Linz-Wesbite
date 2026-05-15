@@ -1,7 +1,7 @@
 ---
 title: "3 Herbstmeistertitel für die Teams des BSC 70 Linz"
 slug: "3-herbstmeistertitel-fuer-die-teams-des-bsc-70-linz"
-date: "2026-05-12"
+date: "2015-11-27"
 category: "ooe-meisterschaft"
 teaser: "------------------------------------------------------------------------------------------------------------------- Die 3 Teams des BSC 70 Linz in der OÖ. Mannschaftsmeisterscha…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/521-3x-herbstmeistertitel-fuer-die-team-des-bsc-70-linz"
@@ -636,4 +636,4 @@ Spielpunkte
 1291
 
 *   [< Zurück](/de/news/6-runde-landesliga-union-ohlsdorf-2-bsc-70-linz-2/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/518-ooemm-2-mal-gegen-ubc-neuhofen)
+*   [Weiter >](/de/news/ooemm-2-mal-gegen-ubc-neuhofen/)

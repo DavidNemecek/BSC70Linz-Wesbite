@@ -1,7 +1,7 @@
 ---
 title: "OÖ. Derby gegen Traun am 12.12.2023"
 slug: "ooe-derby-gegen-traun-am-12-12-2023"
-date: "2023-12-12"
+date: "2023-11-13"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------ das große OÖ. Derby Linz gegen Traun bzw. Traun gegen Linz steht seit Jahrzehnten für Spitze…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/733-ooe-derby-gegen-traun-am-12-12-2023"
@@ -19,5 +19,5 @@ Am heutigen 4. Spieltag konnte ein 4:4 herausgespielt werden.
 
 mit diesem Unentschieden haben wir uns vor dem kleinen OÖ. Derby gegen Ohlsdorf einen kleinen Polster Richtung Tabellenplatz 5 herausgespielt. Für das Mittlere Play-off wollen wir mit 2 Heimspielen für einen kleinen Vorteil sorgen! Bis dorthin heißt es aber weiterhin Lernen und Weiterentwickeln. Dass die Liga eng beisammen liegt hat sich gestern auch wieder einmal gezeigt. 
 
-*   [< Zurück](/de/news/6-2-sieg-im-2-ooe-derby-gegen-ohlsdorf/)
-*   [Weiter >](/de/news/knappe-niederlage-in-wolfurt-zum-auftakt/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/735-6-2-sieg-im-2-ooe-derby-gegen-ohlsdorf)
+*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/732-knappe-niederlage-in-wolfurt-zum-auftakt)

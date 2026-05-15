@@ -1,7 +1,7 @@
 ---
 title: "7. Runde in der Landesliga für den BSC 70 Linz 3"
 slug: "7-runde-in-der-landesliga-fuer-den-bsc-70-linz-3"
-date: "2026-05-12"
+date: "2014-02-11"
 category: "ooe-meisterschaft"
 teaser: "--------------------------------------------------------------------------------------------------------------- Nach unserer unglücklichen Niederlage in der letzten Runde gegen …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/370-7-runde-in-der-landesliga-fuer-den-bsc-70-linz-3"

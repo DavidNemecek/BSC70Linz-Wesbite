@@ -1,7 +1,7 @@
 ---
 title: "Bericht Doppelrunde in der 2. Bundesliga"
 slug: "bericht-doppelrunde-in-der-2-bundesliga"
-date: "2026-05-12"
+date: "2012-10-28"
 category: "bundesliga"
 teaser: "--------------------------------------------------------------------------------------------- Dieses Wochenende gab es eine Doppelrunde für die Mannschaft der 2. Bundesliga. Nac…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/246-doppelrunde-in-der-2-bundesliga"

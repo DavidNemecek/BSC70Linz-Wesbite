@@ -1,7 +1,7 @@
 ---
 title: "Bundesliga - 5./6. Runde"
 slug: "bundesliga-5-6-runde"
-date: "2008-11-23"
+date: "2009-11-23"
 category: "bundesliga"
 teaser: "---------------------------------------------------------- Bericht zur Bundesliga Doppelrunde vom 22.+23.11.2008 Wien - BSC 70 Linz 5:3 Klagenfurt - BSC 70 Linz 5:3 Schwarzes Wo…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/40-bundesliga-56-runde"
@@ -16,6 +16,8 @@ Bericht zur Bundesliga Doppelrunde vom 22.+23.11.2008
 Wien - BSC 70 Linz 5:3
 
 Klagenfurt - BSC 70 Linz 5:3
+
+![](http://www.bsc70linz.at/cms/typo3temp/pics/c0e8c9bbb6.jpg)
 
 Schwarzes Wochenende für die Bundesligaspieler des BSC 70 Linz
 

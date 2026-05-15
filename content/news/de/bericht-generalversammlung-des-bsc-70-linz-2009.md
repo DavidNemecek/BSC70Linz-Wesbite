@@ -1,7 +1,7 @@
 ---
 title: "Bericht - Generalversammlung des BSC 70 Linz 2009"
 slug: "bericht-generalversammlung-des-bsc-70-linz-2009"
-date: "2026-05-12"
+date: "2009-05-31"
 category: "mitglieder"
 teaser: "-------------------------------------------------------------------------------------------------------------- BSC 70 Linz Generalversammlung 2009 ------------------------------…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/24-bericht-generalversammlung-des-bsc-70-linz"
@@ -29,5 +29,7 @@ Unter anderem haben wir den Vertrag mit unserer aktuellen Staatsmeisterin im Dam
 Darüber hinaus haben wir mit Matthias Almer (15 Jahre) einen der hoffnungsvollsten Talente des österreichischen Badmintonsports unter Vertrag genommen. Er ist im Nationalkader ATU17/19. Auch sein Bruder Christoph Almer wird für uns ab der kommenden Saison spielen. Beide möchten wir in ihrer sportlichen Entwicklung bestmöglich unterstützen und haben langfristig gestaltete Verträge abgeschlossen. „Bereits die Eltern (Hertha + Alexander Almer) waren erfolgreiche Staatsligaspieler beim BSC 70 Linz, und darum freut mich die gemeinsame Zukunft mit Christoph u. Matthias Almer“ erklärt Obmann Reinhard Hechenberger.
 
 „Mit dem BSC 70 Linz haben meine Kinder die optimalen Voraussetzungen um sich im Badminton Sport weiter zu entwickeln. Hier gibt es ein professionelles Umfeld“ freut sich auch Alexander Almer über die geschlossene Vereinbarung.
+
+![](https://www.bsc70linz.at/cms/typo3temp/pics/3f3bb01716.jpg)
 
 *   [< Zurück](/de/news/homepage-relaunch/)

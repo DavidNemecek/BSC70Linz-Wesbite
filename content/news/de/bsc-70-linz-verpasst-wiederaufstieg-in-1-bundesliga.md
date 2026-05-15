@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz verpasst Wiederaufstieg in 1. Bundesliga"
 slug: "bsc-70-linz-verpasst-wiederaufstieg-in-1-bundesliga"
-date: "2026-05-12"
+date: "2019-04-28"
 category: "bundesliga"
 teaser: "--------------------------------------------------------------------------------------------------------------------- Nichts wurde mit dem Wunder zum Wiederaufstieg zur Jubiläum…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/638-bsc-70-linz-verpasst-wiederaufstieg-in-1-bundesliga"

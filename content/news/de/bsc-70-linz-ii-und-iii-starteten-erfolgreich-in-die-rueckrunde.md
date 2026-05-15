@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz II und III starteten erfolgreich in die Rückrunde"
 slug: "bsc-70-linz-ii-und-iii-starteten-erfolgreich-in-die-rueckrunde"
-date: "2026-05-12"
+date: "2012-01-14"
 category: "ooe-meisterschaft"
 teaser: "----------------------------------------------------------------------------------------------------------------------------------------- Am Donnerstag spielte die dritte Mannsc…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/201-bsc-70-linz-ii-und-iii-starteten-erfolgreich-in-die-rueckrund"
@@ -22,4 +22,4 @@ Auch die zweite Mannschaft spielte an diesem Wochenende und konnte auswärts den
 Ergebnisdetails: [BC Schweiger-Sport Alkoven II - BSC 70 Linz II](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=B4E7D6F8-6975-4A68-A7EF-24370C4CCF96&match=103)
 
 *   [< Zurück](/de/news/ooe-mannschaftsmeisterschaft-7-runde/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/189-ooe-meisterschaft-auch-bsc-70-linz-iii-herbstmeisterlich)
+*   [Weiter >](/de/news/ooe-mannschaftsmeisterschaft-auch-bsc-70-linz-iii-herbst-meisterlich/)

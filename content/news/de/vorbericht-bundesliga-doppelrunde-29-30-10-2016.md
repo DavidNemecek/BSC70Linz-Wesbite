@@ -1,7 +1,7 @@
 ---
 title: "Vorbericht Bundesliga Doppelrunde 29./30.10.2016"
 slug: "vorbericht-bundesliga-doppelrunde-29-30-10-2016"
-date: "2016-10-30"
+date: "2016-10-26"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------------------------------- am Sa. 29.10.2016, 15 Uhr bzw. am So 30.10.2016 geht es für die Cra…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/566-vorbericht-bundesliga-doppelrunde-24-25-10-2016"
@@ -169,5 +169,5 @@ So 30.10.2016 14:00
 
 [Sporthalle Mollardgasse](http://obv.tournamentsoftware.com/sport/location.aspx?id=7AAA19D0-0E65-42BF-8E03-6F1F6AE31C9A&lid=14)
 
-*   [< Zurück](/de/news/bericht-doppelrunde-bundesliga-gegen-wbh-wien-wolfurt/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/567-bericht-2-runde-bundesliga-gegeb-wbh-wien)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/564-bericht-1-runde-bundesliga-in-moedling)

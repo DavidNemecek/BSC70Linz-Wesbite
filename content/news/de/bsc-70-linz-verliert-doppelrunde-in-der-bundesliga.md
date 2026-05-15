@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz verliert Doppelrunde in der Bundesliga"
 slug: "bsc-70-linz-verliert-doppelrunde-in-der-bundesliga"
-date: "2014-11-29"
+date: "2014-10-28"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------------------------------------ das vergangene Wochenende war ein turbulentes für die Spieler …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/439-bsc-70-linz-verliert-doppelrunde-in-der-bundesliga"

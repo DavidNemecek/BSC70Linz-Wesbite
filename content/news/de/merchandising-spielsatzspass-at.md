@@ -1,7 +1,7 @@
 ---
 title: "Merchandising - spielsatzspass.at"
 slug: "merchandising-spielsatzspass-at"
-date: "2019-10-10"
+date: "2019-09-15"
 category: "mitglieder"
 teaser: "------------------------------------------------------------------------------ Im Zuge der Buchpräsentation zu \"Badminton uncovered\" wird es auch über es auch eine eigene Produk…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/643-merchandising-spielsatzspass"
@@ -29,5 +29,5 @@ Auf folgender Homepage kannst du weitere Informationen zum Buch finden. [http://
   
 https://www.facebook.com/events/1101646070034862/](http://www.spielsatzspass.at/)
 
-*   [< Zurück](/de/news/buchpraesentation-spielsatzspass/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/645-buchpraesentation)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/639-weichenstellung-bei-der-generalversammlung-des-bsc-70-linz-2019)

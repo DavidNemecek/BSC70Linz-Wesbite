@@ -1,7 +1,7 @@
 ---
 title: "Kantersieg gegen Mitfavoriten um den Meistertitel"
 slug: "kantersieg-gegen-mitfavoriten-um-den-meistertitel"
-date: "2026-05-12"
+date: "2012-10-30"
 category: "ooe-meisterschaft"
 teaser: "---------------------------------------------------------------------------------------------------------------- Nachdem das Bundesliga-Wochenende weniger erfolgreich verlief, g…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/247-kantersieg-gegen-mitfavoriten"
@@ -25,4 +25,4 @@ Erfolgreich im Einsatz waren: Edelmüller Ursula, Hofinger Natalie, Wu Christina
 [Spielergebnisse BSC 70 Linz III - Union Braunau](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=E9BF0563-35B7-4CFE-84BB-AAE8C308BBE0&match=227 "Spielergebnisse BSC 70 Linz III - Union Braunau")
 
 *   [< Zurück](/de/news/ooe-mannschaftsmeisterschaft-bsc-70-linz-iii-ist-herbstmeister-in-der-2-landesliga-nord/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/72-bsc-70-linz-ii-ist-ooe-landesmeister)
+*   [Weiter >](/de/news/bsc-70-linz-ii-ist-ooe-landesmeister-2011-2012/)

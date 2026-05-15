@@ -1,7 +1,7 @@
 ---
 title: "Spielerverpflichtungen 2016/2017"
 slug: "spielerverpflichtungen-2016-2017"
-date: "2016-08-15"
+date: "2016-08-18"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------ Mit Ende des Nennschlusses für die Bundesligasaison 2016/2017 am 15.8.2016 können wir die Verpflic…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/492-spielerverpflichtungen-2016-2017"

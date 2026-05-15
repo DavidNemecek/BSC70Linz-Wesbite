@@ -1,7 +1,7 @@
 ---
 title: "Start in die Bundesligasaison 2022/2023"
 slug: "start-in-die-bundesligasaison-2022-2023"
-date: "2022-10-15"
+date: "2022-10-12"
 category: "bundesliga"
 teaser: "-------------------------------------------------------------------------------------------- kommendes Wochenende startet der BSC 70 Linz im Heimspiel gegen den Aufsteiger Wien …"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/717-start-in-die-bundesligasaison-2022-2023"
@@ -65,4 +65,4 @@ WBH Wien kann als Aufsteiger ganz befreit in die neue Saison gehen. Sie haben in
 „Als Meister in die neue Saison zu gehen ist genial. Wir haben versucht für die neue Saison ein „nachhaltiges“ Team zu bilden und hoffen, dass die Spieler gemeinsam an der Titel-Verteidigung arbeiten. Wir wissen, dass wir durch Verletzungen und Ausfällen vor einem schwierigen Herbst stehen. Wichtig wird sein, dass wir zumindest den vierten Tabellenplatz im Auge halten. 5 der 6 Teams werden leistungsmäßig sehr eng beisammen liegen, worum sich niemand zu viele Ausrutscher leisten darf. Mit Petra Polanc und Miha Ivanic haben wir die erfolgreichen Meisterspieler auch in dieser Saison zur Verfügung.“
 
 *   [< Zurück](/de/news/bundesliga-2-runde-vorbericht-5-11-22-auswaerts-gegen-moedling/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/718-saisonplan-bundesliga)
+*   [Weiter >](/de/news/saisonplan-bundesliga/)

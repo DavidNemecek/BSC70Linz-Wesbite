@@ -1,7 +1,7 @@
 ---
 title: "BSC 70 Linz II gewinnt in Vorchdorf"
 slug: "bsc-70-linz-ii-gewinnt-in-vorchdorf"
-date: "2026-05-12"
+date: "2010-01-16"
 category: "ooe-meisterschaft"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-ooe-meisterschaft/55-bsc-70-linz-ii-gewinnt-in-vorchdorf"
 translationStatus: "draft"

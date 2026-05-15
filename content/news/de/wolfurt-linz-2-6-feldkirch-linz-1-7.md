@@ -1,7 +1,7 @@
 ---
 title: "Wolfurt -Linz 2:6; Feldkirch - Linz 1:7"
 slug: "wolfurt-linz-2-6-feldkirch-linz-1-7"
-date: "2022-02-13"
+date: "2022-02-12"
 category: "bundesliga"
 teaser: "---------------------------------------------------------------------------------------- am 12.2. und 13.2.2022 wird es in einer zusätzlichen Doppelrunde spannend für den BSC 70…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/706-wolfurt-linz-2-6"
@@ -32,5 +32,5 @@ Die Spiele werden wieder Live im Stream gebracht.
 
 [Feldkirch - Linz - Sonntag, 10 Uhr Feldkirch](https://www.youtube.com/channel/UCpE6wk0UEMhcL9RbBMHVCFA/featured)
 
-*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/708-bsc-70-linz-moedling-6-2)
+*   [< Zurück](/de/news/bsc-70-linz-moedling-6-2/)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/705-doppelrunde-im-laendle)

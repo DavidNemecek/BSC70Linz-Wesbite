@@ -1,7 +1,7 @@
 ---
 title: "Generalversammlung 2011 des Askö BSC 70 Linz"
 slug: "generalversammlung-2011-des-askoe-bsc-70-linz"
-date: "2011-06-01"
+date: "2011-06-05"
 category: "mitglieder"
 teaser: "------------------------------------------------------------------------------------------------------- am vergangenen Freitag, den 3. Juni 2011, fand die Generalversammlung des…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/152-gv-des-askoe-bsc-70-linz"
@@ -52,5 +52,5 @@ Stellvertreter  Christoph Kainrath
 Die Wahl des Vorstands erfolgte einstimmig  
 .![](assets/uploads/dsc00539-39450603b5.jpg)
 
-*   [< Zurück](/de/news/trainerausbildung-zum-instruktor/)
+*   [< Zurück](https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/155-trainerausbildung-zum-instruktor)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/145-vorankuendigung-sommerfest--generalversammlung)

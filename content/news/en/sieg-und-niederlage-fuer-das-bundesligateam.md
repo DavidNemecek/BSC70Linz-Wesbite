@@ -1,7 +1,7 @@
 ---
 title: "Sieg und Niederlage für das Bundesligateam"
 slug: "sieg-und-niederlage-fuer-das-bundesligateam"
-date: "2026-05-12"
+date: "2015-10-25"
 category: "bundesliga"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/510-sieg-und-niederlage-fuer-das-bundesligateam"
 translationStatus: "draft"

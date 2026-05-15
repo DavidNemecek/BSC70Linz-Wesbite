@@ -1,7 +1,7 @@
 ---
 title: "1. Bundesliga | BSC 70 Linz - Pressbaum 6:2"
 slug: "1-bundesliga-bsc-70-linz-pressbaum-6-2"
-date: "2026-05-12"
+date: "2013-11-09"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------------------ durch einen Sieg gegen Pressbaum nimmt der BSC 70 Linz den 2. Tabellenplatz ein.…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/345-1-bundesliga-bsc-70-linz-pressbaum-62"
@@ -14,11 +14,9 @@ translationStatus: "reviewed"
 durch einen Sieg gegen Pressbaum nimmt der BSC 70 Linz den 2. Tabellenplatz ein.  
 Die Pressbaum kämpften mit Herz konnten aber den Sieg des BSC 70 Linz nicht verhindern.
 
-[](https://www.bsc70linz.at/media/index.php?view=detail&id=1047)
+[![](https://www.bsc70linz.at/media/index.php?view=image&format=raw&type=img&id=1047 "Sepo 2. Herren Einzel")](https://www.bsc70linz.at/media/index.php?view=detail&id=1047)
 
-[](https://www.bsc70linz.at/media/index.php?view=detail&id=1047)
-
-[](https://www.bsc70linz.at/media/index.php?view=detail&id=1047)[Spielbericht](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=1AC83C88-25D9-410E-9CB9-130794508BD4&match=16)
+[Spielbericht](http://obv.tournamentsoftware.com/sport/teammatch.aspx?id=1AC83C88-25D9-410E-9CB9-130794508BD4&match=16)
 
 tolles Spiele in der solar City...
 

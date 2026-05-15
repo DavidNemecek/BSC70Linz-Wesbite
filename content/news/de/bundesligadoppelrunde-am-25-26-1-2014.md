@@ -1,7 +1,7 @@
 ---
 title: "Bundesligadoppelrunde am 25./26.1.2014"
 slug: "bundesligadoppelrunde-am-25-26-1-2014"
-date: "2014-01-26"
+date: "2014-01-17"
 category: "bundesliga"
 teaser: "----------------------------------------------------------------------------------------- [](https://www.bsc70linz.at/cms/images/stories/Plakate/bl20136ru.jpg)[](https://www.bsc…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/363-bundesligadoppelrunde-am-252612014"
@@ -11,12 +11,10 @@ translationStatus: "reviewed"
 [Bundesligadoppelrunde am 25./26.1.2014](/de/news/bundesligadoppelrunde-am-25-26-1-2014/)
 -----------------------------------------------------------------------------------------
 
-[](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2013_6ru.jpg)[](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2013_6ru.jpg)
+ [![](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2013_7ru.jpg)](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2013_6ru.jpg)[![](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2013_7_8ru.jpg)](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2013_6ru.jpg)
 
-[](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2013_6ru.jpg)
-
-[schau vorbei ... für spannende Spiele ist gesorgt...  
-](https://www.bsc70linz.at/cms/images/stories/Plakate/bl2013_6ru.jpg)[AHS SOLAR CITY - große Halle](https://www.bsc70linz.at/cms/index.php/component/content/?id=170&Itemid=81&lang=de "Halle Solar City") - Helios Allee 140-142
+schau vorbei ... für spannende Spiele ist gesorgt...  
+[AHS SOLAR CITY - große Halle](https://www.bsc70linz.at/cms/index.php/component/content/?id=170&Itemid=81&lang=de "Halle Solar City") - Helios Allee 140-142
 
 Spielübersicht Samstag, 25. Januar 2014
 

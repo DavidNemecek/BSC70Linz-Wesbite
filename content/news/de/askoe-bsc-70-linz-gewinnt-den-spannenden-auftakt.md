@@ -1,7 +1,7 @@
 ---
 title: "Askö BSC 70 Linz gewinnt den spannenden Auftakt"
 slug: "askoe-bsc-70-linz-gewinnt-den-spannenden-auftakt"
-date: "2010-10-10"
+date: "2010-09-18"
 category: "bundesliga"
 teaser: "------------------------------------------------------------------------------------------------------------- Askö BSC 70 Linz gegen Pressbaum - 5:3 In neuer Zusammensetzung gel…"
 sourceUrl: "https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/100-askoe-bsc-70-linz-gewinnt-den-spannenden-auftakt"
@@ -49,4 +49,4 @@ Darüber hinaus zeigten alle Spieler tollen Teamspirit und unterstützen sich ge
 Die nächste Runde für das Bundesligateam des BSC 70 Linz wird die Doppelrunde am 9./10.10.2010 gegen Klagenfurt (Sa 9.10. auswärts) und Wien (10.10. zuhause – Solar City 11 Uhr) sein.
 
 *   [< Zurück](/de/news/2-6-niederlage-in-klagenfurt/)
-*   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-bundesliga/21-vorbericht-1-runde-bundesliga)
+*   [Weiter >](/de/news/vorbericht-1-runde-bundesliga/)
