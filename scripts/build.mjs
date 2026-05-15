@@ -541,10 +541,10 @@ async function writePage({
   urlEn,
   bodyClass,
 }) {
-  const cta = `<a class="btn nav__cta" href="/${lang}/schnuppertraining/">${escapeHtml(
-    lang === "en" ? "Trial training" : "Schnuppertraining"
-  )}</a>`;
-  const headerHtml = renderTemplate(templates.header, { nav: navHtml, langSwitch, brandHref, cta });
+  // Keep the header compact (especially on mobile): no always-on CTA in the nav bar.
+  const cta = "";
+  const menuLabel = lang === "en" ? "Menu" : "Menü";
+  const headerHtml = renderTemplate(templates.header, { nav: navHtml, langSwitch, brandHref, cta, menuLabel });
   const footerHtml = renderTemplate(templates.footer, {
     contactHref: `/${lang}/kontakt/`,
     contactLabel: lang === "en" ? "Contact" : "Kontakt",

@@ -56,6 +56,7 @@ function initThemeToggle() {
   const syncLabel = () => {
     const current = (document.documentElement.dataset.theme || "").toLowerCase();
     const isDark = current === "dark";
+    btn.setAttribute("aria-pressed", isDark ? "true" : "false");
     btn.setAttribute(
       "aria-label",
       lang === "en"
@@ -113,17 +114,10 @@ function initNavGroups() {
 
     const summary = details.querySelector(":scope > summary");
     if (summary instanceof HTMLElement) {
-      let hadPointerDown = false;
-      summary.addEventListener("pointerdown", () => {
-        hadPointerDown = true;
-        setTimeout(() => {
-          hadPointerDown = false;
-        }, 0);
-      });
       summary.addEventListener("click", (e) => {
         if (!isHoverDesktop()) return;
-        // Desktop hover UX: pointer clicks should not "stick" it open/closed.
-        if (hadPointerDown) e.preventDefault();
+        // Desktop hover UX: opening is hover-driven; allow click only to collapse.
+        if (!details.open) e.preventDefault();
       });
     }
 
@@ -239,8 +233,10 @@ function initLanguageA11y() {
 
   const langLink = document.querySelector("a.lang");
   if (langLink instanceof HTMLAnchorElement) {
-    langLink.setAttribute("title", labels.switchTo);
-    langLink.setAttribute("aria-label", labels.switchTo);
+    const targetLabel = lang === "en" ? "Deutsch" : "English";
+    const targetAria = lang === "en" ? "Switch to German" : "Zu Englisch wechseln";
+    langLink.setAttribute("title", targetAria);
+    langLink.setAttribute("aria-label", `${targetAria} (${targetLabel})`);
   }
 }
 
