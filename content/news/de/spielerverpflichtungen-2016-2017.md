@@ -33,7 +33,7 @@ Tarek El-Dabbagh
 
 Ab der Saison werden folgende Spieler für den BSC 70 Linz im Meisterschaftsbetrieb antreten.
 
-[Die kompletten Kader des BSC 70 Linz gibt´s hier >>>](/de/saisonliste/ "Mannschaften des Askö BSC 70 Linz")  
+[Die kompletten Kader des BSC 70 Linz gibt´s hier >>>](/de/ "Teams")  
   
 
   

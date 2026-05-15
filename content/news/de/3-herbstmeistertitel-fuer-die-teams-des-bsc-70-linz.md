@@ -16,7 +16,7 @@ In der Landesliga (höchste OÖ. Liga) könnte sich die 2. Mannschaft den 14. Ti
 
 Bis aber alle Teams auch wirklich den Titel in der jeweiligen Liga einfahren können, muss noch eine genauso starke Rückrunde absolviert werden.  
 Die Mannschaftsführer sowie die Teamspieler zeigten tollen Einsatz und starke Mannschaftsleistungen.  
-[\>>> zu den Teammitgliedern](/de/saisonliste/ "Mannschaften des BSC 70 Linz 2015/2016")
+[\>>> zu den Teammitgliedern](/de/ "Teams")
 
 BSC 70 Linz II (Mannschaftsführer Daniel Walchshofer)
 

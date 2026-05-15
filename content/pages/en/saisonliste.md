@@ -6,4 +6,6 @@ navOrder: 40
 navLabel: "Saisonliste"
 translationStatus: "draft"
 translatedFrom: "content/pages/de/saisonliste.md"
+published: false
+navHidden: true
 ---
