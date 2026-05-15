@@ -6,6 +6,7 @@ navOrder: 0
 navLabel: "Start"
 translationStatus: "reviewed"
 heroImage: "assets/uploads/team-bsc70-48b7b09aaf.jpg"
+description: "Badminton in Linz: News, Trainingszeiten, Schnuppertraining und Kontakt – BSC 70 Linz."
 ---
 
 <section class="section section--hero">
