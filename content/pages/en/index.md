@@ -7,7 +7,7 @@ navLabel: "Home"
 translationStatus: "draft"
 translatedFrom: "content/pages/de/index.md"
 heroImage: "assets/uploads/team-bsc70-48b7b09aaf.jpg"
-description: "Badminton in Linz: news, training times, trial training, and contact – BSC 70 Linz."
+description: "Badminton in Linz: news, training times, trial training, and contact - BSC 70 Linz."
 ---
 
 <section class="section section--hero">
