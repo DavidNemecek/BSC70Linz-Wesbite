@@ -82,6 +82,8 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
 .page--home .nav__summary:hover{
   background:color-mix(in srgb, var(--color-hero-text) 10%, transparent);
 }
+.page--home .nav__dropdown .nav__sublink{ color:var(--color-text); }
+.page--home .nav__dropdown .nav__sublink:hover{ background:var(--color-surface); }
 
 .nav{ display:flex; gap:14px; align-items:center; justify-content:flex-end; }
 .nav__panel{ display:flex; gap:14px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
