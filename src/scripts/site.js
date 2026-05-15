@@ -114,6 +114,14 @@ function initNavGroups() {
 
     const summary = details.querySelector(":scope > summary");
     if (summary instanceof HTMLElement) {
+      summary.addEventListener("keydown", (e) => {
+        if (e.key !== " " && e.key !== "Spacebar") return;
+        // Ensure Space toggles the dropdown without scrolling the page.
+        e.preventDefault();
+        details.open = !details.open;
+        if (details.open) closeAll(details);
+      });
+
       summary.addEventListener("click", (e) => {
         if (!isHoverDesktop()) return;
         // Desktop hover UX: opening is hover-driven; allow click only to collapse.
