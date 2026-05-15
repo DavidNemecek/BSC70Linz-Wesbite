@@ -5,6 +5,7 @@ navGroup: "Mitmachen"
 navOrder: 45
 navLabel: "Schnuppertraining"
 translationStatus: "reviewed"
+navHidden: true
 ---
 
 Du möchtest Badminton bei uns ausprobieren?

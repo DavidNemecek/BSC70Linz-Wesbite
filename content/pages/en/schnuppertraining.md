@@ -6,6 +6,7 @@ navOrder: 45
 navLabel: "Trial Training"
 translationStatus: "draft"
 translatedFrom: "content/pages/de/schnuppertraining.md"
+navHidden: true
 ---
 
 Want to try badminton with us?

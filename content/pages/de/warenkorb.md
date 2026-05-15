@@ -5,6 +5,8 @@ navGroup: "Verein"
 navOrder: 10
 navLabel: "Warenkorb"
 translationStatus: "reviewed"
+navHidden: true
+published: false
 ---
 
 Warenkorb

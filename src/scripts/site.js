@@ -90,12 +90,19 @@ function initNavGroups() {
   const mobileMq = window.matchMedia("(max-width: 860px)");
 
   const isHoverDesktop = () => hoverMq.matches && !mobileMq.matches;
+  const closeTimers = new WeakMap();
 
   const closeAll = (except) => {
     for (const other of groups) {
       if (other === except) continue;
       other.open = false;
     }
+  };
+
+  const clearCloseTimer = (details) => {
+    const t = closeTimers.get(details);
+    if (t) window.clearTimeout(t);
+    closeTimers.delete(details);
   };
 
   for (const details of groups) {
@@ -122,13 +129,18 @@ function initNavGroups() {
 
     details.addEventListener("pointerenter", () => {
       if (!isHoverDesktop()) return;
+      clearCloseTimer(details);
       details.open = true;
       closeAll(details);
     });
 
     details.addEventListener("pointerleave", () => {
       if (!isHoverDesktop()) return;
-      details.open = false;
+      clearCloseTimer(details);
+      const t = window.setTimeout(() => {
+        details.open = false;
+      }, 300);
+      closeTimers.set(details, t);
     });
 
     const links = [...details.querySelectorAll("a.nav__sublink")];
