@@ -130,8 +130,92 @@ function displayCategory(category, lang) {
   return c.replace(/-/g, " ");
 }
 
-function cleanLegacyMarkdown(markdown, { kind }) {
+function normalizeLegacyKeyFromUrl(url) {
+  const raw = String(url || "").trim();
+  if (!raw) return null;
+
+  const tryParse = (s) => {
+    try {
+      return new URL(s);
+    } catch {
+      return null;
+    }
+  };
+
+  const u = raw.startsWith("http://") || raw.startsWith("https://") ? tryParse(raw) : tryParse(`https://www.bsc70linz.at${raw.startsWith("/") ? "" : "/"}${raw}`);
+  if (!u) return null;
+
+  const host = (u.hostname || "").toLowerCase();
+  if (!host.includes("bsc70linz.at")) return null;
+
+  const key = `${u.pathname || ""}${u.search || ""}`.replace(/\/{2,}/g, "/").replace(/\/+$/, "");
+  if (!key) return null;
+  if (!key.startsWith("/cms/")) return null;
+  return key;
+}
+
+function rewriteLegacyLinksInMarkdown(markdown, { lang, redirects, existingUrls }) {
+  const map = redirects || {};
+  const urls = existingUrls || { de: new Set(), en: new Set() };
+
+  const pickLangUrl = (urlDe) => {
+    const de = String(urlDe || "");
+    if (lang !== "en") return de;
+    if (!de.startsWith("/de/")) return de;
+    const en = de.replace(/^\/de\//, "/en/");
+    return urls.en && urls.en.has(en) ? en : de;
+  };
+
+  // Replace markdown links that point to the legacy domain with mapped internal URLs.
+  // If we cannot map, drop the legacy href but keep label.
+  let out = String(markdown || "");
+
+  out = out.replace(/\[([^\]]+)\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)/g, (m, label, href) => {
+    const key = normalizeLegacyKeyFromUrl(href);
+    if (!key) return m;
+    const mapped = map[key];
+    if (mapped) return `[${label}](${pickLangUrl(mapped)})`;
+    return label;
+  });
+
+  // Replace HTML anchors/images that still reference the old site.
+  out = out.replace(/\s(href|src)=["']([^"']+)["']/gi, (m, attr, href) => {
+    const key = normalizeLegacyKeyFromUrl(href);
+    if (!key) return m;
+    const mapped = map[key];
+    if (mapped) return ` ${attr}="${pickLangUrl(mapped)}"`;
+    // Drop the attribute entirely to avoid referencing the legacy site.
+    return "";
+  });
+
+  // Replace plain legacy URLs (markdown-it linkify would otherwise turn them into links).
+  out = out.replace(/https?:\/\/(?:www\.)?bsc70linz\.at\/cms\/[^\s)>\"]+/gi, (rawUrl) => {
+    const key = normalizeLegacyKeyFromUrl(rawUrl);
+    if (!key) return "";
+    const mapped = map[key];
+    return mapped ? pickLangUrl(mapped) : "";
+  });
+
+  return out;
+}
+
+function rewriteLegacyAssets(markdown, assetMap) {
+  let out = String(markdown || "");
+  const entries = assetMap ? Object.entries(assetMap) : [];
+  for (const [from, to] of entries) {
+    if (!from || !to) continue;
+    out = out.split(from).join(to);
+    out = out.split(from.replace(/^https:\/\//, "http://")).join(to);
+    out = out.split(from.replace("https://www.", "https://")).join(to);
+    out = out.split(from.replace("https://www.", "http://")).join(to);
+  }
+  return out;
+}
+
+function cleanLegacyMarkdown(markdown, { kind, lang, redirects, assetMap, existingUrls }) {
   let out = String(markdown || "").replace(/\r\n/g, "\n");
+  out = rewriteLegacyAssets(out, assetMap);
+  out = rewriteLegacyLinksInMarkdown(out, { lang, redirects, existingUrls });
   const lines = out.split("\n");
 
   // Common legacy pattern in news bodies:
@@ -396,7 +480,6 @@ async function writePage({
     contactLabel: lang === "en" ? "Contact" : "Kontakt",
     legalHref: `/${lang}/impressum-vereinsdaten/`,
     legalLabel: lang === "en" ? "Imprint" : "Impressum",
-    legacyLabel: lang === "en" ? "Legacy site" : "Alte Seite (Joomla)",
   });
   const hreflangs = buildHreflangLinks({ origin, urlDe, urlEn });
   const html = renderTemplate(templates.layout, {
@@ -498,6 +581,14 @@ async function main() {
   const newsDe = newsEntriesDe.map((e) => normalizeNewsMeta(e, { lang: "de" })).sort(compareNewsDesc);
   const newsEn = newsEntriesEn.map((e) => normalizeNewsMeta(e, { lang: "en" })).sort(compareNewsDesc);
 
+  // Legacy mapping (used to avoid linking to the old Joomla site)
+  const redirects = JSON.parse(await readText(path.join(paths.contentDir, "legacy-redirects.json")));
+  const assetMap = JSON.parse(await readText(path.join(paths.contentDir, ".asset-map.json")));
+  const existingUrls = {
+    de: new Set([...pagesDe.map((p) => p.url), ...newsDe.map((n) => n.url)]),
+    en: new Set([...pagesEn.map((p) => p.url), ...newsEn.map((n) => n.url)]),
+  };
+
   const allUrls = new Set();
   function addUrl(u) {
     allUrls.add(u.endsWith("/") ? u : `${u}/`);
@@ -521,7 +612,7 @@ async function main() {
               : "Diese Seite ist noch nicht \u00fcbersetzt. Du siehst die englische Version."
           }</div>`
         : "";
-      const bodyClean = cleanLegacyMarkdown(body, { kind: "page" });
+      const bodyClean = cleanLegacyMarkdown(body, { kind: "page", lang, redirects, assetMap, existingUrls });
       const isHome = p.slug === "index";
       const newsThis = lang === "de" ? newsDe : newsEn;
       const newsOther = lang === "de" ? newsEn : newsDe;
@@ -687,7 +778,7 @@ async function main() {
               : "Dieser Artikel ist noch nicht \u00fcbersetzt. Du siehst die englische Version."
           }</div>`
         : "";
-      const bodyClean = cleanLegacyMarkdown(bodySource, { kind: "news" });
+      const bodyClean = cleanLegacyMarkdown(bodySource, { kind: "news", lang, redirects, assetMap, existingUrls });
       const bodyHtml = md.render(bodyClean, { assetPrefix: "/assets/" });
       const contentInner = `<article class="prose"><header class="news-head"><p class="news-head__meta"><span>${escapeHtml(
         formatDateDisplay(it.date, lang)

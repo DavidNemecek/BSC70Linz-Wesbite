@@ -5,6 +5,8 @@ navGroup: "Verein"
 navOrder: 80
 navLabel: "Terminkalender"
 translationStatus: "reviewed"
+published: false
+navHidden: true
 ---
 
 Terminkalender

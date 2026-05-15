@@ -32,7 +32,7 @@ description: "Badminton in Linz: News, Trainingszeiten, Schnuppertraining und Ko
   <div class="container">
     <h2 class="section__title">Willkommen</h2>
     <div class="prose">
-      <p>Hier findest du aktuelle News sowie Informationen rund um Verein, Training, Mannschaften, Nachwuchs und Termine.</p>
+      <p>Hier findest du aktuelle News sowie Informationen rund um Verein, Training, Mannschaften und Nachwuchs.</p>
     </div>
   </div>
 </section>

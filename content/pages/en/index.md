@@ -33,7 +33,7 @@ description: "Badminton in Linz: news, training times, trial training, and conta
   <div class="container">
     <h2 class="section__title">Welcome</h2>
     <div class="prose">
-      <p>Here you can find the latest news as well as information about the club, training, teams, youth, and events.</p>
+      <p>Here you can find the latest news as well as information about the club, training, teams, and youth.</p>
     </div>
   </div>
 </section>
