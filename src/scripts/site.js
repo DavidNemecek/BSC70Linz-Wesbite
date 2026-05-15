@@ -3,6 +3,29 @@ import { initTheme, toggleTheme } from "./theme.js";
 document.documentElement.classList.add("js");
 initTheme();
 
+function initHeaderHeightSync() {
+  const header = document.querySelector(".header");
+  if (!(header instanceof HTMLElement)) return () => {};
+
+  const sync = () => {
+    const h = header.getBoundingClientRect().height;
+    if (Number.isFinite(h) && h > 0) document.documentElement.style.setProperty("--header-height", `${Math.ceil(h)}px`);
+  };
+
+  sync();
+  window.addEventListener("resize", sync, { passive: true });
+
+  if (typeof ResizeObserver !== "undefined") {
+    const ro = new ResizeObserver(() => sync());
+    ro.observe(header);
+    return sync;
+  }
+
+  return sync;
+}
+
+const syncHeaderHeight = initHeaderHeightSync();
+
 const lang = (document.documentElement.lang || "de").toLowerCase().startsWith("en") ? "en" : "de";
 const labels =
   lang === "en"
@@ -85,6 +108,7 @@ function initNavToggle() {
       panel.hidden = false;
       btn.setAttribute("aria-expanded", "false");
     }
+    syncHeaderHeight();
   };
   sync();
   if (typeof mq.addEventListener === "function") mq.addEventListener("change", sync);
@@ -95,6 +119,7 @@ function initNavToggle() {
     panel.hidden = !willOpen;
     btn.setAttribute("aria-expanded", willOpen ? "true" : "false");
     if (willOpen) closeOpenNavGroups();
+    syncHeaderHeight();
   });
 
   document.addEventListener(
@@ -107,6 +132,7 @@ function initNavToggle() {
       panel.hidden = true;
       btn.setAttribute("aria-expanded", "false");
       closeOpenNavGroups();
+      syncHeaderHeight();
     },
     true
   );
@@ -118,6 +144,7 @@ function initNavToggle() {
       panel.hidden = true;
       btn.setAttribute("aria-expanded", "false");
       btn.focus();
+      syncHeaderHeight();
       return;
     }
     if (hadGroups) btn.focus();

@@ -289,6 +289,7 @@ function normalizePageMeta({ data, content }, { lang }) {
   const slug = data.slug ? String(data.slug) : "";
   const isHome = slug === "index" || slug === "" || slug === "home";
   const url = isHome ? `/${lang}/` : `/${lang}/${slug}/`;
+  const heroImage = data.heroImage ? String(data.heroImage) : "";
   return {
     kind: "page",
     lang,
@@ -303,6 +304,7 @@ function normalizePageMeta({ data, content }, { lang }) {
     translatedFrom: data.translatedFrom,
     description: data.description || data.teaser || descriptionFromMarkdown(content, title),
     url,
+    heroImage,
     body: content,
   };
 }
@@ -383,8 +385,12 @@ async function writePage({
   activeUrl,
   urlDe,
   urlEn,
+  bodyClass,
 }) {
-  const headerHtml = renderTemplate(templates.header, { nav: navHtml, langSwitch, brandHref });
+  const cta = `<a class="btn nav__cta" href="/${lang}/schnuppertraining/">${escapeHtml(
+    lang === "en" ? "Trial training" : "Schnuppertraining"
+  )}</a>`;
+  const headerHtml = renderTemplate(templates.header, { nav: navHtml, langSwitch, brandHref, cta });
   const footerHtml = renderTemplate(templates.footer, {
     contactHref: `/${lang}/kontakt/`,
     contactLabel: lang === "en" ? "Contact" : "Kontakt",
@@ -403,6 +409,7 @@ async function writePage({
     footer: footerHtml,
     canonical: `${origin}${activeUrl}`,
     skipText: lang === "en" ? "Skip to content" : "Zum Inhalt",
+    bodyClass: bodyClass || "",
   });
   const outPath = outputPathForUrl(activeUrl);
   await writeText(outPath, html);
@@ -430,13 +437,17 @@ async function main() {
     <link rel="alternate" hreflang="de" href="${envConfig.origin}/de/">
     <link rel="alternate" hreflang="en" href="${envConfig.origin}/en/">
     <link rel="alternate" hreflang="x-default" href="${envConfig.origin}/">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" />
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/assets/css/base.css" />
     <link rel="stylesheet" href="/assets/css/themes/light.css" id="theme" />
   </head>
-  <body>
+  <body class="page page--root">
     <main class="main">
-      <div class="container">
+      <div class="page">
+        <div class="container">
         <article class="prose">
           <h1>BSC 70 Linz</h1>
           <p class="lead">Bitte Sprache wählen.</p>
@@ -448,6 +459,7 @@ async function main() {
             <p>JavaScript ist deaktiviert. Bitte wähle eine Sprache über die Links oben.</p>
           </noscript>
         </article>
+        </div>
       </div>
     </main>
     <script type="module">
@@ -536,17 +548,23 @@ async function main() {
               { href: `/${lang}/nachwuchs/`, label: "Nachwuchs" },
               { href: `/${lang}/kontakt/`, label: "Kontakt" },
             ];
-      const quickHtml = `<div class="quick-links">${quickLinks
+      const quickHtml = `<div class="home-links__grid">${quickLinks
         .map((l) => `<a class="btn btn--ghost" href="${l.href}">${escapeHtml(l.label)}</a>`)
         .join("")}</div>`;
       const homeExtras = isHome
-        ? `${quickHtml}<section class="home-news"><h2>${lang === "en" ? "Latest News" : "Aktuelle News"}</h2><div class="news-grid">${latestCards}</div><p class="home-news__more"><a class="btn" href="/${lang}/news/">${
-            lang === "en" ? "All news" : "Alle News"
-          }</a></p></section>`
+        ? `<section class="section section--home-links"><div class="container"><h2 class="section__title">${
+            lang === "en" ? "Quick Links" : "Schnellzugriff"
+          }</h2>${quickHtml}</div></section>
+           <section class="section section--home-news"><div class="container"><h2 class="section__title">${
+             lang === "en" ? "Latest News" : "Aktuelle News"
+           }</h2><div class="news-grid">${latestCards}</div><p class="home-news__more"><a class="btn" href="/${lang}/news/">${
+             lang === "en" ? "All news" : "Alle News"
+           }</a></p></div></section>`
         : "";
-      const contentHtml = `<article class="prose"><h1>${escapeHtml(p.title)}</h1>${fallbackNote}${md.render(bodyClean, {
-        assetPrefix: "/assets/",
-      })}${homeExtras}</article>`;
+      const renderedBody = md.render(bodyClean, { assetPrefix: "/assets/" });
+      const contentHtml = isHome
+        ? `<div class="home">${fallbackNote}${renderedBody}${homeExtras}</div>`
+        : `<div class="page"><div class="container"><article class="prose"><h1>${escapeHtml(p.title)}</h1>${fallbackNote}${renderedBody}</article></div></div>`;
       const urlDe = lang === "de" ? activeUrl : otherExists ? activeUrl.replace("/en/", "/de/") : "/de/";
       const urlEn = lang === "en" ? activeUrl : otherExists ? activeUrl.replace("/de/", "/en/") : "/en/";
       await writePage({
@@ -562,6 +580,7 @@ async function main() {
         activeUrl,
         urlDe,
         urlEn,
+        bodyClass: isHome ? "page page--home" : "page",
       });
       addUrl(activeUrl);
     }
@@ -587,7 +606,7 @@ async function main() {
       });
       const cards = pageItems.map(buildNewsCard).join("\n");
       const pagination = buildPagination({ lang, baseUrl: `/${lang}/news/`, pageIndex: i, totalPages: paged.length });
-      const contentHtml = `<section class="prose"><h1>News</h1><div class="news-grid">${cards}</div>${pagination}</section>`;
+      const contentHtml = `<div class="page"><div class="container"><section class="prose"><h1>News</h1><div class="news-grid">${cards}</div>${pagination}</section></div></div>`;
       await writePage({
         templates,
         lang,
@@ -601,6 +620,7 @@ async function main() {
         activeUrl: url,
         urlDe: url.replace(`/${lang}/`, "/de/"),
         urlEn: url.replace(`/${lang}/`, "/en/"),
+        bodyClass: "page page--news-list",
       });
       addUrl(url);
     }
@@ -624,7 +644,9 @@ async function main() {
         });
         const cards = pageItems.map(buildNewsCard).join("\n");
         const pagination = buildPagination({ lang, baseUrl, pageIndex: i, totalPages: catPaged.length });
-        const contentHtml = `<section class="prose"><h1>News: ${escapeHtml(displayCategory(category, lang))}</h1><div class="news-grid">${cards}</div>${pagination}</section>`;
+        const contentHtml = `<div class="page"><div class="container"><section class="prose"><h1>News: ${escapeHtml(
+          displayCategory(category, lang)
+        )}</h1><div class="news-grid">${cards}</div>${pagination}</section></div></div>`;
         await writePage({
           templates,
           lang,
@@ -638,6 +660,7 @@ async function main() {
           activeUrl: url,
           urlDe: url.replace(`/${lang}/`, "/de/"),
           urlEn: url.replace(`/${lang}/`, "/en/"),
+          bodyClass: "page page--news-list",
         });
         addUrl(url);
       }
@@ -666,13 +689,14 @@ async function main() {
         : "";
       const bodyClean = cleanLegacyMarkdown(bodySource, { kind: "news" });
       const bodyHtml = md.render(bodyClean, { assetPrefix: "/assets/" });
-      const contentHtml = `<article class="prose"><header class="news-head"><p class="news-head__meta"><span>${escapeHtml(
+      const contentInner = `<article class="prose"><header class="news-head"><p class="news-head__meta"><span>${escapeHtml(
         formatDateDisplay(it.date, lang)
       )}</span> · <span data-category="${escapeHtml(String(it.category || ""))}">${escapeHtml(
         displayCategory(it.category, lang)
       )}</span></p><h1>${escapeHtml(displayTitle)}</h1>${
         teaser ? `<p class="lead">${escapeHtml(teaser)}</p>` : ""
       }</header>${hero}${fallbackNote}${bodyHtml}</article>`;
+      const contentHtml = `<div class="page"><div class="container">${contentInner}</div></div>`;
       const urlDe = lang === "de" ? it.url : otherExists ? it.url.replace("/en/", "/de/") : "/de/news/";
       const urlEn = lang === "en" ? it.url : otherExists ? it.url.replace("/de/", "/en/") : "/en/news/";
       await writePage({
@@ -688,6 +712,7 @@ async function main() {
         activeUrl: it.url,
         urlDe,
         urlEn,
+        bodyClass: "page page--news-detail",
       });
       addUrl(it.url);
     }
@@ -717,15 +742,20 @@ async function main() {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Seite nicht gefunden</title>
     <meta name="robots" content="noindex">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" />
     <link rel="stylesheet" href="/assets/css/base.css">
     <link rel="stylesheet" href="/assets/css/themes/light.css" id="theme">
   </head>
-  <body>
+  <body class="page page--root">
     <main class="main">
-      <div class="container">
+      <div class="page">
+        <div class="container">
         <h1>404 – Seite nicht gefunden</h1>
         <p>Falls du von der alten Seite kommst, versuchen wir dich automatisch weiterzuleiten.</p>
         <p><a href="/de/">Zur Startseite</a></p>
+        </div>
       </div>
     </main>
     <script type="module" src="/assets/js/redirect-404.js"></script>
