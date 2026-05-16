@@ -165,6 +165,12 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
   .nav__dropdown{ position:static; box-shadow:none; border-radius:10px; padding-top:8px; }
   .nav__dropdown::before{ display:none; }
 }
+@media (max-width: 640px){
+  .nav__link, .nav__summary{
+    font-size:13px;
+    letter-spacing:0.11em;
+  }
+}
 .no-js .nav__toggle{ display:none !important; }
 .lang{
   display:inline-flex; align-items:center; justify-content:center;

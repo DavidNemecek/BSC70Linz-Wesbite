@@ -163,11 +163,21 @@ function initNavToggle() {
 
   btn.textContent = labels.menu;
 
+  const a11yLabels =
+    lang === "en"
+      ? { open: "Open menu", close: "Close menu" }
+      : { open: "Men\u00fc \u00f6ffnen", close: "Men\u00fc schlie\u00dfen" };
+  const syncA11yLabel = () => {
+    const isOpen = btn.getAttribute("aria-expanded") === "true";
+    btn.setAttribute("aria-label", isOpen ? a11yLabels.close : a11yLabels.open);
+  };
+
   const mq = window.matchMedia("(max-width: 860px)");
   const ensureDesktopVisible = () => {
     if (mq.matches) return;
     if (panel.hidden) panel.hidden = false;
     btn.setAttribute("aria-expanded", "false");
+    syncA11yLabel();
   };
   const sync = () => {
     if (mq.matches) {
@@ -177,6 +187,7 @@ function initNavToggle() {
       panel.hidden = false;
       btn.setAttribute("aria-expanded", "false");
     }
+    syncA11yLabel();
     syncHeaderHeight();
   };
   sync();
@@ -191,6 +202,7 @@ function initNavToggle() {
     const willOpen = panel.hidden;
     panel.hidden = !willOpen;
     btn.setAttribute("aria-expanded", willOpen ? "true" : "false");
+    syncA11yLabel();
     if (willOpen) closeOpenNavGroups();
     syncHeaderHeight();
   });
@@ -208,6 +220,7 @@ function initNavToggle() {
       if (btn.contains(target) || panel.contains(target)) return;
       panel.hidden = true;
       btn.setAttribute("aria-expanded", "false");
+      syncA11yLabel();
       closeOpenNavGroups();
       syncHeaderHeight();
     },
@@ -225,6 +238,7 @@ function initNavToggle() {
     if (!panel.hidden) {
       panel.hidden = true;
       btn.setAttribute("aria-expanded", "false");
+      syncA11yLabel();
       btn.focus();
       syncHeaderHeight();
       return;
@@ -253,7 +267,11 @@ function initNewsEnhancements() {
   const grid = document.querySelector(".news-grid");
   const meta = document.querySelector(".news-head__meta");
 
-  const makeCategoryHref = (cat) => `/${lang}/news/${encodeURIComponent(cat)}/`;
+  const makeCategoryHref = (cat) => {
+    const value = String(cat ?? "").trim();
+    if (!value || value.toLowerCase() === "news") return `/${lang}/news/`;
+    return `/${lang}/news/${encodeURIComponent(value)}/`;
+  };
 
   const upgradeCatEl = (el, { slug, label } = {}) => {
     const catLabel = (label ?? el.textContent ?? "").trim();
@@ -314,6 +332,7 @@ function initNewsEnhancements() {
 
   addChip(`/${lang}/news/`, labels.all, !activeCat);
   [...cats.entries()]
+    .filter(([slug]) => String(slug ?? "").trim().toLowerCase() !== "news")
     .sort((a, b) => String(a[1]).localeCompare(String(b[1]), lang))
     .forEach(([slug, label]) => addChip(makeCategoryHref(slug), label, slug === activeCat));
 
