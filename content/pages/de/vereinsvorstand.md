@@ -9,3 +9,7 @@ translationStatus: "reviewed"
 
 Vereinsvorstand
 ---------------
+
+Die Informationen zum Vereinsvorstand findest du auf der kombinierten Seite:
+
+- [Kontakt & Vorstand](/de/kontakt/)
