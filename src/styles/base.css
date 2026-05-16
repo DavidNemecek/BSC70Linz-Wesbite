@@ -374,6 +374,12 @@ code{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libera
   border-radius:12px;
   border:1px solid var(--color-border);
 }
+.page--vorstand .prose img{
+  max-width:220px;
+}
+@media (min-width: 700px){
+  .page--vorstand .prose img{ max-width:260px; }
+}
 .prose figure{ margin:18px 0; }
 .prose figcaption{ margin:8px 0 0; color:var(--color-muted); font-size:13px; text-align:center; }
 .lead{ color:var(--color-muted); font-size:clamp(16px, 2vw, 18px); }

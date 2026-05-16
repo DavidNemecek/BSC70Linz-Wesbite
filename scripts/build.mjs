@@ -748,7 +748,7 @@ async function main() {
         activeUrl,
         urlDe,
         urlEn,
-        bodyClass: isHome ? "page page--home" : "page",
+        bodyClass: isHome ? "page page--home" : p.slug === "vorstand" ? "page page--vorstand" : "page",
       });
       addUrl(activeUrl);
     }
