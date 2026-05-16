@@ -5,6 +5,7 @@ navGroup: "Verein"
 navOrder: 110
 navLabel: "Sponsoren/Partner"
 translationStatus: "reviewed"
+navHidden: true
 ---
 
 [Sponsoren/Partner](/de/sponsoren-partner/)

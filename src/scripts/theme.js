@@ -4,8 +4,8 @@ function getThemeLink() {
 }
 
 function systemTheme() {
-  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return "light";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return "dark";
+  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
 }
 
 function applyTheme(themeName) {

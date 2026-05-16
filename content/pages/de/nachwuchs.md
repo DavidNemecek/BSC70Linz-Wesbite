@@ -5,6 +5,7 @@ navGroup: "Verein"
 navOrder: 20
 navLabel: "Nachwuchs"
 translationStatus: "reviewed"
+navHidden: true
 ---
 
 [Nachwuchs](/de/nachwuchs/)

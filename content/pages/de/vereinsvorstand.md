@@ -5,6 +5,7 @@ navGroup: "Verein"
 navOrder: 120
 navLabel: "Vereinsvorstand"
 translationStatus: "reviewed"
+navHidden: true
 ---
 
 Vereinsvorstand

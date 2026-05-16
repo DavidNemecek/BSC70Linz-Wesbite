@@ -5,6 +5,7 @@ navGroup: "Verein"
 navOrder: 30
 navLabel: "Vorstand"
 translationStatus: "reviewed"
+navHidden: true
 ---
 
 [Vorstand](/de/vorstand/)

@@ -6,6 +6,7 @@ navOrder: 120
 navLabel: "Vereinsvorstand"
 translationStatus: "draft"
 translatedFrom: "content/pages/de/vereinsvorstand.md"
+navHidden: true
 ---
 
 The club board information is on the combined page:

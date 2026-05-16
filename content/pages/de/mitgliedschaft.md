@@ -5,6 +5,7 @@ navGroup: "Verein"
 navOrder: 50
 navLabel: "Mitgliedschaft"
 translationStatus: "reviewed"
+navHidden: true
 ---
 
 [Mitgliedschaft](/de/mitgliedschaft/)

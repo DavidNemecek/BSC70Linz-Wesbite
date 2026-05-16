@@ -5,6 +5,7 @@ navGroup: "Verein"
 navOrder: 60
 navLabel: "Trainingszeiten"
 translationStatus: "reviewed"
+navHidden: true
 ---
 
 [Trainingszeiten](/de/trainingszeiten/)

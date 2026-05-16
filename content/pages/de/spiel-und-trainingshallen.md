@@ -5,6 +5,7 @@ navGroup: "Verein"
 navOrder: 70
 navLabel: "Spiel- und Trainingshallen"
 translationStatus: "reviewed"
+navHidden: true
 ---
 
 [Spiel- und Trainingshallen](/de/spiel-und-trainingshallen/)

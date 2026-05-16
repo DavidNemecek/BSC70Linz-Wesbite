@@ -6,6 +6,5 @@ navOrder: 0
 navLabel: "BSC 70 Linz"
 translationStatus: "draft"
 translatedFrom: "content/pages/de/bsc-70-linz.md"
+navHidden: true
 ---
-
-

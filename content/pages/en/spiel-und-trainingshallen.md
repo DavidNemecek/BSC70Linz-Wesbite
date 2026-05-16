@@ -6,6 +6,5 @@ navOrder: 70
 navLabel: "Spiel- und Trainingshallen"
 translationStatus: "draft"
 translatedFrom: "content/pages/de/spiel-und-trainingshallen.md"
+navHidden: true
 ---
-
-

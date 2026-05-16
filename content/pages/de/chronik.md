@@ -5,6 +5,7 @@ navGroup: "Verein"
 navOrder: 90
 navLabel: "Chronik"
 translationStatus: "reviewed"
+navHidden: true
 ---
 
 [Chronik](/de/chronik/)

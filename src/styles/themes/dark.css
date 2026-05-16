@@ -1,9 +1,16 @@
-:root {
+:root{
   color-scheme: dark;
-  --color-bg: #0b1220;
-  --color-surface: #111a2e;
-  --color-text: #e5e7eb;
-  --color-muted: #9ca3af;
-  --color-primary: #7aa2ff;
-  --color-border: #22304d;
+  --color-bg: #0E0F0C;
+  --color-surface: #1A1B17;
+  --color-text: #F4F1EA;
+  --color-muted: rgba(244, 241, 234, 0.6);
+  --color-primary: #FF4734;
+  --color-primary-dark: #E63322;
+  --color-secondary: #5B7CFF;
+  --color-accent: #FF4734;
+  --color-border: rgba(244, 241, 234, 0.08);
+  --color-card-bg: #1A1B17;
+  --color-hero-bg: #0E0F0C;
+  --color-hero-text: #F4F1EA;
+  --color-hero-surface: rgba(244, 241, 234, 0.08);
 }

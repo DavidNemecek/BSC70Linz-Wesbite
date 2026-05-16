@@ -4,36 +4,111 @@ slug: "index"
 navGroup: "Home"
 navOrder: 0
 navLabel: "Home"
-translationStatus: "draft"
+translationStatus: "reviewed"
 translatedFrom: "content/pages/de/index.md"
 heroImage: "assets/uploads/team-bsc70-48b7b09aaf.jpg"
-description: "Badminton in Linz: news, training times, trial training, and contact - BSC 70 Linz."
+description: "Badminton in Linz since 1970. Youth training, adult training, and league play. Come join us."
 ---
 
 <section class="section section--hero">
   <div class="hero__media" style="--hero-image:url('/assets/uploads/team-bsc70-48b7b09aaf.jpg')"></div>
   <div class="container hero">
     <div class="hero__content">
-      <p class="eyebrow">Badminton Sport Club</p>
-      <h1 class="hero__title">BSC 70 Linz</h1>
-      <p class="hero__lead">Badminton for all levels – youth, hobby players, and league teams in Linz.</p>
+      <p class="eyebrow">Badminton in Linz &middot; since 1970</p>
+      <h1 class="hero__title">Badminton in Linz,<br>since 1970.</h1>
+      <p class="hero__lead">European Cup winners 1992 &middot; 7&times; National Champions &middot; Rebuilding from our own players.</p>
       <div class="hero__actions">
-        <a class="btn" href="/en/schnuppertraining/">Trial training</a>
-        <a class="btn btn--ghost" href="/en/trainingszeiten/">Training times</a>
+        <a class="btn" href="/en/mitmachen/">Plan your first visit &rarr;</a>
+        <a class="btn btn--ghost" href="/en/verein/">Who we are</a>
       </div>
     </div>
-    <aside class="hero__card" aria-label="Info">
-      <h2 class="hero__card-title">Join a session</h2>
-      <p>Interested? Start with a <a href="/en/schnuppertraining/">trial training</a> or check the <a href="/en/trainingszeiten/">training times</a>.</p>
+    <aside class="hero__card" aria-label="Live">
+      <h2 class="hero__card-title">Training tonight</h2>
+      <p>Tuesday 7pm &middot; Heliosallee 140. First session is free. Rackets on us.</p>
     </aside>
+  </div>
+</section>
+
+<section class="section section--manifesto">
+  <div class="container">
+    <p class="manifesto__kicker">Manifesto</p>
+    <p class="manifesto__text">In 2024 we stepped out of the 1. Bundesliga. Not because we stopped believing &mdash; but because we want to do it right. From the kid at their first trial training to the next national title.</p>
   </div>
 </section>
 
 <section class="section">
   <div class="container">
-    <h2 class="section__title">Welcome</h2>
-    <div class="prose">
-      <p>Here you can find the latest news as well as information about the club, training, teams, and youth.</p>
+    <h2 class="section__title">Training</h2>
+    <div class="fixtures-grid">
+      <div class="fixture-card">
+        <div class="fixture-card__league">Kids & Youth</div>
+        <div class="fixture-card__team">Youth Training</div>
+        <p style="color:var(--color-muted);margin:0 0 4px;font-size:15px"><strong>Tuesday</strong> 5:00 &ndash; 7:00 PM</p>
+        <p style="color:var(--color-muted);margin:0 0 4px;font-size:15px"><strong>Friday</strong> 6:00 &ndash; 7:30 PM</p>
+        <p style="color:var(--color-muted);margin:0 0 12px;font-size:14px">We go into schools in Linz and introduce kids to badminton. Those who enjoy it join our club training and can compete in tournaments.</p>
+        <a class="fixture-card__link" href="/en/mitmachen/">Learn more &rarr;</a>
+      </div>
+      <div class="fixture-card">
+        <div class="fixture-card__league">Adults</div>
+        <div class="fixture-card__team">Recreational & Competitive</div>
+        <p style="color:var(--color-muted);margin:0 0 4px;font-size:15px"><strong>Tuesday</strong> 7:00 &ndash; 9:30 PM</p>
+        <p style="color:var(--color-muted);margin:0 0 4px;font-size:15px"><strong>Thursday</strong> 6:30 &ndash; 9:00 PM</p>
+        <p style="color:var(--color-muted);margin:0 0 4px;font-size:15px"><strong>Friday</strong> 7:00 &ndash; 8:00 PM</p>
+        <p style="color:var(--color-muted);margin:0 0 12px;font-size:14px">Whether you play for fun or want to compete in leagues &ndash; just show up and play.</p>
+        <a class="fixture-card__link" href="/en/mitmachen/">Learn more &rarr;</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <h2 class="section__title">Where we play</h2>
+    <div class="fixtures-grid">
+      <div class="fixture-card">
+        <div class="fixture-card__league">Tuesday & Thursday</div>
+        <div class="fixture-card__team">AHS Solar City</div>
+        <p style="color:var(--color-muted);margin:0 0 4px;font-size:15px">Heliosallee 140&ndash;142, 4030 Linz</p>
+        <p style="color:var(--color-muted);margin:0;font-size:14px">8 courts</p>
+      </div>
+      <div class="fixture-card">
+        <div class="fixture-card__league">Friday</div>
+        <div class="fixture-card__team">Europagymnasium Auhof</div>
+        <p style="color:var(--color-muted);margin:0 0 4px;font-size:15px">Aubrunnerweg 4, 4040 Linz</p>
+        <p style="color:var(--color-muted);margin:0;font-size:14px">6 courts</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--seventy">
+  <div class="container">
+    <p class="seventy__kicker">The 70</p>
+    <ul class="seventy__list">
+      <li><span class="seventy__label">Founded</span><span class="seventy__value">1970</span></li>
+      <li><span class="seventy__label">Austrian National Champions</span><span class="seventy__value">7&times;</span></li>
+      <li><span class="seventy__label">European Cup Winners</span><span class="seventy__value">1992</span></li>
+      <li><span class="seventy__label">Teams &middot; Venues &middot; Training Nights</span><span class="seventy__value">2 &middot; 2 &middot; 3</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <h2 class="section__title">Teams</h2>
+    <div class="fixtures-grid">
+      <div class="fixture-card">
+        <div class="fixture-card__league">1. Landesliga</div>
+        <div class="fixture-card__team">BSC 70 Linz I</div>
+        <p style="color:var(--color-muted);margin:0 0 12px;font-size:14px">Our first team in the top league of Upper Austria. We are always looking for players who want to compete.</p>
+        <a class="fixture-card__link" href="https://obv.tournamentsoftware.com/" target="_blank" rel="noopener">Results & Standings &rarr;</a>
+      </div>
+      <div class="fixture-card">
+        <div class="fixture-card__league">2. Klasse Nord</div>
+        <div class="fixture-card__team">BSC 70 Linz II</div>
+        <p style="color:var(--color-muted);margin:0 0 12px;font-size:14px">Our second team &ndash; a great way to start playing competitive badminton.</p>
+        <a class="fixture-card__link" href="https://obv.tournamentsoftware.com/" target="_blank" rel="noopener">Results & Standings &rarr;</a>
+      </div>
     </div>
   </div>
 </section>
@@ -41,14 +116,13 @@ description: "Badminton in Linz: news, training times, trial training, and conta
 <section class="section section--mission">
   <div class="container mission">
     <div class="mission__content">
-      <p class="mission__kicker">Our club</p>
-      <h2 class="mission__title">Experience badminton together.</h2>
-      <p class="mission__lead">From your first rally to league matches: we support youth development, community, and competitive play.</p>
+      <p class="mission__kicker">Join us</p>
+      <h2 class="mission__title">Just show up.</h2>
+      <p class="mission__lead">No registration needed, no experience required. Come to a training session, bring indoor shoes, and see if you like it. We have rackets and shuttlecocks.</p>
       <div class="mission__actions">
-        <a class="btn" href="/en/bsc-70-linz/">About BSC 70 Linz</a>
-        <a class="btn btn--ghost" href="/en/mitgliedschaft/">Membership</a>
+        <a class="btn" href="/en/mitmachen/">Training times & info</a>
+        <a class="btn btn--ghost" href="/en/kontakt/">Questions? Get in touch</a>
       </div>
     </div>
   </div>
 </section>
-

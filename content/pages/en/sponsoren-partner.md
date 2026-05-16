@@ -6,6 +6,5 @@ navOrder: 110
 navLabel: "Sponsoren/Partner"
 translationStatus: "draft"
 translatedFrom: "content/pages/de/sponsoren-partner.md"
+navHidden: true
 ---
-
-

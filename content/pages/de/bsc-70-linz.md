@@ -5,6 +5,7 @@ navGroup: "Verein"
 navOrder: 0
 navLabel: "BSC 70 Linz"
 translationStatus: "reviewed"
+navHidden: true
 ---
 
 BSC 70 Linz

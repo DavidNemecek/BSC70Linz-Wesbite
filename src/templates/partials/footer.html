@@ -1,14 +1,38 @@
 <footer class="footer">
-  <div class="container footer__inner">
-    <div class="footer__col">
-      <div class="footer__title">BSC 70 Linz</div>
-      <div class="footer__text">Statische Website (DE/EN) &ndash; GitHub Pages</div>
-    </div>
-    <div class="footer__col">
-      <div class="footer__links">
-        <a href="{{contactHref}}">{{contactLabel}}</a>
-        <a href="{{legalHref}}">{{legalLabel}}</a>
+  <div class="container">
+    <div class="footer__inner">
+      <div class="footer__col">
+        <div class="footer__brand">BSC 70 Linz</div>
+        <div class="footer__text">Badminton Sport Club seit 1970</div>
+        <div class="footer__text">7x Staatsmeister &middot; Europacupsieger 1992</div>
+        <div class="footer__social">
+          <a href="https://www.facebook.com/bsc70linz/" target="_blank" rel="noopener" aria-label="Facebook" title="Facebook">fb</a>
+          <a href="https://www.instagram.com/bsc70linz/" target="_blank" rel="noopener" aria-label="Instagram" title="Instagram">ig</a>
+          <a href="mailto:kontakt@bsc70linz.at" aria-label="E-Mail" title="E-Mail">@</a>
+        </div>
       </div>
+      <div class="footer__col">
+        <div class="footer__heading">{{quickLinksLabel}}</div>
+        <ul class="footer__list">
+          <li><a href="{{trainingHref}}">{{trainingLabel}}</a></li>
+          <li><a href="{{trialHref}}">{{trialLabel}}</a></li>
+          <li><a href="{{membershipHref}}">{{membershipLabel}}</a></li>
+          <li><a href="{{newsHref}}">News</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <div class="footer__heading">{{infoLabel}}</div>
+        <ul class="footer__list">
+          <li><a href="{{contactHref}}">{{contactLabel}}</a></li>
+          <li><a href="{{legalHref}}">{{legalLabel}}</a></li>
+          <li><a href="{{clubHref}}">{{clubLabel}}</a></li>
+          <li><a href="{{sponsorsHref}}">{{sponsorsLabel}}</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>&copy; {{year}} BSC 70 Linz &ndash; Badminton Sport Club</span>
+      <span><a href="{{legalHref}}">{{legalLabel}}</a></span>
     </div>
   </div>
 </footer>

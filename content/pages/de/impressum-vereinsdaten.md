@@ -5,6 +5,7 @@ navGroup: "Verein"
 navOrder: 130
 navLabel: "Impressum/Vereinsdaten"
 translationStatus: "reviewed"
+navHidden: true
 ---
 
 [Impressum/Vereinsdaten](/de/impressum-vereinsdaten/)

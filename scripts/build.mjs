@@ -493,7 +493,10 @@ function buildNewsCard(item) {
   const title = escapeHtml(item.title);
   const teaser = escapeHtml(cleanTeaser(item.teaser));
   const catSlug = escapeHtml(String(item.category || ""));
+  const heroSrc = item.heroImage ? (item.heroImage.startsWith("/") ? item.heroImage : `/${item.heroImage}`) : "";
+  const heroImg = heroSrc ? `<img class="news-card__img" src="${heroSrc}" alt="" loading="lazy">` : "";
   return `<article class="news-card">
+  ${heroImg}
   <div class="news-card__meta">
     <span class="news-card__date">${date}</span>
     <span class="news-card__cat" data-category="${catSlug}">${escapeHtml(displayCategory(item.category, item.lang))}</span>
@@ -550,6 +553,20 @@ async function writePage({
     contactLabel: lang === "en" ? "Contact" : "Kontakt",
     legalHref: `/${lang}/impressum-vereinsdaten/`,
     legalLabel: lang === "en" ? "Imprint" : "Impressum",
+    trainingHref: `/${lang}/trainingszeiten/`,
+    trainingLabel: lang === "en" ? "Training Times" : "Trainingszeiten",
+    trialHref: `/${lang}/schnuppertraining/`,
+    trialLabel: lang === "en" ? "Trial Training" : "Schnuppertraining",
+    membershipHref: `/${lang}/mitgliedschaft/`,
+    membershipLabel: lang === "en" ? "Membership" : "Mitgliedschaft",
+    newsHref: `/${lang}/news/`,
+    clubHref: `/${lang}/bsc-70-linz/`,
+    clubLabel: lang === "en" ? "About the Club" : "Über den Verein",
+    sponsorsHref: `/${lang}/sponsoren-partner/`,
+    sponsorsLabel: lang === "en" ? "Sponsors" : "Sponsoren",
+    quickLinksLabel: lang === "en" ? "Quick Links" : "Schnellzugriff",
+    infoLabel: lang === "en" ? "Information" : "Informationen",
+    year: new Date().getFullYear(),
   });
   const hreflangs = buildHreflangLinks({ origin, urlDe, urlEn });
   const html = renderTemplate(templates.layout, {
@@ -563,6 +580,8 @@ async function writePage({
     canonical: `${origin}${activeUrl}`,
     skipText: lang === "en" ? "Skip to content" : "Zum Inhalt",
     bodyClass: bodyClass || "",
+    joinHref: `/${lang}/mitmachen/`,
+    joinLabel: lang === "en" ? "Come to training" : "Komm zum Training",
   });
   const outPath = outputPathForUrl(activeUrl);
   await writeText(outPath, html);
