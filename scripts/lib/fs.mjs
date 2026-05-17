@@ -6,7 +6,26 @@ export async function ensureDir(dirPath) {
 }
 
 export async function emptyDir(dirPath) {
-  await fs.rm(dirPath, { recursive: true, force: true });
+  async function removeRecursive(target) {
+    try {
+      const entries = await fs.readdir(target, { withFileTypes: true });
+      for (const entry of entries) {
+        const fullPath = path.join(target, entry.name);
+        if (entry.isDirectory()) {
+          await removeRecursive(fullPath);
+          await fs.rmdir(fullPath).catch(() => {});
+        } else {
+          await fs.unlink(fullPath).catch(() => {});
+        }
+      }
+    } catch (err) {
+      if (err?.code === "ENOENT") return;
+      throw err;
+    }
+    await fs.rmdir(target).catch(() => {});
+  }
+
+  await removeRecursive(dirPath);
   await fs.mkdir(dirPath, { recursive: true });
 }
 
@@ -59,4 +78,3 @@ export async function listFilesRecursive(rootDir, { filter } = {}) {
   await walk(rootDir);
   return results;
 }
-

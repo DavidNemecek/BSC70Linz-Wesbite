@@ -1,0 +1,1 @@
+docs/de/index.html: 8: <meta property="og:title" content="BSC 70 Linz" />

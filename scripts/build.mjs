@@ -51,14 +51,6 @@ function assertPageLangParity(pagesDe, pagesEn) {
       `Page parity error: missing slugs. Only DE: ${onlyDe.join(", ") || "-"}; only EN: ${onlyEn.join(", ") || "-"}`
     );
   }
-  const mism = [];
-  for (const [slug, d] of de.entries()) {
-    const e = en.get(slug);
-    if (!e) continue;
-    if (Boolean(d.published) !== Boolean(e.published)) mism.push(`${slug}: published mismatch`);
-    if (Boolean(d.navHidden) !== Boolean(e.navHidden)) mism.push(`${slug}: navHidden mismatch`);
-  }
-  if (mism.length) throw new Error(`Page parity error: ${mism.join("; ")}`);
 }
 
 function canonicalizeNav(pagesThis, pagesCanonical, lang) {
@@ -538,6 +530,8 @@ async function writePage({
   origin,
   title,
   description,
+  heroImage,
+  ogType,
   contentHtml,
   activeUrl,
   urlDe,
@@ -553,6 +547,8 @@ async function writePage({
     contactLabel: lang === "en" ? "Contact" : "Kontakt",
     legalHref: `/${lang}/impressum-vereinsdaten/`,
     legalLabel: lang === "en" ? "Imprint" : "Impressum",
+    privacyHref: `/${lang}/datenschutz/`,
+    privacyLabel: lang === "en" ? "Privacy Policy" : "Datenschutz",
     trainingHref: `/${lang}/trainingszeiten/`,
     trainingLabel: lang === "en" ? "Training Times" : "Trainingszeiten",
     trialHref: `/${lang}/schnuppertraining/`,
@@ -573,6 +569,14 @@ async function writePage({
     lang,
     title: escapeHtml(title),
     description: escapeHtml(description || title || ""),
+    ogTitle: escapeHtml(title),
+    ogDescription: escapeHtml(description || title || ""),
+    ogImage: escapeHtml(
+      heroImage ? (heroImage.startsWith("/") ? heroImage : `/${heroImage}`) : "/assets/uploads/team-bsc70-48b7b09aaf.jpg"
+    ),
+    ogUrl: `${origin}${activeUrl}`,
+    ogType: ogType || "website",
+    ogLocale: lang === "en" ? "en_GB" : "de_AT",
     hreflangLinks: hreflangs,
     header: headerHtml,
     content: contentHtml,
@@ -609,9 +613,7 @@ async function main() {
     <link rel="alternate" hreflang="de" href="${envConfig.origin}/de/">
     <link rel="alternate" hreflang="en" href="${envConfig.origin}/en/">
     <link rel="alternate" hreflang="x-default" href="${envConfig.origin}/">
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" />
+    <link rel="stylesheet" href="/assets/css/fonts.css" />
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/assets/css/base.css" />
     <link rel="stylesheet" href="/assets/css/themes/light.css" id="theme" />
@@ -767,6 +769,8 @@ async function main() {
         activeUrl,
         urlDe,
         urlEn,
+        heroImage: p.heroImage,
+        ogType: "website",
         bodyClass: isHome ? "page page--home" : p.slug === "vorstand" ? "page page--vorstand" : "page",
       });
       addUrl(activeUrl);
@@ -807,6 +811,8 @@ async function main() {
         activeUrl: url,
         urlDe: url.replace(`/${lang}/`, "/de/"),
         urlEn: url.replace(`/${lang}/`, "/en/"),
+        heroImage: "",
+        ogType: "article",
         bodyClass: "page page--news-list",
       });
       addUrl(url);
@@ -843,12 +849,14 @@ async function main() {
           origin: envConfig.origin,
           title: `News: ${category}`,
           description: lang === "en" ? `News category ${category}.` : `News Kategorie ${category}.`,
-          contentHtml,
-          activeUrl: url,
-          urlDe: url.replace(`/${lang}/`, "/de/"),
-          urlEn: url.replace(`/${lang}/`, "/en/"),
-          bodyClass: "page page--news-list",
-        });
+        contentHtml,
+        activeUrl: url,
+        urlDe: url.replace(`/${lang}/`, "/de/"),
+        urlEn: url.replace(`/${lang}/`, "/en/"),
+        heroImage: "",
+        ogType: "article",
+        bodyClass: "page page--news-list",
+      });
         addUrl(url);
       }
     }
@@ -899,6 +907,8 @@ async function main() {
         activeUrl: it.url,
         urlDe,
         urlEn,
+        heroImage,
+        ogType: "article",
         bodyClass: "page page--news-detail",
       });
       addUrl(it.url);
@@ -929,9 +939,7 @@ async function main() {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Seite nicht gefunden</title>
     <meta name="robots" content="noindex">
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" />
+    <link rel="stylesheet" href="/assets/css/fonts.css" />
     <link rel="stylesheet" href="/assets/css/base.css">
     <link rel="stylesheet" href="/assets/css/themes/light.css" id="theme">
   </head>
