@@ -1,0 +1,41 @@
+{
+  "active_plan": "/Users/hk/dev-workshop/BSC70Linz-Wesbite/.sisyphus/plans/website-redesign.md",
+  "started_at": "2026-05-17T06:43:10.156Z",
+  "session_ids": [
+    "ses_1cb71e337ffeB7cyMtj0Ftj2Bk"
+  ],
+  "session_origins": {
+    "ses_1cb71e337ffeB7cyMtj0Ftj2Bk": "direct"
+  },
+  "plan_name": "website-redesign",
+  "agent": "atlas",
+  "task_sessions": {
+    "todo:1": {
+      "task_key": "todo:1",
+      "task_label": "1",
+      "task_title": "Self-Host Fonts (Space Grotesk + Inter WOFF2)",
+      "session_id": "ses_1cb52748fffeG2MyI2OFmJxMgp",
+      "agent": "Sisyphus-Junior",
+      "category": "quick",
+      "updated_at": "2026-05-17T06:48:45.405Z"
+    },
+    "todo:6": {
+      "task_key": "todo:6",
+      "task_label": "6",
+      "task_title": "Replace Design Tokens in base.css",
+      "session_id": "ses_1cb4b8a26ffe6FvtSN8VXXRHZ8",
+      "agent": "Sisyphus-Junior",
+      "category": "visual-engineering",
+      "updated_at": "2026-05-17T06:54:14.474Z"
+    },
+    "todo:7": {
+      "task_key": "todo:7",
+      "task_label": "7",
+      "task_title": "Update Dark Theme Tokens",
+      "session_id": "ses_1cb48c9d6ffeqhYHqtrYOZTdol",
+      "agent": "Sisyphus-Junior",
+      "category": "visual-engineering",
+      "updated_at": "2026-05-17T06:55:28.221Z"
+    }
+  }
+}
