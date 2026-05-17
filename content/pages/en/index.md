@@ -125,6 +125,36 @@ description: "Badminton in Linz since 1970. Youth training, adult training, and 
 </div>
 </section>
 
+<section class="section section--testimonials reveal">
+<div class="container">
+<p class="section__kicker">What Members Say</p>
+<h2 class="section__title">Voices from the Club</h2>
+<div class="testimonials-grid">
+<blockquote class="testimonial-card">
+<p class="testimonial-card__quote">"I&rsquo;ve been a member for 3 years and have not only learned badminton but also met great people."</p>
+<footer class="testimonial-card__footer">
+<div class="testimonial-card__avatar">M</div>
+<div><cite class="testimonial-card__name">Member since 2021</cite><span class="testimonial-card__role">Hobby player</span></div>
+</footer>
+</blockquote>
+<blockquote class="testimonial-card">
+<p class="testimonial-card__quote">"As a beginner I was welcomed right away. The coaches take their time and you notice progress quickly."</p>
+<footer class="testimonial-card__footer">
+<div class="testimonial-card__avatar">S</div>
+<div><cite class="testimonial-card__name">Member since 2023</cite><span class="testimonial-card__role">Beginner</span></div>
+</footer>
+</blockquote>
+<blockquote class="testimonial-card">
+<p class="testimonial-card__quote">"BSC 70 is more than a club &mdash; it&rsquo;s a community. We celebrate success together."</p>
+<footer class="testimonial-card__footer">
+<div class="testimonial-card__avatar">T</div>
+<div><cite class="testimonial-card__name">Member since 2019</cite><span class="testimonial-card__role">League player</span></div>
+</footer>
+</blockquote>
+</div>
+</div>
+</section>
+
 <section class="section section--mission reveal">
   <div class="container mission">
     <div class="mission__content">
