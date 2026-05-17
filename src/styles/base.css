@@ -379,65 +379,77 @@ code {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 24px;
-  border-radius: var(--radius-sm);
-  border: none;
-  background: var(--color-primary);
-  color: #fff;
-  font-family: var(--font-body);
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  text-decoration: none;
+  gap: 0.5em;
+  padding: 0.75rem 1.5rem;
   min-height: 44px;
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  border-radius: var(--radius-lg);
+  border: 2px solid transparent;
   cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-  overflow: hidden;
-  z-index: 0;
-}
-.btn:hover {
   text-decoration: none;
-  background: var(--color-primary-dark);
-  box-shadow: 0 0 24px rgba(37, 99, 235, .25);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+  white-space: nowrap;
+  /* Primary: electric blue */
+  background: var(--color-primary);
+  color: #FFFFFF;
+  border-color: var(--color-primary);
 }
 
+.btn:hover {
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+  text-decoration: none;
+  color: #FFFFFF;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+/* Ghost variant */
 .btn--ghost {
   background: transparent;
-  color: var(--color-text);
-  border: 1px solid rgba(255, 255, 255, .2);
-}
-.btn--ghost:hover {
-  background: transparent;
-  border-color: var(--color-primary);
   color: var(--color-primary);
-  box-shadow: none;
+  border-color: var(--color-primary);
+}
+
+.btn--ghost:hover {
+  background: var(--color-primary);
+  color: #FFFFFF;
+  border-color: var(--color-primary);
+}
+
+/* CTA variant — lime green, dark text */
+.btn--cta {
+  background: var(--color-accent);
+  color: #09090B;
+  border-color: var(--color-accent);
+}
+
+.btn--cta:hover {
+  background: #A3E635;
+  border-color: #A3E635;
+  color: #09090B;
+}
+
+/* Small variant */
+.btn--sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  min-height: 36px;
 }
 
 .lang-chooser { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-
-/* --- 7a. BUTTON FILL ANIMATION ------------------------------------------ */
-
-.btn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--color-primary-dark);
-  transform: translateX(-101%);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: -1;
-}
-.btn:hover::before {
-  transform: translateX(0);
-}
-.btn--ghost::before {
-  background: rgba(37, 99, 235, .1);
-}
-.btn--ghost:hover {
-  color: var(--color-primary);
-  border-color: var(--color-primary);
-}
 
 /* --- 8. MAIN / PAGE LAYOUT ---------------------------------------------- */
 
@@ -510,15 +522,16 @@ code {
 .section--home-news .news-card__meta,
 .section--home-news .news-card__teaser { color: var(--color-muted); }
 .section--home-news .news-card__title { color: var(--color-text); }
-.section--home-news .btn { background: var(--color-primary); color: #fff; }
+.section--home-news .btn { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
 .section--home-news .btn--ghost {
-  color: var(--color-text);
-  border-color: rgba(255, 255, 255, .15);
+  background: transparent;
+  color: var(--color-primary);
+  border-color: var(--color-primary);
 }
 .section--home-news .btn--ghost:hover {
+  background: var(--color-primary);
+  color: #FFFFFF;
   border-color: var(--color-primary);
-  color: var(--color-primary);
-  background: transparent;
 }
 
 /* --- 10. HERO SECTION --------------------------------------------------- */
@@ -595,22 +608,24 @@ code {
 .section--hero .btn:not(.btn--ghost) {
   background: var(--color-primary);
   color: #fff;
+  border-color: var(--color-primary);
   box-shadow: 0 0 20px rgba(37, 99, 235, .2);
 }
 .section--hero .btn:not(.btn--ghost):hover {
   background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
   box-shadow: 0 0 32px rgba(37, 99, 235, .35);
 }
 
 .section--hero .btn--ghost {
-  color: var(--color-hero-text);
-  border-color: rgba(255, 255, 255, .15);
   background: transparent;
+  color: var(--color-hero-text);
+  border-color: rgba(255, 255, 255, .25);
 }
 .section--hero .btn--ghost:hover {
+  background: var(--color-primary);
+  color: #FFFFFF;
   border-color: var(--color-primary);
-  color: var(--color-primary);
-  background: transparent;
 }
 
 /* Hero background media */
@@ -1292,17 +1307,7 @@ code {
   .stat-item:nth-child(odd)::before { display: none; }
 }
 
-/* --- 22. SCROLL ANIMATIONS -- Subtle reveals ---------------------------- */
-
-.section:not(.section--hero) {
-  animation: slide-in linear both;
-  animation-timeline: view();
-  animation-range: entry 0% entry 25%;
-}
-@keyframes slide-in {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+/* --- 22. SCROLL ANIMATIONS -- (now handled by IntersectionObserver, see .reveal) */
 
 /* --- 23. GENERAL POLISH ------------------------------------------------- */
 
@@ -1454,6 +1459,31 @@ a, .btn, .chip, .nav__link, .nav__sublink, .nav__summary,
 }
 .lightbox__close:hover {
   background: rgba(255, 255, 255, .15);
+}
+
+/* --- SCROLL REVEAL ANIMATIONS ------------------------------------------ */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.reveal--visible {
+  opacity: 1;
+  transform: none;
+}
+
+.reveal[data-reveal="fade-in"] {
+  transform: none;
+}
+
+.reveal[data-reveal="slide-left"] {
+  transform: translateX(-30px);
+}
+
+.reveal[data-reveal="slide-right"] {
+  transform: translateX(30px);
 }
 
 /* --- 30. REDUCED MOTION ------------------------------------------------- */
