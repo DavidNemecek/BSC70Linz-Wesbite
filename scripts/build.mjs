@@ -562,6 +562,10 @@ async function writePage({
     sponsorsLabel: lang === "en" ? "Sponsors" : "Sponsoren",
     quickLinksLabel: lang === "en" ? "Quick Links" : "Schnellzugriff",
     infoLabel: lang === "en" ? "Information" : "Informationen",
+    sponsorsStripLabel: lang === "en" ? "Our Partners" : "Unsere Partner",
+    newsletterText: lang === "en" ? "Stay up to date on training times and results." : "Bleib auf dem Laufenden über Trainingszeiten und Ergebnisse.",
+    newsletterPlaceholder: lang === "en" ? "your@email.com" : "deine@email.at",
+    newsletterButton: lang === "en" ? "Subscribe" : "Anmelden",
     year: new Date().getFullYear(),
   });
   const hreflangs = buildHreflangLinks({ origin, urlDe, urlEn });

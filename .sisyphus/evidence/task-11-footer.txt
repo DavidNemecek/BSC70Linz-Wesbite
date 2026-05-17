@@ -1,0 +1,5 @@
+227:  <div class="footer__sponsors">
+229:      <p class="footer__sponsors-label">Unsere Partner</p>
+230:      <div class="footer__sponsors-logos">
+282:        <div class="footer__col footer__col--newsletter">
+284:          <p class="footer__newsletter-text">Bleib auf dem Laufenden über Trainingszeiten und Ergebnisse.</p>

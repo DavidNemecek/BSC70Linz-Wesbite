@@ -1,36 +1,75 @@
 <footer class="footer">
-  <div class="container">
-    <div class="footer__inner">
-      <div class="footer__col">
-        <div class="footer__brand">BSC 70 Linz</div>
-        <div class="footer__text">Badminton Sport Club seit 1970</div>
-        <div class="footer__text">7x Staatsmeister &middot; Europacupsieger 1992</div>
-        <div class="footer__social">
-          <a href="https://www.facebook.com/bsc70linz/" target="_blank" rel="noopener" aria-label="Facebook" title="Facebook">fb</a>
-          <a href="https://www.instagram.com/bsc70linz/" target="_blank" rel="noopener" aria-label="Instagram" title="Instagram">ig</a>
-          <a href="mailto:kontakt@bsc70linz.at" aria-label="E-Mail" title="E-Mail">@</a>
-        </div>
-      </div>
-      <div class="footer__col">
-        <div class="footer__heading">{{quickLinksLabel}}</div>
-        <ul class="footer__list">
-          <li><a href="{{trainingHref}}">{{trainingLabel}}</a></li>
-          <li><a href="{{trialHref}}">{{trialLabel}}</a></li>
-          <li><a href="{{membershipHref}}">{{membershipLabel}}</a></li>
-          <li><a href="{{newsHref}}">News</a></li>
-        </ul>
-      </div>
-      <div class="footer__col">
-        <div class="footer__heading">{{infoLabel}}</div>
-        <ul class="footer__list">
-          <li><a href="{{contactHref}}">{{contactLabel}}</a></li>
-          <li><a href="{{legalHref}}">{{legalLabel}}</a></li>
-          <li><a href="{{clubHref}}">{{clubLabel}}</a></li>
-          <li><a href="{{sponsorsHref}}">{{sponsorsLabel}}</a></li>
-        </ul>
+  <!-- Sponsor strip -->
+  <div class="footer__sponsors">
+    <div class="container">
+      <p class="footer__sponsors-label">{{sponsorsStripLabel}}</p>
+      <div class="footer__sponsors-logos">
+        <img src="/assets/sponsors/opt-therapie.png" alt="OPT Therapie" loading="lazy" />
+        <img src="/assets/sponsors/sport-ooe.jpg" alt="Sport Land Oberösterreich" loading="lazy" />
       </div>
     </div>
-    <div class="footer__bottom">
+  </div>
+
+  <!-- Main footer content -->
+  <div class="footer__main">
+    <div class="container">
+      <div class="footer__inner">
+        <!-- Brand column -->
+        <div class="footer__col footer__col--brand">
+          <div class="footer__brand">BSC 70 Linz</div>
+          <div class="footer__tagline">Badminton Sport Club seit 1970</div>
+          <div class="footer__achievement">7× Staatsmeister · Europacupsieger 1992</div>
+          <div class="footer__social">
+            <a href="https://www.facebook.com/bsc70linz/" target="_blank" rel="noopener" aria-label="Facebook">
+              <span aria-hidden="true">fb</span>
+            </a>
+            <a href="https://www.instagram.com/bsc70linz/" target="_blank" rel="noopener" aria-label="Instagram">
+              <span aria-hidden="true">ig</span>
+            </a>
+            <a href="mailto:kontakt@bsc70linz.at" aria-label="E-Mail">
+              <span aria-hidden="true">@</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Quick links column -->
+        <div class="footer__col">
+          <div class="footer__heading">{{quickLinksLabel}}</div>
+          <ul class="footer__list">
+            <li><a href="{{trainingHref}}">{{trainingLabel}}</a></li>
+            <li><a href="{{trialHref}}">{{trialLabel}}</a></li>
+            <li><a href="{{membershipHref}}">{{membershipLabel}}</a></li>
+            <li><a href="{{newsHref}}">News</a></li>
+          </ul>
+        </div>
+
+        <!-- Info column -->
+        <div class="footer__col">
+          <div class="footer__heading">{{infoLabel}}</div>
+          <ul class="footer__list">
+            <li><a href="{{contactHref}}">{{contactLabel}}</a></li>
+            <li><a href="{{legalHref}}">{{legalLabel}}</a></li>
+            <li><a href="{{clubHref}}">{{clubLabel}}</a></li>
+            <li><a href="{{sponsorsHref}}">{{sponsorsLabel}}</a></li>
+          </ul>
+        </div>
+
+        <!-- Newsletter column -->
+        <div class="footer__col footer__col--newsletter">
+          <div class="footer__heading">Newsletter</div>
+          <p class="footer__newsletter-text">{{newsletterText}}</p>
+          <form class="footer__newsletter-form" onsubmit="return false;">
+            <input type="email" placeholder="{{newsletterPlaceholder}}" aria-label="E-Mail Adresse" class="footer__newsletter-input" />
+            <button type="submit" class="btn btn--sm">{{newsletterButton}}</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer bottom -->
+  <div class="footer__bottom">
+    <div class="container">
       <span>&copy; {{year}} BSC 70 Linz &ndash; Badminton Sport Club</span>
       <span><a href="{{legalHref}}">{{legalLabel}}</a> &middot; <a href="{{privacyHref}}">{{privacyLabel}}</a></span>
     </div>
