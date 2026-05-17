@@ -1,41 +1,41 @@
 /* ==========================================================================
-   BSC 70 LINZ -- EDITORIAL SPORT MAGAZINE
-   Design: Tracksmith / Soar Running / Juventus editorial.
-   Fonts:  Fraunces (display) + Inter (body) + JetBrains Mono (meta)
+   BSC 70 LINZ -- STREET ENERGY
+   Design: Athletic blue/white club identity — sharp, modern, bold.
+   Fonts:  Space Grotesk (display) + Inter (body)
    ========================================================================== */
 
 /* --- 1. DESIGN TOKENS --------------------------------------------------- */
 
 :root {
   --font-body: "Inter", system-ui, -apple-system, sans-serif;
-  --font-display: "Fraunces", "Times New Roman", Georgia, serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --color-bg: #F4F1EA;
+  --color-bg: #F8FAFC;
   --color-surface: #FFFFFF;
-  --color-text: #0E0F0C;
-  --color-muted: rgba(14, 15, 12, 0.6);
-  --color-primary: #E63322;
-  --color-primary-dark: #C42818;
-  --color-secondary: #1E3A8A;
-  --color-accent: #E63322;
-  --color-border: rgba(14, 15, 12, 0.08);
+  --color-text: #09090B;
+  --color-muted: #6B7280;
+  --color-primary: #3B82F6;
+  --color-primary-dark: #2563EB;
+  --color-secondary: #1D4ED8;
+  --color-accent: #84CC16;
+  --color-border: rgba(9, 9, 11, 0.08);
   --color-card-bg: #FFFFFF;
 
-  --radius: 2px;
-  --radius-sm: 2px;
-  --radius-lg: 4px;
+  --radius: 0px;
+  --radius-sm: 4px;
+  --radius-lg: 8px;
 
-  --shadow: 0 1px 2px rgba(14, 15, 12, 0.04), 0 4px 12px rgba(14, 15, 12, 0.05);
-  --shadow-lg: 0 4px 12px rgba(14, 15, 12, 0.08), 0 16px 32px rgba(14, 15, 12, 0.06);
+  --shadow: 0 1px 2px rgba(9, 9, 11, 0.04), 0 8px 24px rgba(9, 9, 11, 0.06);
+  --shadow-lg: 0 8px 24px rgba(9, 9, 11, 0.10), 0 24px 48px rgba(9, 9, 11, 0.12);
 
   --container: 1280px;
   --header-height: 72px;
-  --section-gap: clamp(80px, 10vw, 160px);
+  --section-gap: clamp(60px, 8vw, 120px);
 
-  --color-hero-bg: #0E0F0C;
-  --color-hero-text: #F4F1EA;
-  --color-hero-surface: rgba(244, 241, 234, 0.08);
+  --color-hero-bg: #09090B;
+  --color-hero-text: #F8FAFC;
+  --color-hero-surface: rgba(248, 250, 252, 0.08);
 }
 
 /* --- 2. RESET & BASE ---------------------------------------------------- */
@@ -55,9 +55,9 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
-  text-transform: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   line-height: 1.05;
-  letter-spacing: -0.02em;
   color: var(--color-text);
 }
 
@@ -69,7 +69,7 @@ a {
 }
 a:hover {
   text-decoration: underline;
-  text-decoration-color: rgba(37, 99, 235, .4);
+  text-decoration-color: rgba(59, 130, 246, 0.4);
 }
 
 a:focus-visible, button:focus-visible, summary:focus-visible {

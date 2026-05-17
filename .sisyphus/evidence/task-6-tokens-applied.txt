@@ -1,0 +1,5 @@
+4:   Fonts:  Space Grotesk (display) + Inter (body)
+11:  --font-display: 'Space Grotesk', system-ui, sans-serif;
+14:  --color-bg: #F8FAFC;
+18:  --color-primary: #3B82F6;
+37:  --color-hero-text: #F8FAFC;
