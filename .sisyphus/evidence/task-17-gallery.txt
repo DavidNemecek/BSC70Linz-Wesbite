@@ -1,0 +1,5 @@
+70:    <div class="gallery-grid" id="gallery">
+71:      <a class="gallery-item" href="/assets/uploads/team-bsc70-48b7b09aaf.jpg" data-lightbox>
+74:      <a class="gallery-item" href="/assets/uploads/bh8a6455-600-b4625c86bc.jpg" data-lightbox>
+77:      <a class="gallery-item" href="/assets/uploads/dinata-dsc2731-600x-c114e6a7ab.jpeg" data-lightbox>
+80:      <a class="gallery-item" href="/assets/uploads/bh8a7940-600-46ee569e2e.jpg" data-lightbox>

@@ -392,6 +392,53 @@ function initCopyUrl() {
   });
 }
 
+// Photo gallery lightbox
+function initGallery() {
+  const lightbox = document.getElementById('lightbox');
+  if (!lightbox) return;
+
+  const items = Array.from(document.querySelectorAll('[data-lightbox]'));
+  const img = lightbox.querySelector('.lightbox__img');
+  let current = 0;
+
+  function show(index) {
+    current = (index + items.length) % items.length;
+    const src = items[current].href;
+    img.src = src;
+    img.alt = items[current].querySelector('img')?.alt || '';
+    lightbox.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function hide() {
+    lightbox.hidden = true;
+    document.body.style.overflow = '';
+    img.src = '';
+  }
+
+  items.forEach((item, i) => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      show(i);
+    });
+  });
+
+  lightbox.querySelector('.lightbox__close').addEventListener('click', hide);
+  lightbox.querySelector('.lightbox__prev').addEventListener('click', () => show(current - 1));
+  lightbox.querySelector('.lightbox__next').addEventListener('click', () => show(current + 1));
+
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) hide();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (lightbox.hidden) return;
+    if (e.key === 'Escape') hide();
+    if (e.key === 'ArrowLeft') show(current - 1);
+    if (e.key === 'ArrowRight') show(current + 1);
+  });
+}
+
 initNavGroups();
 initNavToggle();
 initLanguageA11y();
@@ -400,3 +447,4 @@ initNewsEnhancements();
 initNewsBacklink();
 initScrollReveal();
 initCopyUrl();
+initGallery();
