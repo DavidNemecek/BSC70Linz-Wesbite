@@ -793,16 +793,7 @@ async function main() {
       const quickHtml = `<div class="home-links__grid">${quickLinks
         .map((l) => `<a class="btn btn--ghost" href="${l.href}">${escapeHtml(l.label)}</a>`)
         .join("")}</div>`;
-      const homeExtras = isHome
-        ? `<section class="section section--home-links"><div class="container"><h2 class="section__title">${
-            lang === "en" ? "Quick Links" : "Schnellzugriff"
-          }</h2>${quickHtml}</div></section>
-           <section class="section section--home-news"><div class="container"><h2 class="section__title">${
-             lang === "en" ? "Latest News" : "Aktuelle News"
-           }</h2><div class="news-grid">${latestCards}</div><p class="home-news__more"><a class="btn" href="/${lang}/news/">${
-             lang === "en" ? "All news" : "Alle News"
-           }</a></p></div></section>`
-        : "";
+      const homeExtras = "";
       const renderedBody = md.render(bodyClean, { assetPrefix: "/assets/" });
       const contentHtml = isHome
         ? `<div class="home">${fallbackNote}${renderedBody}${homeExtras}</div>`

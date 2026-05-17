@@ -25,16 +25,6 @@ description: "Badminton in Linz since 1970. Youth training, adult training, and 
       </div>
     </div>
   </div>
-  <div class="hero__stats">
-    <div class="container">
-      <ul class="hero__stats-list">
-        <li><span class="hero__stats-value">1970</span><span class="hero__stats-label">Founded</span></li>
-        <li><span class="hero__stats-value">7&times;</span><span class="hero__stats-label">National Champions</span></li>
-        <li><span class="hero__stats-value">1992</span><span class="hero__stats-label">European Cup Winners</span></li>
-        <li><span class="hero__stats-value">3</span><span class="hero__stats-label">Training nights</span></li>
-      </ul>
-    </div>
-  </div>
 </section>
 
 <section class="section section--manifesto reveal">
@@ -44,50 +34,7 @@ description: "Badminton in Linz since 1970. Youth training, adult training, and 
   </div>
 </section>
 
-<section class="section reveal">
-  <div class="container">
-    <h2 class="section__title">Training</h2>
-    <div class="fixtures-grid">
-      <div class="fixture-card">
-        <div class="fixture-card__league">Kids & Youth</div>
-        <div class="fixture-card__team">Youth Training</div>
-        <p style="color:var(--color-muted);margin:0 0 4px;font-size:15px"><strong>Tuesday</strong> 5:00 &ndash; 7:00 PM</p>
-        <p style="color:var(--color-muted);margin:0 0 4px;font-size:15px"><strong>Friday</strong> 6:00 &ndash; 7:30 PM</p>
-        <p style="color:var(--color-muted);margin:0 0 12px;font-size:14px">We go into schools in Linz and introduce kids to badminton. Those who enjoy it join our club training and can compete in tournaments.</p>
-        <a class="fixture-card__link" href="/en/mitmachen/">Learn more &rarr;</a>
-      </div>
-      <div class="fixture-card">
-        <div class="fixture-card__league">Adults</div>
-        <div class="fixture-card__team">Recreational & Competitive</div>
-        <p style="color:var(--color-muted);margin:0 0 4px;font-size:15px"><strong>Tuesday</strong> 7:00 &ndash; 9:30 PM</p>
-        <p style="color:var(--color-muted);margin:0 0 4px;font-size:15px"><strong>Thursday</strong> 6:30 &ndash; 9:00 PM</p>
-        <p style="color:var(--color-muted);margin:0 0 4px;font-size:15px"><strong>Friday</strong> 7:00 &ndash; 8:00 PM</p>
-        <p style="color:var(--color-muted);margin:0 0 12px;font-size:14px">Whether you play for fun or want to compete in leagues &ndash; just show up and play.</p>
-        <a class="fixture-card__link" href="/en/mitmachen/">Learn more &rarr;</a>
-      </div>
-    </div>
-  </div>
-</section>
 
-<section class="section section--alt reveal">
-  <div class="container">
-    <h2 class="section__title">Where we play</h2>
-    <div class="fixtures-grid">
-      <div class="fixture-card">
-        <div class="fixture-card__league">Tuesday & Thursday</div>
-        <div class="fixture-card__team">AHS Solar City</div>
-        <p style="color:var(--color-muted);margin:0 0 4px;font-size:15px">Heliosallee 140&ndash;142, 4030 Linz</p>
-        <p style="color:var(--color-muted);margin:0;font-size:14px">8 courts</p>
-      </div>
-      <div class="fixture-card">
-        <div class="fixture-card__league">Friday</div>
-        <div class="fixture-card__team">Europagymnasium Auhof</div>
-        <p style="color:var(--color-muted);margin:0 0 4px;font-size:15px">Aubrunnerweg 4, 4040 Linz</p>
-        <p style="color:var(--color-muted);margin:0;font-size:14px">6 courts</p>
-      </div>
-    </div>
-  </div>
-</section>
 
 <section class="section section--seventy reveal">
   <div class="container">

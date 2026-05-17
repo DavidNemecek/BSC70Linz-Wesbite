@@ -24,16 +24,6 @@ description: "Badminton in Linz seit 1970. Nachwuchstraining, Erwachsenentrainin
       </div>
     </div>
   </div>
-  <div class="hero__stats">
-    <div class="container">
-      <ul class="hero__stats-list">
-        <li><span class="hero__stats-value">1970</span><span class="hero__stats-label">Gegr&uuml;ndet</span></li>
-        <li><span class="hero__stats-value">7&times;</span><span class="hero__stats-label">Staatsmeister</span></li>
-        <li><span class="hero__stats-value">1992</span><span class="hero__stats-label">Europacupsieger</span></li>
-        <li><span class="hero__stats-value">3</span><span class="hero__stats-label">Trainingsabende</span></li>
-      </ul>
-    </div>
-  </div>
 </section>
 
 <section class="section section--manifesto reveal">
@@ -43,50 +33,7 @@ description: "Badminton in Linz seit 1970. Nachwuchstraining, Erwachsenentrainin
   </div>
 </section>
 
-<section class="section reveal">
-  <div class="container">
-    <h2 class="section__title">Training</h2>
-    <div class="fixtures-grid">
-      <div class="fixture-card">
-        <div class="fixture-card__league">Kinder & Jugend</div>
-        <div class="fixture-card__team">Nachwuchstraining</div>
-        <p style="color:var(--color-muted);margin:0 0 4px;font-size:15px"><strong>Dienstag</strong> 17:00 &ndash; 19:00 Uhr</p>
-        <p style="color:var(--color-muted);margin:0 0 4px;font-size:15px"><strong>Freitag</strong> 18:00 &ndash; 19:30 Uhr</p>
-        <p style="color:var(--color-muted);margin:0 0 12px;font-size:14px">Wir gehen in Linzer Schulen und bringen Kids Badminton bei. Wer Lust hat, kommt ins Vereinstraining und kann bei Turnieren mitspielen.</p>
-        <a class="fixture-card__link" href="/de/mitmachen/">Mehr erfahren &rarr;</a>
-      </div>
-      <div class="fixture-card">
-        <div class="fixture-card__league">Erwachsene</div>
-        <div class="fixture-card__team">Hobby & Mannschaft</div>
-        <p style="color:var(--color-muted);margin:0 0 4px;font-size:15px"><strong>Dienstag</strong> 19:00 &ndash; 21:30 Uhr</p>
-        <p style="color:var(--color-muted);margin:0 0 4px;font-size:15px"><strong>Donnerstag</strong> 18:30 &ndash; 21:00 Uhr</p>
-        <p style="color:var(--color-muted);margin:0 0 4px;font-size:15px"><strong>Freitag</strong> 19:00 &ndash; 20:00 Uhr</p>
-        <p style="color:var(--color-muted);margin:0 0 12px;font-size:14px">Egal ob Hobbyspieler oder Meisterschaftsspieler &ndash; einfach vorbeikommen und mitspielen.</p>
-        <a class="fixture-card__link" href="/de/mitmachen/">Mehr erfahren &rarr;</a>
-      </div>
-    </div>
-  </div>
-</section>
 
-<section class="section section--alt reveal">
-  <div class="container">
-    <h2 class="section__title">Wo wir spielen</h2>
-    <div class="fixtures-grid">
-      <div class="fixture-card">
-        <div class="fixture-card__league">Dienstag & Donnerstag</div>
-        <div class="fixture-card__team">AHS Solar City</div>
-        <p style="color:var(--color-muted);margin:0 0 4px;font-size:15px">Heliosallee 140&ndash;142, 4030 Linz</p>
-        <p style="color:var(--color-muted);margin:0;font-size:14px">8 Spielfelder</p>
-      </div>
-      <div class="fixture-card">
-        <div class="fixture-card__league">Freitag</div>
-        <div class="fixture-card__team">Europagymnasium Auhof</div>
-        <p style="color:var(--color-muted);margin:0 0 4px;font-size:15px">Aubrunnerweg 4, 4040 Linz</p>
-        <p style="color:var(--color-muted);margin:0;font-size:14px">6 Spielfelder</p>
-      </div>
-    </div>
-  </div>
-</section>
 
 <section class="section section--seventy reveal">
   <div class="container">

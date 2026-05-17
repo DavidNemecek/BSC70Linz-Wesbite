@@ -41,6 +41,7 @@
 /* --- 2. RESET & BASE ---------------------------------------------------- */
 
 *, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 html, body { margin: 0; padding: 0; }
 
 body {
@@ -463,7 +464,7 @@ code {
   background: var(--color-surface);
 }
 
-.section--home-links { background: var(--color-bg); }
+
 
 /* --- 9a. SECTION -- Angled Dividers ------------------------------------- */
 
@@ -473,41 +474,7 @@ code {
   padding-bottom: var(--section-gap);
 }
 
-/* --- 9b. SECTION -- Home News (dark, no clip-path) ---------------------- */
 
-.section--home-news {
-  background: var(--color-bg);
-  color: var(--color-text);
-  clip-path: none;
-  padding: var(--section-gap) 0;
-}
-.section--home-news .section__title {
-  color: var(--color-text);
-}
-.section--home-news .news-card {
-  background: var(--color-card-bg);
-  border: 1px solid var(--color-border);
-  color: var(--color-text);
-}
-.section--home-news .news-card:hover {
-  background: var(--color-card-bg);
-  border-color: var(--color-primary);
-  box-shadow: 0 0 20px rgba(37, 99, 235, .15);
-}
-.section--home-news .news-card__meta,
-.section--home-news .news-card__teaser { color: var(--color-muted); }
-.section--home-news .news-card__title { color: var(--color-text); }
-.section--home-news .btn { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
-.section--home-news .btn--ghost {
-  background: transparent;
-  color: var(--color-primary);
-  border-color: var(--color-primary);
-}
-.section--home-news .btn--ghost:hover {
-  background: var(--color-primary);
-  color: #FFFFFF;
-  border-color: var(--color-primary);
-}
 
 /* --- 10. HERO SECTION --------------------------------------------------- */
 
@@ -607,50 +574,9 @@ code {
   color: var(--color-hero-text);
 }
 
-/* Stats bar at bottom of hero */
-.hero__stats {
-  position: relative;
-  z-index: 1;
-  border-top: 1px solid rgba(248, 250, 252, 0.1);
-  padding: 1.5rem 0;
-  margin-top: auto;
-}
 
-.hero__stats-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  gap: 3rem;
-  flex-wrap: wrap;
-}
 
-.hero__stats-value {
-  display: block;
-  font-family: var(--font-display);
-  font-size: 1.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--color-hero-text);
-  line-height: 1;
-}
 
-.hero__stats-label {
-  display: block;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: rgba(248, 250, 252, 0.5);
-  margin-top: 0.25rem;
-}
-
-@media (max-width: 920px) {
-  .hero__stats-list { gap: 2rem; }
-}
-
-/* --- 11. HOME LINKS ----------------------------------------------------- */
-
-.home-links__grid { display: flex; flex-wrap: wrap; gap: 10px; }
 
 /* --- 12. MISSION SECTION ------------------------------------------------ */
 
@@ -852,11 +778,7 @@ code {
 }
 .callout--info { border-left-color: var(--color-primary); }
 
-/* --- 15. QUICK LINKS / HOME NEWS ---------------------------------------- */
 
-.quick-links { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 6px; }
-.home-news { margin-top: 20px; }
-.home-news__more { margin: 14px 0 0; }
 
 /* --- 16. SPONSORS ------------------------------------------------------- */
 
@@ -1689,9 +1611,7 @@ a, .btn, .chip, .nav__link, .nav__sublink, .nav__summary,
 .section--hero + .section {
   border-top: none;
 }
-.section--home-news + .section {
-  border-top: none;
-}
+
 
 /* --- 32. DECORATIVE GEOMETRIC ELEMENTS ---------------------------------- */
 
@@ -2056,4 +1976,204 @@ a, .btn, .chip, .nav__link, .nav__sublink, .nav__summary,
   letter-spacing: -0.04em;
   color: var(--color-primary);
   text-align: right;
+}
+
+/* --- 35. JOIN PAGE ------------------------------------------------------ */
+
+/* Breakout from .prose container (same pattern as .teams-page) */
+.prose:has(.join-page) { max-width: none; }
+
+.prose:has(.join-page) > h1:first-child {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.join-page {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  margin-left: -50vw;
+  margin-top: -32px;
+  margin-bottom: -48px;
+}
+
+.join-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.join-card {
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.join-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.join-card__badge {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 0.3em 0.8em;
+  background: var(--color-primary);
+  color: #FFFFFF;
+  border-radius: 2px;
+  margin-bottom: 0.75rem;
+}
+
+.join-card__title {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 0 0 0.75rem;
+}
+
+.join-card__detail {
+  font-size: 0.9375rem;
+  color: var(--color-text);
+  margin: 0 0 0.25rem;
+}
+
+.join-card__location {
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  margin-top: 0.75rem;
+}
+
+.join-card--simple .join-card__title {
+  margin-bottom: 0.5rem;
+}
+
+/* --- Pricing table ------------------------------------------------------ */
+
+.pricing-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pricing-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.5rem;
+}
+
+.pricing-table th {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid var(--color-primary);
+  color: var(--color-muted);
+}
+
+.pricing-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.9375rem;
+}
+
+.pricing-table tr:hover td {
+  background: rgba(59, 130, 246, 0.04);
+}
+
+.pricing-note {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  margin-top: 1rem;
+  font-style: italic;
+}
+
+/* --- Contact form ------------------------------------------------------- */
+
+.contact-form-wrap { max-width: 560px; }
+.form-field { margin-bottom: 1.25rem; }
+
+.form-label {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.5rem;
+}
+
+.form-input {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.form-input--invalid {
+  border-color: #EF4444;
+}
+
+.form-input--invalid:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+textarea.form-input { resize: vertical; min-height: 120px; }
+
+.form-error {
+  display: block;
+  font-size: 0.8125rem;
+  color: #EF4444;
+  margin-top: 0.375rem;
+  min-height: 1.2em;
+}
+
+.form-privacy { font-size: 0.8125rem; color: var(--color-muted); margin-bottom: 1.25rem; }
+
+.form-status {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  font-size: 0.9375rem;
+}
+
+.form-status--success {
+  background: rgba(132, 204, 22, 0.1);
+  border: 1px solid rgba(132, 204, 22, 0.3);
+  color: var(--color-text);
+}
+
+.form-status--error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--color-text);
 }
