@@ -672,7 +672,7 @@ Max Concurrent: 8 (Wave 4)
 
   **Commit**: YES — `feat: redesign button system`
 
-- [ ] 10. Redesign Header + Navigation
+- [x] 10. Redesign Header + Navigation
 
   **What to do**:
   - Expand navigation groups: Verein (Club, Geschichte, Vorstand, Erfolge), Mannschaften (new), Mitmachen (Training, Schnuppertraining, Nachwuchs, Hallen, Mitgliedschaft), News, Kontakt (Kontakt, Sponsoren, Impressum, Datenschutz)
@@ -719,7 +719,7 @@ Max Concurrent: 8 (Wave 4)
   **Commit**: YES — `feat: redesign header navigation with CTA button`
   - Files: `src/templates/partials/header.html`, `src/styles/base.css`, `scripts/build.mjs`, `src/scripts/site.js`
 
-- [ ] 11. Redesign Footer
+- [x] 11. Redesign Footer
 
   **What to do**:
   - Update footer design: new typography, colors, spacing from design system
