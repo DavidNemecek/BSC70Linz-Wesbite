@@ -529,15 +529,19 @@ function buildNewsCard(item) {
   const teaser = escapeHtml(cleanTeaser(item.teaser));
   const catSlug = escapeHtml(String(item.category || ""));
   const heroSrc = item.heroImage ? (item.heroImage.startsWith("/") ? item.heroImage : `/${item.heroImage}`) : "";
-  const heroImg = heroSrc ? `<img class="news-card__img" src="${heroSrc}" alt="" loading="lazy">` : "";
+  const imageHtml = heroSrc
+    ? `<img class="news-card__image" src="${heroSrc}" alt="" loading="lazy" />`
+    : `<div class="news-card__image-placeholder">BSC 70</div>`;
   return `<article class="news-card">
-  ${heroImg}
-  <div class="news-card__meta">
-    <span class="news-card__date">${date}</span>
-    <span class="news-card__cat" data-category="${catSlug}">${escapeHtml(displayCategory(item.category, item.lang))}</span>
+  ${imageHtml}
+  <div class="news-card__body">
+    <div class="news-card__meta">
+      <span class="news-card__date">${date}</span>
+      <span class="news-card__cat" data-category="${catSlug}">${escapeHtml(displayCategory(item.category, item.lang))}</span>
+    </div>
+    <h2 class="news-card__title"><a href="${item.url}">${title}</a></h2>
+    ${teaser ? `<p class="news-card__teaser">${teaser}</p>` : ""}
   </div>
-  <h2 class="news-card__title"><a href="${item.url}">${title}</a></h2>
-  ${teaser ? `<p class="news-card__teaser">${teaser}</p>` : ""}
 </article>`;
 }
 
@@ -933,13 +937,26 @@ async function main() {
         : "";
       const bodyClean = cleanLegacyMarkdown(bodySource, { kind: "news", lang, redirects, assetMap, existingUrls });
       const bodyHtml = md.render(bodyClean, { assetPrefix: "/assets/" });
-      const contentInner = `<article class="prose"><header class="news-head"><p class="news-head__meta"><span>${escapeHtml(
+      const breadcrumbLabel = lang === "en" ? "News" : "News";
+      const shareLabel = lang === "en" ? "Share:" : "Teilen:";
+      const copyLabel = lang === "en" ? "Copy link" : "Link kopieren";
+      const articleUrl = `${envConfig.origin}${it.url}`;
+      const encodedUrl = encodeURIComponent(articleUrl);
+      const encodedTitle = encodeURIComponent(displayTitle);
+      const breadcrumb = `<nav class="breadcrumb" data-news-backlink="true"><a href="/${lang}/news/">\u2190 ${breadcrumbLabel}</a></nav>`;
+      const shareHtml = `<div class="news-share">
+  <span class="news-share__label">${shareLabel}</span>
+  <a class="news-share__link" href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}" target="_blank" rel="noopener">Facebook</a>
+  <a class="news-share__link" href="https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}" target="_blank" rel="noopener">Twitter</a>
+  <button class="news-share__copy btn btn--sm" data-copy-url>${copyLabel}</button>
+</div>`;
+      const contentInner = `<article class="prose">${breadcrumb}<header class="news-head"><p class="news-head__meta"><span>${escapeHtml(
         formatDateDisplay(it.date, lang)
       )}</span> · <span data-category="${escapeHtml(String(it.category || ""))}">${escapeHtml(
         displayCategory(it.category, lang)
       )}</span></p><h1>${escapeHtml(displayTitle)}</h1>${
         teaser ? `<p class="lead">${escapeHtml(teaser)}</p>` : ""
-      }</header>${hero}${fallbackNote}${bodyHtml}</article>`;
+      }</header>${hero}${fallbackNote}${bodyHtml}${shareHtml}</article>`;
       const contentHtml = `<div class="page"><div class="container">${contentInner}</div></div>`;
       const urlDe = lang === "de" ? it.url : otherExists ? it.url.replace("/en/", "/de/") : "/de/news/";
       const urlEn = lang === "en" ? it.url : otherExists ? it.url.replace("/de/", "/en/") : "/en/news/";

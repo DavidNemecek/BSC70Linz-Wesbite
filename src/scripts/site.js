@@ -378,6 +378,20 @@ function initScrollReveal() {
   document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
 }
 
+function initCopyUrl() {
+  document.querySelectorAll("[data-copy-url]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const originalText = btn.textContent;
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        btn.textContent = lang === "en" ? "Copied!" : "Kopiert!";
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 2000);
+      });
+    });
+  });
+}
+
 initNavGroups();
 initNavToggle();
 initLanguageA11y();
@@ -385,3 +399,4 @@ initThemeToggle();
 initNewsEnhancements();
 initNewsBacklink();
 initScrollReveal();
+initCopyUrl();
