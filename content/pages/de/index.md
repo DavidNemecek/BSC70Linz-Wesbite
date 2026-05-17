@@ -35,36 +35,93 @@ description: "Badminton in Linz seit 1970. Nachwuchstraining, Erwachsenentrainin
 
 
 
-<section class="section section--seventy reveal">
-  <div class="container">
-    <p class="seventy__kicker">Die 70</p>
-    <ul class="seventy__list">
-      <li><span class="seventy__label">EST.</span><span class="seventy__value">1970</span></li>
-      <li><span class="seventy__label">&Ouml;sterreichischer Staatsmeister</span><span class="seventy__value">7&times;</span></li>
-      <li><span class="seventy__label">Europacupsieger</span><span class="seventy__value">1992</span></li>
-      <li><span class="seventy__label">Teams &middot; Hallen &middot; Trainingsabende</span><span class="seventy__value">2 &middot; 2 &middot; 3</span></li>
-    </ul>
-  </div>
+<section class="section section--timeline reveal">
+<div class="container">
+<h2 class="timeline__title">Die Geschichte des BSC 70</h2>
+<div class="timeline">
+<div class="timeline__item">
+<div class="timeline__year">1970</div>
+<div class="timeline__dot"></div>
+<div class="timeline__content">
+<h3 class="timeline__label">Gr&uuml;ndung</h3>
+<p class="timeline__desc">Der Badminton Sport Club 70 Linz wird gegr&uuml;ndet.</p>
+</div>
+</div>
+<div class="timeline__item">
+<div class="timeline__year">1992</div>
+<div class="timeline__dot"></div>
+<div class="timeline__content">
+<h3 class="timeline__label">Europacupsieger</h3>
+<p class="timeline__desc">Als einziger &ouml;sterreichischer Verein den Europacup der Landesmeister gewonnen.</p>
+</div>
+</div>
+<div class="timeline__item">
+<div class="timeline__year">7&times;</div>
+<div class="timeline__dot"></div>
+<div class="timeline__content">
+<h3 class="timeline__label">Staatsmeister</h3>
+<p class="timeline__desc">Sieben Mannschafts-Staatsmeistertitel in der Badminton Bundesliga.</p>
+</div>
+</div>
+<div class="timeline__item timeline__item--now">
+<div class="timeline__year">Jetzt</div>
+<div class="timeline__dot"></div>
+<div class="timeline__content">
+<h3 class="timeline__label">Neuaufbau</h3>
+<p class="timeline__desc">2 Mannschaften in der Landesliga. Neue Energie, neue Ziele.</p>
+</div>
+</div>
+</div>
+</div>
 </section>
 
 <section class="section section--alt reveal">
-  <div class="container">
-    <h2 class="section__title">Mannschaften</h2>
-    <div class="fixtures-grid">
-      <div class="fixture-card">
-        <div class="fixture-card__league">1. Landesliga</div>
-        <div class="fixture-card__team">BSC 70 Linz I</div>
-        <p style="color:var(--color-muted);margin:0 0 12px;font-size:14px">Unsere erste Mannschaft in der h&ouml;chsten Liga O&Ouml;. Wir suchen immer Spieler, die Lust auf Meisterschaft haben.</p>
-        <a class="fixture-card__link" href="https://obv.tournamentsoftware.com/" target="_blank" rel="noopener">Ergebnisse & Tabelle &rarr;</a>
-      </div>
-      <div class="fixture-card">
-        <div class="fixture-card__league">2. Klasse Nord</div>
-        <div class="fixture-card__team">BSC 70 Linz II</div>
-        <p style="color:var(--color-muted);margin:0 0 12px;font-size:14px">Die zweite Mannschaft &ndash; perfekt f&uuml;r den Einstieg in den Meisterschaftsbetrieb.</p>
-        <a class="fixture-card__link" href="https://obv.tournamentsoftware.com/" target="_blank" rel="noopener">Ergebnisse & Tabelle &rarr;</a>
-      </div>
-    </div>
-  </div>
+<div class="container">
+<p class="section__kicker">Unsere Teams</p>
+<h2 class="section__title">Mannschaften</h2>
+<div class="teams-showcase">
+<div class="team-card reveal" data-reveal="slide-left">
+<div class="team-card__league">1. Landesliga</div>
+<h3 class="team-card__name">BSC 70 Linz I</h3>
+<p class="team-card__desc">Unsere erste Mannschaft in der h&ouml;chsten Liga Ober&ouml;sterreichs.</p>
+<a class="btn btn--ghost" href="https://obv.tournamentsoftware.com/" target="_blank" rel="noopener">Ergebnisse &rarr;</a>
+</div>
+<div class="team-card reveal" data-reveal="slide-right">
+<div class="team-card__league">2. Klasse Nord</div>
+<h3 class="team-card__name">BSC 70 Linz II</h3>
+<p class="team-card__desc">Perfekt f&uuml;r den Einstieg in den Meisterschaftsbetrieb.</p>
+<a class="btn btn--ghost" href="https://obv.tournamentsoftware.com/" target="_blank" rel="noopener">Ergebnisse &rarr;</a>
+</div>
+</div>
+<p style="text-align:center;margin-top:1.5rem"><a class="btn" href="/de/mannschaften/">Alle Mannschaften &rarr;</a></p>
+</div>
+</section>
+
+<section class="section section--marquee">
+<div class="marquee" aria-label="Fotos aus dem Vereinsleben">
+<div class="marquee__track">
+<img class="marquee__img" src="assets/uploads/team-bsc70-48b7b09aaf.jpg" alt="BSC 70 Linz Teamfoto" loading="lazy" />
+<img class="marquee__img" src="assets/uploads/bsc70linz-ii-dsc-1767-2015-2016-web-1ab742d66b.jpg" alt="BSC 70 Linz II" loading="lazy" />
+<img class="marquee__img" src="assets/uploads/mannschaften15-16-2-73247dd204.jpg" alt="Mannschaften 2015/16" loading="lazy" />
+<img class="marquee__img" src="assets/uploads/senioren-m-2018-bsc70-spieler-web-508fc649da.jpg" alt="Senioren 2018" loading="lazy" />
+<img class="marquee__img" src="assets/uploads/gruppenfoto-neurjahrsfeier-2014-bsc70linz-dsc7138-web-0284c96c1b.jpg" alt="Neujahrsfeier 2014" loading="lazy" />
+<img class="marquee__img" src="assets/uploads/1-b-turnier-2013-287da31d9b.JPG" alt="B-Turnier 2013" loading="lazy" />
+<img class="marquee__img" src="assets/uploads/halle-dsc-0077-bf70fe0ec7.jpg" alt="Sporthalle" loading="lazy" />
+<img class="marquee__img" src="assets/uploads/krivec-12-dsc8578-4d81f226c5.jpg" alt="Spieler in Aktion" loading="lazy" />
+<img class="marquee__img" src="assets/uploads/dinata-krivec-dsc2452-600x-a788ff89b3.jpeg" alt="Badminton Aktion" loading="lazy" />
+<img class="marquee__img" src="assets/uploads/team-1-staatsmeistertitel-1988-6c6c31dbac.jpg" alt="Staatsmeister 1988" loading="lazy" />
+<img class="marquee__img" src="assets/uploads/team-bsc70-48b7b09aaf.jpg" alt="" loading="lazy" aria-hidden="true" />
+<img class="marquee__img" src="assets/uploads/bsc70linz-ii-dsc-1767-2015-2016-web-1ab742d66b.jpg" alt="" loading="lazy" aria-hidden="true" />
+<img class="marquee__img" src="assets/uploads/mannschaften15-16-2-73247dd204.jpg" alt="" loading="lazy" aria-hidden="true" />
+<img class="marquee__img" src="assets/uploads/senioren-m-2018-bsc70-spieler-web-508fc649da.jpg" alt="" loading="lazy" aria-hidden="true" />
+<img class="marquee__img" src="assets/uploads/gruppenfoto-neurjahrsfeier-2014-bsc70linz-dsc7138-web-0284c96c1b.jpg" alt="" loading="lazy" aria-hidden="true" />
+<img class="marquee__img" src="assets/uploads/1-b-turnier-2013-287da31d9b.JPG" alt="" loading="lazy" aria-hidden="true" />
+<img class="marquee__img" src="assets/uploads/halle-dsc-0077-bf70fe0ec7.jpg" alt="" loading="lazy" aria-hidden="true" />
+<img class="marquee__img" src="assets/uploads/krivec-12-dsc8578-4d81f226c5.jpg" alt="" loading="lazy" aria-hidden="true" />
+<img class="marquee__img" src="assets/uploads/dinata-krivec-dsc2452-600x-a788ff89b3.jpeg" alt="" loading="lazy" aria-hidden="true" />
+<img class="marquee__img" src="assets/uploads/team-1-staatsmeistertitel-1988-6c6c31dbac.jpg" alt="" loading="lazy" aria-hidden="true" />
+</div>
+</div>
 </section>
 
 <section class="section section--mission reveal">

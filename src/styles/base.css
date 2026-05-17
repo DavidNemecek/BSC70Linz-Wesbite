@@ -1926,56 +1926,231 @@ a, .btn, .chip, .nav__link, .nav__sublink, .nav__summary,
   margin: 0;
 }
 
-/* --- 34. THE 70 -- typographic stat block -------------------------------- */
+/* --- 34. TIMELINE ------------------------------------------------------- */
 
-.section--seventy {
+.section--timeline {
   padding-block: clamp(64px, 8vw, 120px);
   background: var(--color-hero-bg);
   color: var(--color-hero-text);
+  overflow: hidden;
 }
-.seventy__kicker {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--color-accent);
-  margin: 0 0 32px;
+
+.timeline__title {
+  text-align: center;
+  color: var(--color-hero-text);
+  margin-bottom: 3rem;
 }
-.seventy__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: clamp(28px, 4vw, 56px);
+
+.timeline {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  position: relative;
+  padding: 2rem 0;
 }
-.seventy__list li {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: end;
-  gap: 24px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--color-border);
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: rgba(248, 250, 252, 0.15);
+  transform: translateY(-50%);
 }
-.seventy__list li:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+
+.timeline__item {
+  flex: 1;
+  max-width: 200px;
+  text-align: center;
+  position: relative;
+  padding: 0 1rem;
 }
-.seventy__label {
-  font-family: var(--font-mono);
-  font-size: clamp(12px, 1.4vw, 14px);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(248, 250, 252, 0.6);
-}
-.seventy__value {
+
+.timeline__year {
   font-family: var(--font-display);
-  font-weight: 900;
-  font-variation-settings: "opsz" 144;
-  font-size: clamp(3rem, 8vw, 7rem);
-  line-height: 0.92;
-  letter-spacing: -0.04em;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
   color: var(--color-primary);
-  text-align: right;
+  line-height: 1;
+  margin-bottom: 1rem;
+}
+
+.timeline__dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  margin: 0 auto 1rem;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 0 0 4px var(--color-hero-bg), 0 0 0 6px rgba(59, 130, 246, 0.3);
+}
+
+.timeline__item--now .timeline__dot {
+  background: var(--color-accent);
+  box-shadow: 0 0 0 4px var(--color-hero-bg), 0 0 0 6px rgba(132, 204, 22, 0.3);
+}
+
+.timeline__label {
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-hero-text);
+  margin: 0 0 0.5rem;
+}
+
+.timeline__desc {
+  font-size: 0.8125rem;
+  color: rgba(248, 250, 252, 0.6);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Mobile: vertical timeline */
+@media (max-width: 640px) {
+  .timeline {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2rem;
+    padding-left: 2rem;
+  }
+  .timeline::before {
+    top: 0;
+    bottom: 0;
+    left: 2rem;
+    right: auto;
+    width: 2px;
+    height: auto;
+    transform: none;
+  }
+  .timeline__item {
+    text-align: left;
+    padding-left: 2rem;
+    max-width: none;
+  }
+  .timeline__dot {
+    position: absolute;
+    left: -2rem;
+    top: 0.5rem;
+    margin: 0;
+  }
+  .timeline__year {
+    font-size: 1.5rem;
+  }
+}
+
+/* --- 34a. SECTION KICKER ------------------------------------------------ */
+
+.section__kicker {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--color-accent);
+  margin-bottom: 0.5rem;
+}
+
+/* --- 34b. TEAMS SHOWCASE ------------------------------------------------ */
+
+.teams-showcase {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.team-card {
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.team-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+.team-card__league {
+  font-family: var(--font-display);
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 0.3em 0.8em;
+  background: var(--color-primary);
+  color: #FFFFFF;
+  border-radius: 2px;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.team-card__name {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin: 0 0 0.75rem;
+}
+
+.team-card__desc {
+  color: var(--color-muted);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+/* --- 34c. MARQUEE GALLERY ----------------------------------------------- */
+
+.section--marquee {
+  padding: 0;
+  overflow: hidden;
+}
+
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.marquee__track {
+  display: inline-flex;
+  gap: 0.5rem;
+  animation: marquee-scroll 30s linear infinite;
+  will-change: transform;
+}
+
+.marquee__img {
+  height: 200px;
+  width: auto;
+  object-fit: cover;
+  border-radius: 0;
+  flex-shrink: 0;
+}
+
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee__track {
+    animation: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+  .marquee__img {
+    scroll-snap-align: start;
+  }
+}
+
+@media (max-width: 640px) {
+  .marquee__img {
+    height: 150px;
+  }
 }
 
 /* --- 35. JOIN PAGE ------------------------------------------------------ */
