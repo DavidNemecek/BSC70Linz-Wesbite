@@ -755,7 +755,7 @@ Max Concurrent: 8 (Wave 4)
 
   **Commit**: YES — `feat: redesign footer layout`
 
-- [ ] 12. Redesign Homepage Hero Section
+- [x] 12. Redesign Homepage Hero Section
 
   **What to do**:
   - Bold, full-width hero with action photo background (use existing team photo or user-provided photo)
@@ -794,7 +794,7 @@ Max Concurrent: 8 (Wave 4)
 
   **Commit**: YES (groups with T13)
 
-- [ ] 13. Redesign Homepage Content Sections
+- [x] 13. Redesign Homepage Content Sections
 
   **What to do**:
   - Training section: cards with day/time/location, blue accents, lime "Mehr erfahren" links
@@ -834,7 +834,7 @@ Max Concurrent: 8 (Wave 4)
 
   **Commit**: YES — `feat: redesign homepage hero + content sections` (grouped with T12)
 
-- [ ] 14. Redesign News List Card + Pagination
+- [x] 14. Redesign News List Card + Pagination
 
   **What to do**:
   - Redesign `.news-card`: add hero image placeholder (club logo as fallback when no heroImage), category badge with color coding, hover lift effect with shadow, truncated teaser
@@ -867,7 +867,7 @@ Max Concurrent: 8 (Wave 4)
 
   **Commit**: YES — `feat: redesign news list and detail templates` (grouped with T15)
 
-- [ ] 15. Redesign News Detail Page
+- [x] 15. Redesign News Detail Page
 
   **What to do**:
   - Update news detail template: larger hero image (if available), bold title, date + category badge, clean prose styling
