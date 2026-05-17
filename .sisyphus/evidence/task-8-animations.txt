@@ -1,0 +1,7 @@
+1310:/* --- 22. SCROLL ANIMATIONS -- (now handled by IntersectionObserver, see .reveal) */
+1466:.reveal {
+1472:.reveal--visible {
+1477:.reveal[data-reveal="fade-in"] {
+1481:.reveal[data-reveal="slide-left"] {
+364:  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+366:  const observer = new IntersectionObserver(

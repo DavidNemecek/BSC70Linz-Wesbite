@@ -28,14 +28,14 @@ description: "Badminton in Linz seit 1970. Nachwuchstraining, Erwachsenentrainin
   </div>
 </section>
 
-<section class="section section--manifesto">
+<section class="section section--manifesto reveal">
   <div class="container">
     <p class="manifesto__kicker">Manifest</p>
     <p class="manifesto__text">Wir haben uns 2024 aus der 1. Bundesliga zur&uuml;ckgezogen. Nicht weil wir aufgeh&ouml;rt haben zu glauben &mdash; sondern weil wir es richtig machen wollen. Vom Kind im Probetraining bis zum n&auml;chsten Meistertitel.</p>
   </div>
 </section>
 
-<section class="section">
+<section class="section reveal">
   <div class="container">
     <h2 class="section__title">Training</h2>
     <div class="fixtures-grid">
@@ -60,7 +60,7 @@ description: "Badminton in Linz seit 1970. Nachwuchstraining, Erwachsenentrainin
   </div>
 </section>
 
-<section class="section">
+<section class="section reveal">
   <div class="container">
     <h2 class="section__title">Wo wir spielen</h2>
     <div class="fixtures-grid">
@@ -80,7 +80,7 @@ description: "Badminton in Linz seit 1970. Nachwuchstraining, Erwachsenentrainin
   </div>
 </section>
 
-<section class="section section--seventy">
+<section class="section section--seventy reveal">
   <div class="container">
     <p class="seventy__kicker">Die 70</p>
     <ul class="seventy__list">
@@ -92,7 +92,7 @@ description: "Badminton in Linz seit 1970. Nachwuchstraining, Erwachsenentrainin
   </div>
 </section>
 
-<section class="section">
+<section class="section reveal">
   <div class="container">
     <h2 class="section__title">Mannschaften</h2>
     <div class="fixtures-grid">
@@ -112,7 +112,7 @@ description: "Badminton in Linz seit 1970. Nachwuchstraining, Erwachsenentrainin
   </div>
 </section>
 
-<section class="section section--mission">
+<section class="section section--mission reveal">
   <div class="container mission">
     <div class="mission__content">
       <p class="mission__kicker">Mach mit</p>

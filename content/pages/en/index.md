@@ -29,14 +29,14 @@ description: "Badminton in Linz since 1970. Youth training, adult training, and 
   </div>
 </section>
 
-<section class="section section--manifesto">
+<section class="section section--manifesto reveal">
   <div class="container">
     <p class="manifesto__kicker">Manifesto</p>
     <p class="manifesto__text">In 2024 we stepped out of the 1. Bundesliga. Not because we stopped believing &mdash; but because we want to do it right. From the kid at their first trial training to the next national title.</p>
   </div>
 </section>
 
-<section class="section">
+<section class="section reveal">
   <div class="container">
     <h2 class="section__title">Training</h2>
     <div class="fixtures-grid">
@@ -61,7 +61,7 @@ description: "Badminton in Linz since 1970. Youth training, adult training, and 
   </div>
 </section>
 
-<section class="section">
+<section class="section reveal">
   <div class="container">
     <h2 class="section__title">Where we play</h2>
     <div class="fixtures-grid">
@@ -81,7 +81,7 @@ description: "Badminton in Linz since 1970. Youth training, adult training, and 
   </div>
 </section>
 
-<section class="section section--seventy">
+<section class="section section--seventy reveal">
   <div class="container">
     <p class="seventy__kicker">The 70</p>
     <ul class="seventy__list">
@@ -93,7 +93,7 @@ description: "Badminton in Linz since 1970. Youth training, adult training, and 
   </div>
 </section>
 
-<section class="section">
+<section class="section reveal">
   <div class="container">
     <h2 class="section__title">Teams</h2>
     <div class="fixtures-grid">
@@ -113,7 +113,7 @@ description: "Badminton in Linz since 1970. Youth training, adult training, and 
   </div>
 </section>
 
-<section class="section section--mission">
+<section class="section section--mission reveal">
   <div class="container mission">
     <div class="mission__content">
       <p class="mission__kicker">Join us</p>

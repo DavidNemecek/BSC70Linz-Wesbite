@@ -360,9 +360,28 @@ function initNewsBacklink() {
   prose.insertBefore(nav, head);
 }
 
+function initScrollReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('reveal--visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.15 }
+  );
+
+  document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+}
+
 initNavGroups();
 initNavToggle();
 initLanguageA11y();
 initThemeToggle();
 initNewsEnhancements();
 initNewsBacklink();
+initScrollReveal();
