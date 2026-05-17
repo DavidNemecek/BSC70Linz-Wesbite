@@ -1045,7 +1045,7 @@ Max Concurrent: 8 (Wave 4)
 
   **Commit**: YES — `feat: add contact form with Formspree integration`
 
-- [ ] 19. **[REVISED]** Redesign "The 70" as Milestone Timeline
+- [x] 19. **[REVISED]** Redesign "The 70" as Milestone Timeline
 
   **What to do**:
   - Replace the current `.section--seventy` stat boxes with a horizontal timeline
@@ -1109,7 +1109,7 @@ Max Concurrent: 8 (Wave 4)
 
   **Commit**: YES (groups with T20, T21)
 
-- [ ] 20. **[REVISED]** Add Animated Teams Showcase + Infinite Marquee Gallery to Homepage
+- [x] 20. **[REVISED]** Add Animated Teams Showcase + Infinite Marquee Gallery to Homepage
 
   **What to do**:
   - **Teams section**: Display BSC 70 I (1. Landesliga) and BSC 70 II (2. Klasse Nord) on homepage with card animation (hover effects, reveal-on-scroll), linking to tournamentsoftware.com. Include team descriptions and "Mitspielen" CTAs.
@@ -1274,7 +1274,7 @@ Max Concurrent: 8 (Wave 4)
 
   **Commit**: YES — `feat: redesign content page template`
 
-- [ ] 23. **[REVISED]** Add Testimonials + CTA section to Homepage + Sponsor Showcase + Content Template
+- [x] 23. **[REVISED]** Add Testimonials + CTA section to Homepage + Sponsor Showcase + Content Template
 
   **What to do**:
   - **Testimonials**: Add 3 placeholder testimonial cards on homepage (after marquee gallery, before CTA). Dark bg, quote + avatar + role. Use 0-indentation in markdown HTML.
