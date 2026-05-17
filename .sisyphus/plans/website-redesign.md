@@ -902,7 +902,7 @@ Max Concurrent: 8 (Wave 4)
 
   **Commit**: YES (grouped with T14)
 
-- [ ] 16. Add Team Roster Page
+- [x] 16. Add Team Roster Page
 
   **What to do**:
   - Create `content/pages/de/mannschaften.md` + `content/pages/en/mannschaften.md`
@@ -938,7 +938,7 @@ Max Concurrent: 8 (Wave 4)
 
   **Commit**: YES — `feat: add team roster page with player cards`
 
-- [ ] 17. Add Photo Gallery with Lightbox
+- [x] 17. Add Photo Gallery with Lightbox
 
   **What to do**:
   - Redesign existing gallery page (`content/pages/de/galerie.md`)
@@ -974,7 +974,37 @@ Max Concurrent: 8 (Wave 4)
 
   **Commit**: YES — `feat: add photo gallery with lightbox`
 
-- [ ] 18. Add Contact Form with Formspree
+- [x] 18. **[REVISED]** Enable smooth scrolling + Remove quick links & news from homepage + Fix mannschaften indentation
+
+  **What to do**:
+  - Add `html { scroll-behavior: smooth; }` to base.css (verify prefers-reduced-motion override covers `scroll-behavior: auto`)
+  - In `scripts/build.mjs`: remove or disable the `homeExtras` injection (lines ~770-808) that adds quick links and news sections to homepage
+  - Remove orphaned CSS classes `.section--home-links` and `.section--home-news` from base.css
+  - Fix `content/pages/de/mannschaften.md` and EN version: flatten ALL HTML indentation to 0 spaces (markdown-it renders 4+ space indent as code blocks)
+  - Remove hero stats bar from `content/pages/de/index.md` and EN version (the `<div class="hero__stats">` section)
+  - Also remove training section and venues section from homepage (moving to Join page)
+  - Run `npm run build && npm run check`
+
+  **Must NOT do**: Do NOT remove the news page itself (/de/news/) — just remove it from homepage
+
+  **Recommended Agent Profile**: `visual-engineering` + `frontend-ui-ux`
+  **Parallelization**: Wave A — can run in parallel with Wave C
+  **Blocked By**: None | **Blocks**: T19r, T20r, T21r
+
+  **Acceptance Criteria**:
+  ```
+  Scenario: Homepage has no quick links or news sections
+    Tool: Bash
+    Steps:
+      1. npm run build
+      2. grep -c "home-links\|home-news" docs/de/index.html → expect 0
+      3. grep -c "hero__stats" docs/de/index.html → expect 0
+      4. Verify mannschaften page has no <pre><code> blocks
+    Expected Result: Clean homepage, no code block rendering bugs
+    Evidence: .sisyphus/evidence/task-18r-cleanup.txt
+  ```
+
+  **Commit**: `refactor: clean homepage — remove quick-links, news, hero stats, fix mannschaften`
 
   **What to do**:
   - Replace current "kontakt telefonisch" message with a working contact form
@@ -1015,7 +1045,37 @@ Max Concurrent: 8 (Wave 4)
 
   **Commit**: YES — `feat: add contact form with Formspree integration`
 
-- [ ] 19. Add Testimonials Section on Homepage
+- [ ] 19. **[REVISED]** Redesign "The 70" as Milestone Timeline
+
+  **What to do**:
+  - Replace the current `.section--seventy` stat boxes with a horizontal timeline
+  - Milestones: **1970** (Gründung) → **1992** (Europacupsieger) → **7× Staatsmeister** → **Jetzt** (2 Teams, Landesliga)
+  - Timeline CSS: horizontal line with milestone dots, year above, description below
+  - Dark background (var(--color-hero-bg)), blue accent dots, off-white text
+  - Scroll-reveal animation on the timeline items (staggered entry)
+  - Mobile: vertical timeline instead of horizontal
+  - Update both DE and EN index.md
+  - Update CSS in base.css (replace seventy section with timeline section)
+
+  **Must NOT do**: Do NOT use JavaScript for timeline animations — CSS transitions + reveal only
+
+  **Recommended Agent Profile**: `visual-engineering` + `frontend-ui-ux`
+  **Parallelization**: Wave B — after T18r
+  **Blocked By**: T18r | **Blocks**: T20r, T21r
+
+  **Acceptance Criteria**:
+  ```
+  Scenario: Timeline renders with 4 milestones
+    Tool: Bash
+    Steps:
+      1. npm run build
+      2. grep -c "timeline" docs/de/index.html → expect > 0
+      3. Verify 4 milestone items present
+    Expected Result: Timeline with 4 milestones, responsive
+    Evidence: .sisyphus/evidence/task-19r-timeline.txt
+  ```
+
+  **Commit**: `feat: redesign "The 70" as milestone timeline`
 
   **What to do**:
   - Add testimonials section between CTA and News on homepage
@@ -1049,7 +1109,34 @@ Max Concurrent: 8 (Wave 4)
 
   **Commit**: YES (groups with T20, T21)
 
-- [ ] 20. Redesign Sponsor Showcase
+- [ ] 20. **[REVISED]** Add Animated Teams Showcase + Infinite Marquee Gallery to Homepage
+
+  **What to do**:
+  - **Teams section**: Display BSC 70 I (1. Landesliga) and BSC 70 II (2. Klasse Nord) on homepage with card animation (hover effects, reveal-on-scroll), linking to tournamentsoftware.com. Include team descriptions and "Mitspielen" CTAs.
+  - **Marquee gallery**: Infinite horizontal CSS animation of 8-10 photos from `assets/uploads/`. Uses `@keyframes` with `transform: translateX()` (GPU-composited). Film strip style, never stops. Duplicate images for seamless loop. Use thumbnail-sized images for performance.
+  - Respect `prefers-reduced-motion: reduce` — marquee pauses, teams don't animate.
+  - Add CSS for `.teams-showcase` and `.marquee` sections.
+  - Update both DE and EN index.md.
+
+  **Must NOT do**: Do NOT use JS for marquee — CSS animation only. Do NOT add more than 10 images.
+
+  **Recommended Agent Profile**: `visual-engineering` + `frontend-ui-ux`
+  **Parallelization**: Wave B — after T18r
+  **Blocked By**: T18r | **Blocks**: T24r
+
+  **Acceptance Criteria**:
+  ```
+  Scenario: Teams and marquee render on homepage
+    Tool: Bash
+    Steps:
+      1. npm run build
+      2. grep -c "teams-showcase\|marquee" docs/de/index.html → expect > 0
+      3. Verify CSS contains @keyframes for marquee animation
+    Expected Result: Teams cards + scrolling photo strip on homepage
+    Evidence: .sisyphus/evidence/task-20r-teams-marquee.txt
+  ```
+
+  **Commit**: `feat: add animated teams showcase + infinite marquee gallery to homepage`
 
   **What to do**:
   - Redesign sponsor page: organized by tier (Hauptsponsoren, Partner, Unterstützer)
@@ -1084,7 +1171,7 @@ Max Concurrent: 8 (Wave 4)
 
   **Commit**: YES (groups with T19, T21)
 
-- [ ] 21. Add Event Calendar Section to Homepage
+- [x] 21. ~~Add Event Calendar Section to Homepage~~ **CANCELLED** — training info moves to Join page
 
   **What to do**:
   - Add "Termine" section to homepage showing next 3-4 events
@@ -1120,7 +1207,40 @@ Max Concurrent: 8 (Wave 4)
 
   **Commit**: YES (groups with T19, T20)
 
-- [ ] 22. Redesign Content Page Template
+- [x] 22. **[REVISED]** Redesign Mitmachen as Clean Join Landing Page + Contact Form
+
+  **What to do**:
+  - Redesign `content/pages/de/mitmachen.md` as a clean "Join Us" landing page with these sections:
+    1. Hero mini: "Werde Teil des BSC 70 Linz"
+    2. Training schedule: days, times, locations as cards (reuse fixture-card pattern)
+    3. Membership costs: transparent pricing table (use existing fee data from current mitmachen.md)
+    4. Contact form: Formspree integration (name, email, message + honeypot + Datenschutz link)
+    5. Simple FAQ or "Was du mitbringen musst" section
+  - Add form CSS and form JS to base.css and site.js (initContactForm function)
+  - Move training + venue info FROM homepage INTO this page
+  - Do the same for EN version
+  - Pricing: use the actual tier data already in mitmachen.md (€44-€264/year range, 7 tiers)
+
+  **Must NOT do**: Do NOT implement server-side form handling. Use Formspree placeholder URL.
+
+  **Recommended Agent Profile**: `visual-engineering` + `frontend-ui-ux`
+  **Parallelization**: Wave C — independent of Wave B
+  **Blocked By**: None | **Blocks**: None
+
+  **Acceptance Criteria**:
+  ```
+  Scenario: Join page has form, pricing, and training info
+    Tool: Bash
+    Steps:
+      1. npm run build && npm run check
+      2. grep -c "contact-form\|formspree" docs/de/mitmachen/index.html → expect > 0
+      3. Verify pricing table present
+      4. Verify training times present
+    Expected Result: Clean join page with all sections
+    Evidence: .sisyphus/evidence/task-22r-join.txt
+  ```
+
+  **Commit**: `feat: redesign Mitmachen as join landing page with contact form`
 
   **What to do**:
   - Update `.prose` styles for new typography system (Space Grotesk headings, Inter body)
@@ -1154,7 +1274,35 @@ Max Concurrent: 8 (Wave 4)
 
   **Commit**: YES — `feat: redesign content page template`
 
-- [ ] 23. Update Homepage News Section
+- [ ] 23. **[REVISED]** Add Testimonials + CTA section to Homepage + Sponsor Showcase + Content Template
+
+  **What to do**:
+  - **Testimonials**: Add 3 placeholder testimonial cards on homepage (after marquee gallery, before CTA). Dark bg, quote + avatar + role. Use 0-indentation in markdown HTML.
+  - **CTA section**: Bold "Komm vorbei" section with blue bg, two buttons (Mitmachen + Kontakt)
+  - **Sponsor showcase**: Redesign `sponsoren-partner.md` with tiered layout (Hauptsponsoren, Partner, Unterstützer). Add "Sponsor werden" CTA.
+  - **Content page template**: Update `.prose` headings to uppercase Space Grotesk. Update table, blockquote, list styles.
+  - Update both DE and EN for all content files.
+  - Add CSS for testimonials, events (if used), sponsor tiers.
+
+  **Must NOT do**: Do NOT invent specific member names. Use generic placeholders.
+
+  **Recommended Agent Profile**: `visual-engineering` + `frontend-ui-ux`
+  **Parallelization**: Wave C — parallel with T22r
+  **Blocked By**: T20r (homepage structure) | **Blocks**: Final verification
+
+  **Acceptance Criteria**:
+  ```
+  Scenario: Testimonials and sponsors render correctly
+    Tool: Bash
+    Steps:
+      1. npm run build && npm run check
+      2. grep -c "testimonial-card" docs/de/index.html → expect 3
+      3. Verify sponsor page has tiered layout
+    Expected Result: Testimonials on homepage, sponsors redesigned
+    Evidence: .sisyphus/evidence/task-23r-testimonials-sponsors.txt
+  ```
+
+  **Commit**: Multiple commits — one per feature
 
   **What to do**:
   - Apply new news card design (from Task 14) to homepage news grid
