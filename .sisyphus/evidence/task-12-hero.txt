@@ -1,0 +1,8 @@
+67:      <h1 class="hero__title">BSC 70 Linz</h1>
+76:  <div class="hero__stats">
+78:      <ul class="hero__stats-list">
+79:        <li><span class="hero__stats-value">1970</span><span class="hero__stats-label">Gegr&uuml;ndet</span></li>
+80:        <li><span class="hero__stats-value">7&times;</span><span class="hero__stats-label">Staatsmeister</span></li>
+81:        <li><span class="hero__stats-value">1992</span><span class="hero__stats-label">Europacupsieger</span></li>
+82:        <li><span class="hero__stats-value">3</span><span class="hero__stats-label">Trainingsabende</span></li>
+87:<section class="section section--manifesto reveal">

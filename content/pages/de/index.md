@@ -11,20 +11,28 @@ description: "Badminton in Linz seit 1970. Nachwuchstraining, Erwachsenentrainin
 
 <section class="section section--hero">
   <div class="hero__media" style="--hero-image:url('/assets/uploads/team-bsc70-48b7b09aaf.jpg')"></div>
+  <div class="hero__overlay"></div>
   <div class="container hero">
     <div class="hero__content">
       <p class="eyebrow">Badminton in Linz &middot; seit 1970</p>
-      <h1 class="hero__title">Badminton in Linz,<br>seit 1970.</h1>
-      <p class="hero__lead">Europacupsieger 1992 &middot; 7&times; Staatsmeister &middot; Aufbau aus eigener Kraft.</p>
+      <h1 class="hero__title">BSC 70 Linz</h1>
+      <p class="hero__subtitle">Badminton. Community. Meisterschaft.</p>
+      <p class="hero__lead">Europacupsieger 1992 &middot; 7&times; Staatsmeister &middot; Jetzt in der Landesliga.</p>
       <div class="hero__actions">
-        <a class="btn" href="/de/mitmachen/">Training planen &rarr;</a>
-        <a class="btn btn--ghost" href="/de/verein/">Wer wir sind</a>
+        <a class="btn btn--cta" href="/de/mitmachen/">Mitmachen &rarr;</a>
+        <a class="btn btn--ghost hero__ghost-btn" href="/de/verein/">Wer wir sind</a>
       </div>
     </div>
-    <aside class="hero__card" aria-label="Live">
-      <h2 class="hero__card-title">Heute Training</h2>
-      <p>Dienstag 19:00 &middot; Heliosallee 140. Erstes Mal kostenlos. Schl&auml;ger gibt&rsquo;s bei uns.</p>
-    </aside>
+  </div>
+  <div class="hero__stats">
+    <div class="container">
+      <ul class="hero__stats-list">
+        <li><span class="hero__stats-value">1970</span><span class="hero__stats-label">Gegr&uuml;ndet</span></li>
+        <li><span class="hero__stats-value">7&times;</span><span class="hero__stats-label">Staatsmeister</span></li>
+        <li><span class="hero__stats-value">1992</span><span class="hero__stats-label">Europacupsieger</span></li>
+        <li><span class="hero__stats-value">3</span><span class="hero__stats-label">Trainingsabende</span></li>
+      </ul>
+    </div>
   </div>
 </section>
 
@@ -60,7 +68,7 @@ description: "Badminton in Linz seit 1970. Nachwuchstraining, Erwachsenentrainin
   </div>
 </section>
 
-<section class="section reveal">
+<section class="section section--alt reveal">
   <div class="container">
     <h2 class="section__title">Wo wir spielen</h2>
     <div class="fixtures-grid">
@@ -92,7 +100,7 @@ description: "Badminton in Linz seit 1970. Nachwuchstraining, Erwachsenentrainin
   </div>
 </section>
 
-<section class="section reveal">
+<section class="section section--alt reveal">
   <div class="container">
     <h2 class="section__title">Mannschaften</h2>
     <div class="fixtures-grid">

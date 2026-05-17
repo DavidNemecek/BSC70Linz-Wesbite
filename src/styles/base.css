@@ -459,6 +459,10 @@ code {
   background: var(--color-surface);
 }
 
+.section--alt {
+  background: var(--color-surface);
+}
+
 .section--home-links { background: var(--color-bg); }
 
 /* --- 9a. SECTION -- Angled Dividers ------------------------------------- */
@@ -650,7 +654,10 @@ code {
 
 /* --- 12. MISSION SECTION ------------------------------------------------ */
 
-.section--mission { background: var(--color-bg); }
+.section--mission {
+  background: var(--color-primary);
+  color: #FFFFFF;
+}
 
 .mission { display: flex; align-items: center; }
 
@@ -659,7 +666,7 @@ code {
 .mission__kicker {
   margin: 0 0 8px;
   font-family: var(--font-mono);
-  color: var(--color-accent);
+  color: rgba(255, 255, 255, 0.7);
   font-weight: 400;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -675,17 +682,38 @@ code {
   text-transform: none;
   line-height: 1.0;
   letter-spacing: -0.02em;
-  color: var(--color-text);
+  color: #FFFFFF;
 }
 
 .mission__lead {
   margin: 0 0 20px;
-  color: var(--color-muted);
+  color: rgba(255, 255, 255, 0.85);
   font-size: clamp(15px, 2vw, 17px);
   line-height: 1.6;
 }
 
 .mission__actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.section--mission .btn {
+  background: #FFFFFF;
+  color: var(--color-primary);
+  border-color: #FFFFFF;
+}
+.section--mission .btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-primary-dark);
+  border-color: rgba(255, 255, 255, 0.9);
+}
+.section--mission .btn--ghost {
+  background: transparent;
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+.section--mission .btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #FFFFFF;
+  color: #FFFFFF;
+}
 
 /* --- 13. PROSE / CONTENT ------------------------------------------------ */
 
@@ -1652,23 +1680,6 @@ a, .btn, .chip, .nav__link, .nav__sublink, .nav__summary,
 /* --- 32. DECORATIVE GEOMETRIC ELEMENTS ---------------------------------- */
 
 /* Decorative geometric elements */
-.section--hero::before {
-  content: "";
-  position: absolute;
-  top: 20%;
-  right: 5%;
-  width: 300px;
-  height: 300px;
-  border: 2px solid rgba(37,99,235,.1);
-  border-radius: 50%;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.section--hero .container {
-  position: relative;
-  z-index: 1;
-}
 
 .section--mission::before {
   content: "";
@@ -1677,7 +1688,7 @@ a, .btn, .chip, .nav__link, .nav__sublink, .nav__summary,
   left: -60px;
   width: 200px;
   height: 200px;
-  background: linear-gradient(135deg, rgba(37,99,235,.08), transparent);
+  background: linear-gradient(135deg, rgba(255,255,255,.1), transparent);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -1733,23 +1744,7 @@ a, .btn, .chip, .nav__link, .nav__sublink, .nav__summary,
   opacity: 0.8;
 }
 
-/* Glowing dot accent on hero card */
-.hero__card::before {
-  content: "";
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 8px;
-  height: 8px;
-  background: var(--color-accent);
-  border-radius: 50%;
-  box-shadow: 0 0 8px var(--color-accent), 0 0 16px var(--color-accent);
-  animation: pulse-dot 2s ease-in-out infinite;
-}
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(0.8); }
-}
+
 
 /* Footer decorative top line */
 .footer {
@@ -1854,15 +1849,15 @@ a, .btn, .chip, .nav__link, .nav__sublink, .nav__summary,
 
 .section--seventy {
   padding-block: clamp(64px, 8vw, 120px);
-  border-top: 1px solid var(--color-border);
-  border-bottom: 1px solid var(--color-border);
+  background: var(--color-hero-bg);
+  color: var(--color-hero-text);
 }
 .seventy__kicker {
   font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--color-primary);
+  color: var(--color-accent);
   margin: 0 0 32px;
 }
 .seventy__list {
@@ -1889,7 +1884,7 @@ a, .btn, .chip, .nav__link, .nav__sublink, .nav__summary,
   font-size: clamp(12px, 1.4vw, 14px);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-muted);
+  color: rgba(248, 250, 252, 0.6);
 }
 .seventy__value {
   font-family: var(--font-display);
@@ -1898,6 +1893,6 @@ a, .btn, .chip, .nav__link, .nav__sublink, .nav__summary,
   font-size: clamp(3rem, 8vw, 7rem);
   line-height: 0.92;
   letter-spacing: -0.04em;
-  color: var(--color-text);
+  color: var(--color-primary);
   text-align: right;
 }
