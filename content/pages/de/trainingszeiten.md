@@ -1,11 +1,11 @@
 ---
 title: "Trainingszeiten"
 slug: "trainingszeiten"
-navGroup: "Verein"
+navGroup: "Mitmachen"
 navOrder: 60
 navLabel: "Trainingszeiten"
 translationStatus: "reviewed"
-navHidden: true
+navHidden: false
 ---
 
 [Trainingszeiten](/de/trainingszeiten/)

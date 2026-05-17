@@ -6,5 +6,5 @@ navOrder: 20
 navLabel: "Nachwuchs"
 translationStatus: "draft"
 translatedFrom: "content/pages/de/nachwuchs.md"
-navHidden: true
+navHidden: false
 ---

@@ -1,11 +1,11 @@
 ---
 title: "Spiel- und Trainingshallen"
 slug: "spiel-und-trainingshallen"
-navGroup: "Verein"
+navGroup: "Mitmachen"
 navOrder: 70
 navLabel: "Spiel- und Trainingshallen"
 translationStatus: "reviewed"
-navHidden: true
+navHidden: false
 ---
 
 [Spiel- und Trainingshallen](/de/spiel-und-trainingshallen/)

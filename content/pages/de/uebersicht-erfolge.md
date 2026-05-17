@@ -5,7 +5,7 @@ navGroup: "Verein"
 navOrder: 100
 navLabel: "Übersicht Erfolge"
 translationStatus: "reviewed"
-navHidden: true
+navHidden: false
 ---
 
 [Übersicht Erfolge](/de/uebersicht-erfolge/)

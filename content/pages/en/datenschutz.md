@@ -4,7 +4,7 @@ slug: "datenschutz"
 navGroup: "Contact"
 navOrder: 30
 navLabel: "Privacy Policy"
-navHidden: true
+navHidden: false
 translationStatus: "reviewed"
 translatedFrom: "content/pages/de/datenschutz.md"
 ---

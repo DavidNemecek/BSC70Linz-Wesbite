@@ -1,11 +1,11 @@
 ---
 title: "Impressum/Vereinsdaten"
 slug: "impressum-vereinsdaten"
-navGroup: "Verein"
+navGroup: "Kontakt"
 navOrder: 130
 navLabel: "Impressum/Vereinsdaten"
 translationStatus: "reviewed"
-navHidden: true
+navHidden: false
 ---
 
 [Impressum/Vereinsdaten](/de/impressum-vereinsdaten/)

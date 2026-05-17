@@ -6,5 +6,5 @@ navOrder: 130
 navLabel: "Impressum/Vereinsdaten"
 translationStatus: "draft"
 translatedFrom: "content/pages/de/impressum-vereinsdaten.md"
-navHidden: true
+navHidden: false
 ---

@@ -6,5 +6,5 @@ navOrder: 90
 navLabel: "Chronik"
 translationStatus: "draft"
 translatedFrom: "content/pages/de/chronik.md"
-navHidden: true
+navHidden: false
 ---

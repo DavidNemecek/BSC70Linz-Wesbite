@@ -4,7 +4,7 @@ slug: "datenschutz"
 navGroup: "Kontakt"
 navOrder: 30
 navLabel: "Datenschutz"
-navHidden: true
+navHidden: false
 translationStatus: "reviewed"
 ---
 

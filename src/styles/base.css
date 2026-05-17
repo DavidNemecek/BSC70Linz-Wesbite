@@ -110,10 +110,9 @@ code {
 .header {
   position: fixed;
   top: 0; left: 0; right: 0;
-  z-index: 20;
+  z-index: 100;
   height: var(--header-height);
-  background: rgba(10, 10, 10, .9);
-  backdrop-filter: blur(12px);
+  background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -153,11 +152,11 @@ code {
 
 .brand__name {
   font-family: var(--font-display);
-  font-weight: 900;
-  font-size: 16px;
+  font-weight: 700;
+  font-size: 1.125rem;
   line-height: 1.1;
-  text-transform: none;
-  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--color-text);
 }
 
@@ -166,39 +165,8 @@ code {
   font-size: 11px;
 }
 
-/* --- 5a. HEADER -- Home page (dark glassmorphism, same as default) ------- */
-
-.page--home .header {
-  background: rgba(10, 10, 10, .9);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.page--home .brand,
-.page--home .nav__link,
-.page--home .nav__sublink,
-.page--home .nav__summary,
-.page--home .theme-toggle,
-.page--home .lang { color: var(--color-text); }
-
-.page--home .brand__tag { color: var(--color-muted); }
-
-.page--home .nav__toggle,
-.page--home .theme-toggle,
-.page--home .lang {
-  border-color: var(--color-border);
-  background: transparent;
-}
-.page--home .nav__toggle:hover,
-.page--home .theme-toggle:hover,
-.page--home .lang:hover,
-.page--home .nav__link:hover,
-.page--home .nav__sublink:hover,
-.page--home .nav__summary:hover {
-  background: rgba(255, 255, 255, .06);
-}
-
-.page--home .nav__dropdown .nav__sublink { color: var(--color-text); }
-.page--home .nav__dropdown .nav__sublink:hover { background: var(--color-surface); }
+/* --- 5a. HEADER -- Home page --------------------------------------------- */
+/* Header is now theme-aware (var(--color-surface)); no per-page overrides needed. */
 
 /* --- 6. NAVIGATION ------------------------------------------------------ */
 
@@ -226,11 +194,12 @@ code {
   cursor: pointer;
   transition: background 0.2s ease;
 }
-.nav__toggle:hover { background: rgba(255, 255, 255, .06); }
+.nav__toggle:hover { background: var(--color-border); }
 
 .nav__right { display: flex; align-items: center; gap: 8px; }
 
-.nav__cta { min-height: 36px; padding: 8px 14px; }
+.nav__cta { padding: 0.5rem 1rem; font-size: 0.75rem; min-height: 36px; }
+.nav__mobile-cta { display: none; }
 
 .nav__list {
   list-style: none;
@@ -265,7 +234,7 @@ code {
 
 .nav__link:hover,
 .nav__sublink:hover,
-.nav__summary:hover { background: rgba(255, 255, 255, .06); text-decoration: none; }
+.nav__summary:hover { background: var(--color-border); text-decoration: none; }
 
 .nav__link.is-active,
 .nav__sublink.is-active {
@@ -285,7 +254,7 @@ code {
 }
 .page--home .nav__group[data-active="true"] > .nav__summary {
   border-color: var(--color-border);
-  background: rgba(255, 255, 255, .06);
+  background: var(--color-border);
 }
 
 .nav__dropdown {
@@ -318,8 +287,10 @@ code {
   .header__inner { align-items: flex-start; flex-wrap: wrap; height: auto; padding: 10px 0; }
   .nav { width: 100%; justify-content: space-between; }
   .nav__toggle { display: inline-flex; }
-  .nav__panel { width: 100%; flex-direction: column; align-items: stretch; gap: 6px; }
+  .nav__panel { width: 100%; flex-direction: column; align-items: stretch; gap: 6px; overflow-y: auto; max-height: calc(100vh - var(--header-height)); }
   .nav__right { width: 100%; justify-content: flex-end; flex-wrap: wrap; }
+  .nav__cta { display: none; }
+  .nav__mobile-cta { display: flex; width: 100%; justify-content: center; margin: 4px 0; }
   .nav__list { flex-direction: column; align-items: stretch; }
   .nav__group { display: block; padding-bottom: 0; }
   .nav__link, .nav__sublink, .nav__summary { width: 100%; justify-content: space-between; }

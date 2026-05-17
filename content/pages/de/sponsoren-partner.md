@@ -1,11 +1,11 @@
 ---
 title: "Sponsoren/Partner"
 slug: "sponsoren-partner"
-navGroup: "Verein"
+navGroup: "Kontakt"
 navOrder: 110
 navLabel: "Sponsoren/Partner"
 translationStatus: "reviewed"
-navHidden: true
+navHidden: false
 ---
 
 [Sponsoren/Partner](/de/sponsoren-partner/)

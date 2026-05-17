@@ -12,7 +12,9 @@ const PAGE_SIZE = 20;
 const NAV_GROUPS = {
   start: { order: 0, labels: { de: "Start", en: "Home" } },
   club: { order: 10, labels: { de: "Verein", en: "Club" } },
+  teams: { order: 20, labels: { de: "Mannschaften", en: "Teams" } },
   join: { order: 40, labels: { de: "Mitmachen", en: "Join" } },
+  news: { order: 50, labels: { de: "News", en: "News" } },
   contact: { order: 60, labels: { de: "Kontakt", en: "Contact" } },
 };
 
@@ -21,8 +23,11 @@ const NAV_GROUP_KEY_BY_LABEL = new Map([
   ["home", "start"],
   ["verein", "club"],
   ["club", "club"],
+  ["mannschaften", "teams"],
+  ["teams", "teams"],
   ["mitmachen", "join"],
   ["join", "join"],
+  ["news", "news"],
   ["kontakt", "contact"],
   ["contact", "contact"],
 ]);
@@ -332,26 +337,69 @@ function buildNavHtml(pages, { lang, activeUrl }) {
     if (p.slug === "index") return false;
     return true;
   });
-  const byGroup = new Map();
+  const byKey = new Map();
   for (const p of navPages) {
-    const group = String(p.navGroup || "misc");
-    if (!byGroup.has(group)) byGroup.set(group, []);
-    byGroup.get(group).push(p);
+    const key = p.navGroupKey || "club";
+    if (!byKey.has(key)) byKey.set(key, []);
+    byKey.get(key).push(p);
   }
 
-  const groups = [...byGroup.entries()]
-    .map(([group, items]) => ({
-      group,
-      minOrder: Math.min(...items.map((it) => Number(it.navOrder ?? 9999))),
-      items: items.slice().sort((a, b) => Number(a.navOrder ?? 9999) - Number(b.navOrder ?? 9999)),
-    }))
-    .sort((a, b) => a.minOrder - b.minOrder || a.group.localeCompare(b.group));
+  const orderedKeys = Object.keys(NAV_GROUPS)
+    .filter((k) => k !== "start")
+    .sort((a, b) => NAV_GROUPS[a].order - NAV_GROUPS[b].order);
 
   const parts = [];
   parts.push(`<ul class="nav__list">`);
-  for (const g of groups) {
-    if (g.items.length === 1) {
-      const it = g.items[0];
+  for (const key of orderedKeys) {
+    const groupLabel = navGroupLabelFromKey(key, lang);
+
+    if (key === "teams") {
+      const items = (byKey.get(key) || []).slice().sort((a, b) => Number(a.navOrder ?? 9999) - Number(b.navOrder ?? 9999));
+      if (items.length === 0) {
+        parts.push(
+          `<li class="nav__item"><a class="nav__link" href="/${lang}/#mannschaften">${escapeHtml(groupLabel)}</a></li>`
+        );
+      } else if (items.length === 1) {
+        const it = items[0];
+        const isActive = it.url === activeUrl;
+        parts.push(
+          `<li class="nav__item"><a class="nav__link${isActive ? " is-active" : ""}" href="${it.url}"${
+            isActive ? ' aria-current="page"' : ""
+          }>${escapeHtml(it.navLabel || it.title)}</a></li>`
+        );
+      } else {
+        const anyActive = items.some((it) => it.url === activeUrl);
+        parts.push(`<li class="nav__item nav__item--group">`);
+        parts.push(`<details class="nav__group"${anyActive ? ' data-active="true"' : ""}>`);
+        parts.push(`<summary class="nav__summary">${escapeHtml(groupLabel)}</summary>`);
+        parts.push(`<div class="nav__dropdown" role="group" aria-label="${escapeHtml(groupLabel)}">`);
+        for (const it of items) {
+          const isActive = it.url === activeUrl;
+          parts.push(
+            `<a class="nav__sublink${isActive ? " is-active" : ""}" href="${it.url}"${
+              isActive ? ' aria-current="page"' : ""
+            }>${escapeHtml(it.navLabel || it.title)}</a>`
+          );
+        }
+        parts.push(`</div></details></li>`);
+      }
+      continue;
+    }
+
+    if (key === "news") {
+      parts.push(
+        `<li class="nav__item"><a class="nav__link${activeUrl.startsWith(`/${lang}/news`) ? " is-active" : ""}" href="/${lang}/news/"${
+          activeUrl.startsWith(`/${lang}/news`) ? ' aria-current="page"' : ""
+        }>${escapeHtml(groupLabel)}</a></li>`
+      );
+      continue;
+    }
+
+    const items = (byKey.get(key) || []).slice().sort((a, b) => Number(a.navOrder ?? 9999) - Number(b.navOrder ?? 9999));
+    if (items.length === 0) continue;
+
+    if (items.length === 1) {
+      const it = items[0];
       const isActive = it.url === activeUrl;
       parts.push(
         `<li class="nav__item"><a class="nav__link${isActive ? " is-active" : ""}" href="${it.url}"${
@@ -360,12 +408,13 @@ function buildNavHtml(pages, { lang, activeUrl }) {
       );
       continue;
     }
-    const anyActive = g.items.some((it) => it.url === activeUrl);
+
+    const anyActive = items.some((it) => it.url === activeUrl);
     parts.push(`<li class="nav__item nav__item--group">`);
     parts.push(`<details class="nav__group"${anyActive ? ' data-active="true"' : ""}>`);
-    parts.push(`<summary class="nav__summary">${escapeHtml(g.group)}</summary>`);
-    parts.push(`<div class="nav__dropdown" role="group" aria-label="${escapeHtml(g.group)}">`);
-    for (const it of g.items) {
+    parts.push(`<summary class="nav__summary">${escapeHtml(groupLabel)}</summary>`);
+    parts.push(`<div class="nav__dropdown" role="group" aria-label="${escapeHtml(groupLabel)}">`);
+    for (const it of items) {
       const isActive = it.url === activeUrl;
       parts.push(
         `<a class="nav__sublink${isActive ? " is-active" : ""}" href="${it.url}"${
@@ -376,13 +425,7 @@ function buildNavHtml(pages, { lang, activeUrl }) {
     parts.push(`</div></details></li>`);
   }
 
-  parts.push(
-    `<li class="nav__item"><a class="nav__link${activeUrl.startsWith(`/${lang}/news`) ? " is-active" : ""}" href="/${lang}/news/"${
-      activeUrl.startsWith(`/${lang}/news`) ? ' aria-current="page"' : ""
-    }>News</a></li>`
-  );
   parts.push(`</ul>`);
-
   return parts.join("");
 }
 
@@ -538,10 +581,12 @@ async function writePage({
   urlEn,
   bodyClass,
 }) {
-  // Keep the header compact (especially on mobile): no always-on CTA in the nav bar.
-  const cta = "";
+  const ctaLabel = lang === "en" ? "Join Us" : "Mitmachen";
+  const ctaHref = `/${lang}/mitmachen/`;
+  const cta = `<a class="btn btn--cta nav__cta" href="${ctaHref}">${ctaLabel}</a>`;
+  const mobileCta = `<a class="btn btn--cta nav__mobile-cta" href="${ctaHref}">${ctaLabel}</a>`;
   const menuLabel = lang === "en" ? "Menu" : "Menü";
-  const headerHtml = renderTemplate(templates.header, { nav: navHtml, langSwitch, brandHref, cta, menuLabel });
+  const headerHtml = renderTemplate(templates.header, { nav: navHtml, langSwitch, brandHref, cta, mobileCta, menuLabel });
   const footerHtml = renderTemplate(templates.footer, {
     contactHref: `/${lang}/kontakt/`,
     contactLabel: lang === "en" ? "Contact" : "Kontakt",
