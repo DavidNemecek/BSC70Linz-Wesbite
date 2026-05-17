@@ -8,70 +8,109 @@ translationStatus: "reviewed"
 description: "Trainingszeiten, Nachwuchs und Mitgliedschaft beim BSC 70 Linz. Einfach vorbeikommen."
 ---
 
-## Nachwuchstraining
+<div class="join-page">
 
-Wir bringen Kids Badminton bei. Unsere Trainer gehen in Linzer Schulen und machen Badminton im Turnunterricht und in der Nachmittagsbetreuung. Kinder, die Lust auf mehr haben, kommen ins Vereinstraining und spielen bei Turnieren mit.
+<section class="section section--hero-mini">
+<div class="container">
+<p class="eyebrow">Mitmachen</p>
+<h1 class="page-title">Werde Teil des BSC 70 Linz</h1>
+<p class="page-lead">Keine Voranmeldung nötig. Komm einfach zum Training, bring Sportschuhe mit. Schläger und Bälle haben wir.</p>
+</div>
+</section>
 
-**Dienstag** 17:00 &ndash; 19:00 Uhr
-AHS Solar City, Heliosallee 140&ndash;142
+<section class="section reveal">
+<div class="container">
+<h2 class="section__title">Trainingszeiten</h2>
+<div class="join-grid">
+<div class="join-card">
+<div class="join-card__badge">Kinder &amp; Jugend</div>
+<h3 class="join-card__title">Nachwuchstraining</h3>
+<p class="join-card__detail"><strong>Dienstag</strong> 17:00 – 19:00</p>
+<p class="join-card__detail"><strong>Freitag</strong> 18:00 – 19:30</p>
+<p class="join-card__location">AHS Solar City, Heliosallee 140–142 / Europagymnasium Auhof, Aubrunnerweg 4</p>
+</div>
+<div class="join-card">
+<div class="join-card__badge">Erwachsene</div>
+<h3 class="join-card__title">Hobby &amp; Mannschaft</h3>
+<p class="join-card__detail"><strong>Dienstag</strong> 19:00 – 21:30</p>
+<p class="join-card__detail"><strong>Donnerstag</strong> 18:30 – 21:00</p>
+<p class="join-card__detail"><strong>Freitag</strong> 19:00 – 20:00</p>
+<p class="join-card__location">AHS Solar City, Heliosallee 140–142 / Europagymnasium Auhof, Aubrunnerweg 4</p>
+</div>
+</div>
+</div>
+</section>
 
-**Freitag** 18:00 &ndash; 19:30 Uhr
-Europagymnasium Auhof, Aubrunnerweg 4
+<section class="section section--alt reveal">
+<div class="container">
+<h2 class="section__title">Mitgliedsbeiträge</h2>
+<p>Transparent und fair. Der Beitrag deckt Hallenmiete, Bälle und Vereinsorganisation. Jahresbeiträge ab September 2025:</p>
+<div class="pricing-table-wrap">
+<table class="pricing-table">
+<thead><tr><th>Kategorie</th><th>Beitrag / Jahr</th></tr></thead>
+<tbody>
+<tr><td>Erwachsene</td><td>€ 154</td></tr>
+<tr><td>Studenten (bis 26 Jahre)</td><td>€ 84</td></tr>
+<tr><td>Jugendliche (15–18 Jahre)</td><td>€ 55</td></tr>
+<tr><td>Kinder (bis 14 Jahre)</td><td>€ 44</td></tr>
+<tr><td>Familienkarte (2 Erw. + 2 Kinder)</td><td>€ 264</td></tr>
+<tr><td>Kindertraining pro Semester</td><td>€ 38,50</td></tr>
+<tr><td>Unterstützende Mitglieder</td><td>€ 44</td></tr>
+</tbody>
+</table>
+</div>
+<p class="pricing-note">Erstes Schnuppertraining kostenlos. Keine Bindung. Für Meisterschaftsspiele brauchst du zusätzlich einen Spielerpass vom ÖBV.</p>
+</div>
+</section>
 
-Dein Kind soll einfach mitkommen und ausprobieren. Sportschuhe reichen, Schläger haben wir.
+<section class="section reveal">
+<div class="container">
+<h2 class="section__title">Kontakt &amp; Anmeldung</h2>
+<p>Fragen zum Training oder zur Mitgliedschaft? Schreib uns.</p>
+<div class="contact-form-wrap">
+<form class="contact-form" id="contact-form" action="https://formspree.io/f/xpwzgkqb" method="POST" novalidate>
+<input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" />
+<div class="form-field">
+<label class="form-label" for="cf-name">Name *</label>
+<input class="form-input" type="text" id="cf-name" name="name" required autocomplete="name" />
+<span class="form-error" data-for="cf-name"></span>
+</div>
+<div class="form-field">
+<label class="form-label" for="cf-email">E-Mail *</label>
+<input class="form-input" type="email" id="cf-email" name="email" required autocomplete="email" />
+<span class="form-error" data-for="cf-email"></span>
+</div>
+<div class="form-field">
+<label class="form-label" for="cf-message">Nachricht *</label>
+<textarea class="form-input" id="cf-message" name="message" rows="5" required minlength="10" placeholder="z.B. Ich möchte zum Schnuppertraining kommen..."></textarea>
+<span class="form-error" data-for="cf-message"></span>
+</div>
+<p class="form-privacy">Mit dem Absenden stimmst du unserer <a href="/de/datenschutz/">Datenschutzerklärung</a> zu.</p>
+<button class="btn btn--cta" type="submit">Nachricht senden</button>
+<div class="form-status" hidden></div>
+</form>
+</div>
+</div>
+</section>
 
----
+<section class="section section--alt reveal">
+<div class="container">
+<h2 class="section__title">Was du mitbringen musst</h2>
+<div class="join-grid">
+<div class="join-card join-card--simple">
+<h3 class="join-card__title">Hallenschuhe</h3>
+<p class="join-card__detail">Saubere, nicht abfärbende Sohlen</p>
+</div>
+<div class="join-card join-card--simple">
+<h3 class="join-card__title">Sportkleidung</h3>
+<p class="join-card__detail">Bequem und atmungsaktiv</p>
+</div>
+<div class="join-card join-card--simple">
+<h3 class="join-card__title">Schläger &amp; Bälle</h3>
+<p class="join-card__detail">Haben wir — du brauchst nichts!</p>
+</div>
+</div>
+</div>
+</section>
 
-## Erwachsenentraining
-
-Egal ob du zum ersten Mal einen Schläger in der Hand hast oder seit Jahren spielst &ndash; komm einfach vorbei. Wir spielen miteinander, nicht gegeneinander. Wer will, kann in einer unserer Mannschaften Meisterschaft spielen.
-
-**Dienstag** 19:00 &ndash; 21:30 Uhr
-AHS Solar City, Heliosallee 140&ndash;142
-
-**Donnerstag** 18:30 &ndash; 21:00 Uhr
-AHS Solar City, Heliosallee 140&ndash;142
-
-**Freitag** 19:00 &ndash; 20:00 Uhr
-Europagymnasium Auhof, Aubrunnerweg 4
-
----
-
-## Hallen
-
-**AHS Solar City** (Dienstag & Donnerstag)
-Heliosallee 140&ndash;142, 4030 Linz
-8 Spielfelder
-
-**Europagymnasium Auhof** (Freitag)
-Aubrunnerweg 4, 4040 Linz
-6 Spielfelder
-
----
-
-## Mitgliedschaft
-
-Jahresbeiträge (ab September 2025):
-
-| | Beitrag |
-|---|---|
-| Erwachsene | 154 &euro; |
-| Studenten (bis 26 Jahre) | 84 &euro; |
-| Jugendliche (15&ndash;18 Jahre) | 55 &euro; |
-| Kinder (bis 14 Jahre) | 44 &euro; |
-| Familienkarte (2 Erw. + 2 Kinder) | 264 &euro; |
-| Kindertraining pro Semester | 38,50 &euro; |
-| Unterst&uuml;tzende Mitglieder | 44 &euro; |
-
-F&uuml;r Meisterschaftsspiele brauchst du zus&auml;tzlich einen Spielerpass vom &Ouml;BV.
-
----
-
-## Mitmachen &ndash; so geht's
-
-Du brauchst keine Voranmeldung. Komm einfach zu einem Training und spiel mit. Wenn es dir taugt, wirst du Mitglied. Schreib uns, wenn du Fragen hast:
-
-<div class="lang-chooser">
-  <a class="btn" href="tel:+436767042186">Anrufen: +43 676 7042186</a>
-  <a class="btn btn--ghost" href="/de/kontakt/">Schreib uns</a>
 </div>

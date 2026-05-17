@@ -38,6 +38,12 @@ const labels =
         all: "All",
         switchTo: "Switch language",
         backToNews: "Back to news",
+        formRequired: "This field is required.",
+        formEmailInvalid: "Please enter a valid e-mail address.",
+        formTooShort: "Please enter at least 10 characters.",
+        formSuccess: "Thank you! Your message has been sent.",
+        formError: "Something went wrong. Please try again or email us directly.",
+        formSending: "Sending…",
       }
     : {
         skip: "Zum Inhalt",
@@ -47,6 +53,12 @@ const labels =
         all: "Alle",
         switchTo: "Sprache wechseln",
         backToNews: "Zurück zu News",
+        formRequired: "Dieses Feld ist erforderlich.",
+        formEmailInvalid: "Bitte gib eine gültige E-Mail-Adresse ein.",
+        formTooShort: "Bitte gib mindestens 10 Zeichen ein.",
+        formSuccess: "Danke! Deine Nachricht wurde gesendet.",
+        formError: "Etwas ist schiefgelaufen. Bitte versuch es nochmal oder schreib uns direkt.",
+        formSending: "Wird gesendet…",
       };
 
 function initThemeToggle() {
@@ -439,6 +451,103 @@ function initGallery() {
   });
 }
 
+function initContactForm() {
+  const form = document.getElementById("contact-form");
+  if (!(form instanceof HTMLFormElement)) return;
+
+  const statusEl = form.querySelector(".form-status");
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const submitLabel = submitBtn ? submitBtn.textContent : "";
+
+  const showError = (input, msg) => {
+    const err = form.querySelector(`.form-error[data-for="${input.id}"]`);
+    if (err) err.textContent = msg;
+    input.classList.add("form-input--invalid");
+  };
+
+  const clearError = (input) => {
+    const err = form.querySelector(`.form-error[data-for="${input.id}"]`);
+    if (err) err.textContent = "";
+    input.classList.remove("form-input--invalid");
+  };
+
+  const validateField = (input) => {
+    clearError(input);
+    if (input.required && !input.value.trim()) {
+      showError(input, labels.formRequired);
+      return false;
+    }
+    if (input.type === "email" && input.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim())) {
+      showError(input, labels.formEmailInvalid);
+      return false;
+    }
+    const min = parseInt(input.getAttribute("minlength"), 10);
+    if (min && input.value.trim().length < min) {
+      showError(input, labels.formTooShort);
+      return false;
+    }
+    return true;
+  };
+
+  const inputs = [...form.querySelectorAll(".form-input")];
+  for (const input of inputs) {
+    input.addEventListener("blur", () => validateField(input));
+    input.addEventListener("input", () => {
+      if (input.classList.contains("form-input--invalid")) clearError(input);
+    });
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    let valid = true;
+    for (const input of inputs) {
+      if (!validateField(input)) valid = false;
+    }
+    if (!valid) return;
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = labels.formSending;
+    }
+    if (statusEl) {
+      statusEl.hidden = true;
+      statusEl.className = "form-status";
+      statusEl.textContent = "";
+    }
+
+    try {
+      const res = await fetch(form.action, {
+        method: "POST",
+        body: new FormData(form),
+        headers: { Accept: "application/json" },
+      });
+
+      if (res.ok) {
+        form.reset();
+        if (statusEl) {
+          statusEl.textContent = labels.formSuccess;
+          statusEl.classList.add("form-status--success");
+          statusEl.hidden = false;
+        }
+      } else {
+        throw new Error("Response not OK");
+      }
+    } catch {
+      if (statusEl) {
+        statusEl.textContent = labels.formError;
+        statusEl.classList.add("form-status--error");
+        statusEl.hidden = false;
+      }
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = submitLabel;
+      }
+    }
+  });
+}
+
 initNavGroups();
 initNavToggle();
 initLanguageA11y();
@@ -448,3 +557,4 @@ initNewsBacklink();
 initScrollReveal();
 initCopyUrl();
 initGallery();
+initContactForm();
