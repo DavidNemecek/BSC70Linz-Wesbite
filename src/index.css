@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --night: #0B0C0F;
+    --paper: #F4F4F0;
+    --frost: #E8E9E4;
+    --charcoal: #1A1C23;
+    --ink: #1A1C23;
+    --ember: #E8502C;
+    --ember-glow: rgba(232, 80, 44, 0.15);
+    --slate: #6B7280;
+    --border-light: rgba(26, 28, 35, 0.08);
+    --border-dark: rgba(255, 255, 255, 0.08);
+    --radius: 0.5rem;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--night);
+    color: var(--ink);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: var(--ember);
+    color: #FFFFFF;
+  }
+}
+
+@layer components {
+  .font-display {
+    font-family: 'Bebas Neue', sans-serif;
+  }
+
+  .text-ember {
+    color: var(--ember);
+  }
+
+  .bg-ember {
+    background-color: var(--ember);
+  }
+
+  .bg-night {
+    background-color: var(--night);
+  }
+
+  .bg-paper {
+    background-color: var(--paper);
+  }
+
+  .bg-frost {
+    background-color: var(--frost);
+  }
+
+  .bg-charcoal {
+    background-color: var(--charcoal);
+  }
+
+  .bg-ember-glow {
+    background-color: var(--ember-glow);
+  }
+
+  .text-slate {
+    color: var(--slate);
+  }
+
+  .border-light {
+    border-color: var(--border-light);
+  }
+
+  .border-dark {
+    border-color: var(--border-dark);
+  }
+}
+
+@layer utilities {
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+}
