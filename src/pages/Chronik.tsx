@@ -49,7 +49,6 @@ export default function Chronik() {
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    window.scrollTo(0, 0)
     if (!containerRef.current) return
 
     const ctx = gsap.context(() => {

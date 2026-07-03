@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Sun, Moon } from 'lucide-react'
 import { useTheme } from '@/context/ThemeContext'
+import { useLenisScroll } from '@/context/LenisContext'
 
 const navLinks = [
   { label: 'Training', href: '/#training' },
@@ -22,6 +23,7 @@ export default function Navigation() {
   const location = useLocation()
   const isHome = location.pathname === '/'
   const { theme, toggleTheme } = useTheme()
+  const { scrollTo } = useLenisScroll()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -43,7 +45,7 @@ export default function Navigation() {
     const id = href.replace('/#', '')
     const el = document.getElementById(id)
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth' })
+      scrollTo(el)
     }
   }
 
@@ -58,7 +60,7 @@ export default function Navigation() {
     setMobileOpen(false)
     if (isHome) {
       e.preventDefault()
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      scrollTo(0)
     }
   }
 

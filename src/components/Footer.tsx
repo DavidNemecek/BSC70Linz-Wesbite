@@ -1,24 +1,26 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useTheme } from '@/context/ThemeContext'
+import { useLenisScroll } from '@/context/LenisContext'
 
 export default function Footer() {
   const { theme } = useTheme()
   const location = useLocation()
   const isHome = location.pathname === '/'
+  const { scrollTo } = useLenisScroll()
 
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href.startsWith('/#')) {
       e.preventDefault()
       const id = href.replace('/#', '')
       const el = document.getElementById(id)
-      if (el) el.scrollIntoView({ behavior: 'smooth' })
+      if (el) scrollTo(el)
     }
   }
 
   const handleLogoClick = (e: React.MouseEvent) => {
     if (isHome) {
       e.preventDefault()
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      scrollTo(0)
     }
   }
 
