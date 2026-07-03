@@ -36,6 +36,7 @@ export default function Footer() {
                 { label: 'Teams', href: '/#teams' },
                 { label: 'Vorstand', href: '/#vorstand' },
                 { label: 'Mitgliedschaft', href: '/#mitgliedschaft' },
+                { label: 'Sponsoren', href: '/#sponsoren' },
                 { label: 'Kontakt', href: '/#kontakt' },
               ].map((link) => (
                 <li key={link.href}>

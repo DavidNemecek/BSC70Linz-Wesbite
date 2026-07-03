@@ -9,11 +9,8 @@ const navLinks = [
   { label: 'Teams', href: '/#teams' },
   { label: 'Vorstand', href: '/#vorstand' },
   { label: 'Mitgliedschaft', href: '/#mitgliedschaft' },
+  { label: 'Sponsoren', href: '/#sponsoren' },
   { label: 'Kontakt', href: '/#kontakt' },
-]
-
-const pageLinks = [
-  { label: 'News', href: '/news' },
 ]
 
 export default function Navigation() {
@@ -80,15 +77,6 @@ export default function Navigation() {
                 {link.label}
               </a>
             ))}
-            {pageLinks.map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                className={`text-[0.8125rem] font-medium tracking-wide transition-colors duration-250 ${linkTextClass}`}
-              >
-                {link.label}
-              </Link>
-            ))}
           </div>
 
           <div className="hidden lg:flex items-center gap-3">
@@ -138,13 +126,6 @@ export default function Navigation() {
               {link.label}
             </a>
           ))}
-          <Link
-            to="/news"
-            onClick={() => setMobileOpen(false)}
-            className="text-xl sm:text-2xl font-display tracking-wide text-secondary hover:text-accent transition-colors"
-          >
-            News
-          </Link>
 
           <button
             onClick={toggleTheme}
