@@ -2,21 +2,13 @@ import { Link } from 'react-router-dom'
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
 import { ArrowRight, Calendar } from 'lucide-react'
 
-const latestNews: {
-  id: number
-  date: string
-  category: string
-  title: string
-  excerpt: string
-  image?: string
-}[] = [
+const latestNews = [
   {
     id: 1,
     date: 'Mai 2025',
     category: 'Bundesliga',
     title: 'Sensationsmeldung — Daniel-Aria Dinata im EM-Halbfinale!',
     excerpt: 'Der Teamspieler des BSC70 Linz hat bei den Europameisterschaften sensationell das Halbfinale erreicht.',
-    image: '/assets/hero-bg.jpg',
   },
   {
     id: 2,
@@ -63,31 +55,20 @@ export default function NewsPreview() {
             <article
               key={article.id}
               data-stagger-item
-              className="bg-card rounded-xl border border-theme overflow-hidden opacity-0 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(14,143,185,0.08)] transition-all duration-300"
+              className="bg-card rounded-xl border border-theme p-6 opacity-0 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(14,143,185,0.08)] transition-all duration-300"
             >
-              {article.image && (
-                <div className="h-40 overflow-hidden">
-                  <img
-                    src={article.image}
-                    alt={article.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-              <div className="p-6">
-                <div className="flex items-center gap-2 text-xs text-muted mb-3">
-                  <Calendar className="w-3.5 h-3.5" />
-                  <span>{article.date}</span>
-                  <span>·</span>
-                  <span className="text-accent">{article.category}</span>
-                </div>
-                <h3 className="text-base font-semibold text-primary mb-2 leading-snug">
-                  {article.title}
-                </h3>
-                <p className="text-sm text-muted leading-relaxed">
-                  {article.excerpt}
-                </p>
+              <div className="flex items-center gap-2 text-xs text-muted mb-3">
+                <Calendar className="w-3.5 h-3.5" />
+                <span>{article.date}</span>
+                <span>·</span>
+                <span className="text-accent">{article.category}</span>
               </div>
+              <h3 className="text-base font-semibold text-primary mb-2 leading-snug">
+                {article.title}
+              </h3>
+              <p className="text-sm text-muted leading-relaxed">
+                {article.excerpt}
+              </p>
             </article>
           ))}
         </div>

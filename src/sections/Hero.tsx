@@ -1,9 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
-import { useTheme } from '@/context/ThemeContext'
 
 export default function Hero() {
-  const { theme } = useTheme()
   const overlineRef = useRef<HTMLSpanElement>(null)
   const headlineRef = useRef<HTMLHeadingElement>(null)
   const subRef = useRef<HTMLParagraphElement>(null)
@@ -18,10 +16,6 @@ export default function Hero() {
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
-
-    const bgColor = theme === 'dark' ? '#0B0C0F' : '#F0F1F5'
-    const baseAlpha = theme === 'dark' ? 0.03 : 0.09
-    const alphaRange = theme === 'dark' ? 0.02 : 0.05
 
     let animId: number
     let time = 0
@@ -44,8 +38,7 @@ export default function Hero() {
       const w = canvas.width
       const h = canvas.height
 
-      ctx.fillStyle = bgColor
-      ctx.fillRect(0, 0, w, h)
+      ctx.clearRect(0, 0, w, h)
 
       const mx = mouseRef.current.x
       const my = mouseRef.current.y
@@ -63,7 +56,7 @@ export default function Hero() {
         const y = baseY + (dy / (dist + 1)) * influence
 
         const size = 1 + Math.sin(i + time * 2) * 0.5
-        const alpha = baseAlpha + Math.sin(i * 0.5 + time) * alphaRange
+        const alpha = 0.15 + Math.sin(i * 0.5 + time) * 0.1
 
         ctx.beginPath()
         ctx.arc(x, y, size, 0, Math.PI * 2)
@@ -80,7 +73,7 @@ export default function Hero() {
       window.removeEventListener('resize', resize)
       window.removeEventListener('mousemove', handleMouse)
     }
-  }, [theme])
+  }, [])
 
   useEffect(() => {
     const tl = gsap.timeline({ delay: 0.3 })
@@ -110,11 +103,21 @@ export default function Hero() {
   }, [])
 
   return (
-    <section className="relative w-full min-h-[100dvh] flex items-center overflow-hidden">
+    <section className="relative w-full min-h-[100dvh] flex items-center overflow-hidden bg-[#0B0C0F]">
+      <img
+        src="/assets/hero-bg.jpg"
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{ zIndex: 0 }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{ zIndex: 1, background: 'linear-gradient(100deg, rgba(11,12,15,0.92) 0%, rgba(11,12,15,0.78) 40%, rgba(11,12,15,0.55) 70%, rgba(11,12,15,0.4) 100%)' }}
+      />
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full"
-        style={{ zIndex: 0 }}
+        style={{ zIndex: 2 }}
       />
 
       <div className="relative z-10 w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10">
@@ -125,7 +128,7 @@ export default function Hero() {
           ASKÖ BSC 70 LINZ
         </span>
 
-        <h1 ref={headlineRef} className="font-display text-primary leading-[0.95]">
+        <h1 ref={headlineRef} className="font-display text-white leading-[0.95]">
           <span className="word block text-[clamp(3rem,18vw,9rem)] tracking-[0.02em] opacity-0">SCHLÄGE</span>
           <span className="word block text-[clamp(3rem,18vw,9rem)] tracking-[0.08em] opacity-0">MIT</span>
           <span className="word block text-[clamp(3rem,18vw,9rem)] tracking-[0.02em] opacity-0">TRADITION</span>
@@ -133,7 +136,7 @@ export default function Hero() {
 
         <p
           ref={subRef}
-          className="mt-8 text-base text-secondary max-w-[480px] leading-relaxed opacity-0"
+          className="mt-8 text-base text-white/70 max-w-[480px] leading-relaxed opacity-0"
         >
           Badminton in Linz seit 1970. Einer der erfolgreichsten Badmintonvereine Österreichs — vom Nachwuchs bis zur Spitze.
         </p>
@@ -149,10 +152,10 @@ export default function Hero() {
 
       <div
         ref={indicatorRef}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0 z-10"
       >
-        <span className="text-[0.625rem] uppercase tracking-[0.15em] text-dim">Scroll</span>
-        <div className="w-px h-10 bg-[var(--text-dim)] animate-scroll-bounce" />
+        <span className="text-[0.625rem] uppercase tracking-[0.15em] text-white/30">Scroll</span>
+        <div className="w-px h-10 bg-white/30 animate-scroll-bounce" />
       </div>
     </section>
   )

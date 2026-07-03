@@ -47,8 +47,12 @@ export default function Navigation() {
     }
   }
 
-  const opaque = scrolled || !isHome
-  const navBgClass = opaque ? 'bg-nav backdrop-blur-xl shadow-sm' : 'bg-transparent'
+  const opaque = scrolled || !isHome || mobileOpen
+  const navBgClass = (scrolled || !isHome) ? 'bg-nav backdrop-blur-xl shadow-sm' : 'bg-transparent'
+  const logoTextClass = opaque ? 'text-primary' : 'text-white'
+  const linkTextClass = opaque
+    ? 'text-secondary hover:text-primary'
+    : 'text-white/70 hover:text-white'
 
   return (
     <>
@@ -61,7 +65,7 @@ export default function Navigation() {
             onClick={() => setMobileOpen(false)}
             className="font-display text-xl sm:text-2xl tracking-wide z-[101]"
           >
-            <span className="text-primary">BSC 70</span>
+            <span className={logoTextClass}>BSC 70</span>
             <span className="text-gradient ml-1">LINZ</span>
           </Link>
 
@@ -71,7 +75,7 @@ export default function Navigation() {
                 key={link.href}
                 href={link.href}
                 onClick={(e) => handleAnchorClick(e, link.href)}
-                className="text-[0.8125rem] font-medium tracking-wide transition-colors duration-250 text-secondary hover:text-primary"
+                className={`text-[0.8125rem] font-medium tracking-wide transition-colors duration-250 ${linkTextClass}`}
               >
                 {link.label}
               </a>
@@ -80,7 +84,7 @@ export default function Navigation() {
               <Link
                 key={link.href}
                 to={link.href}
-                className="text-[0.8125rem] font-medium tracking-wide transition-colors duration-250 text-secondary hover:text-primary"
+                className={`text-[0.8125rem] font-medium tracking-wide transition-colors duration-250 ${linkTextClass}`}
               >
                 {link.label}
               </Link>
@@ -91,7 +95,9 @@ export default function Navigation() {
             <button
               onClick={toggleTheme}
               aria-label="Toggle theme"
-              className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 text-secondary hover:text-primary hover:bg-[var(--border-color)]"
+              className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 ${
+                opaque ? 'text-secondary hover:text-primary hover:bg-[var(--border-color)]' : 'text-white/70 hover:text-white hover:bg-white/10'
+              }`}
             >
               {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
@@ -108,9 +114,9 @@ export default function Navigation() {
             className="lg:hidden flex flex-col gap-1.5 p-2 z-[101]"
             aria-label="Menu"
           >
-            <span className={`block w-6 h-0.5 bg-[var(--text-primary)] transition-all duration-300 ${mobileOpen ? 'rotate-45 translate-y-2' : ''}`} />
-            <span className={`block w-6 h-0.5 bg-[var(--text-primary)] transition-all duration-300 ${mobileOpen ? 'opacity-0' : ''}`} />
-            <span className={`block w-6 h-0.5 bg-[var(--text-primary)] transition-all duration-300 ${mobileOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+            <span className={`block w-6 h-0.5 transition-all duration-300 ${opaque ? 'bg-[var(--text-primary)]' : 'bg-white'} ${mobileOpen ? 'rotate-45 translate-y-2' : ''}`} />
+            <span className={`block w-6 h-0.5 transition-all duration-300 ${opaque ? 'bg-[var(--text-primary)]' : 'bg-white'} ${mobileOpen ? 'opacity-0' : ''}`} />
+            <span className={`block w-6 h-0.5 transition-all duration-300 ${opaque ? 'bg-[var(--text-primary)]' : 'bg-white'} ${mobileOpen ? '-rotate-45 -translate-y-2' : ''}`} />
           </button>
         </div>
       </nav>

@@ -9,11 +9,14 @@ export default function Contact() {
       <div ref={ref} className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           <div data-animate className="opacity-0 order-2 lg:order-1">
-            <div className="overflow-hidden rounded-lg">
+            <div
+              className="aspect-[4/5] overflow-hidden rounded-lg border border-theme"
+              style={{ boxShadow: '0 20px 60px -20px var(--accent-glow-strong)' }}
+            >
               <img
                 src="/assets/shuttlecock-close.jpg"
                 alt="Shuttlecock"
-                className="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-700"
+                className="w-full h-full object-cover object-[center_62%] hover:scale-[1.04] transition-transform duration-700"
               />
             </div>
           </div>
