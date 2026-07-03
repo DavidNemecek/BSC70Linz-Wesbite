@@ -129,7 +129,7 @@ export default function Hero() {
         </span>
 
         <h1 ref={headlineRef} className="font-display text-white leading-[0.95]">
-          <span className="word block text-[clamp(3rem,18vw,9rem)] tracking-[0.02em] opacity-0">SCHLÄGE</span>
+          <span className="word block text-[clamp(3rem,18vw,9rem)] tracking-[0.02em] opacity-0">BADMINTON</span>
           <span className="word block text-[clamp(3rem,18vw,9rem)] tracking-[0.08em] opacity-0">MIT</span>
           <span className="word block text-[clamp(3rem,18vw,9rem)] tracking-[0.02em] opacity-0">TRADITION</span>
         </h1>
