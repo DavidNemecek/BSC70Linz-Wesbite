@@ -55,6 +55,11 @@ export default function Footer() {
                   </a>
                 </li>
               ))}
+              <li>
+                <Link to="/chronik" className="text-sm text-secondary hover:text-primary transition-colors duration-200">
+                  Chronik
+                </Link>
+              </li>
             </ul>
           </div>
 

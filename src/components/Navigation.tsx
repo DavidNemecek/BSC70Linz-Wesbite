@@ -13,6 +13,10 @@ const navLinks = [
   { label: 'Sponsoren', href: '/#sponsoren' },
 ]
 
+const pageLinks = [
+  { label: 'Chronik', href: '/chronik' },
+]
+
 export default function Navigation() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -80,6 +84,15 @@ export default function Navigation() {
                 {link.label}
               </a>
             ))}
+            {pageLinks.map((link) => (
+              <Link
+                key={link.href}
+                to={link.href}
+                className={`text-[0.8125rem] font-medium tracking-wide transition-colors duration-250 ${linkTextClass}`}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
 
           <div className="hidden lg:flex items-center gap-3">
@@ -128,6 +141,16 @@ export default function Navigation() {
             >
               {link.label}
             </a>
+          ))}
+          {pageLinks.map((link) => (
+            <Link
+              key={link.href}
+              to={link.href}
+              onClick={() => setMobileOpen(false)}
+              className="text-xl sm:text-2xl font-display tracking-wide text-secondary hover:text-accent transition-colors"
+            >
+              {link.label}
+            </Link>
           ))}
 
           <button
