@@ -9,9 +9,10 @@ export default function Layout() {
   const location = useLocation()
 
   useEffect(() => {
-    window.scrollTo(0, 0)
     if (lenisRef.current) {
-      lenisRef.current.scrollTo(0, { immediate: true })
+      lenisRef.current.scrollTo(0, { immediate: false })
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }, [location.pathname, lenisRef])
 
