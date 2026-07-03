@@ -8,16 +8,17 @@ export default function Contact() {
     <section id="kontakt" className="bg-surface py-16 sm:py-20 lg:py-32">
       <div ref={ref} className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          <div data-animate className="opacity-0 order-2 lg:order-1 flex justify-center">
-            <img
-              src="/assets/shuttlecock-close.jpg"
-              alt="Shuttlecock"
-              className="w-full max-w-[420px] aspect-[4/5] object-cover object-[center_62%] hover:scale-[1.03] transition-transform duration-700"
-              style={{
-                maskImage: 'radial-gradient(ellipse 62% 58% at center, black 45%, transparent 88%)',
-                WebkitMaskImage: 'radial-gradient(ellipse 62% 58% at center, black 45%, transparent 88%)',
-              }}
-            />
+          <div data-animate className="opacity-0 order-2 lg:order-1">
+            <div
+              className="aspect-[4/5] overflow-hidden rounded-lg border border-theme"
+              style={{ boxShadow: '0 20px 60px -20px var(--accent-glow-strong)' }}
+            >
+              <img
+                src="/assets/shuttlecock-close.jpg"
+                alt="Shuttlecock"
+                className="w-full h-full object-cover object-[center_62%] hover:scale-[1.04] transition-transform duration-700"
+              />
+            </div>
           </div>
 
           <div className="order-1 lg:order-2 text-center lg:text-left">
