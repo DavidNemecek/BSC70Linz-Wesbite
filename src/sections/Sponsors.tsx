@@ -1,8 +1,8 @@
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
 
 const sponsors = [
-  { name: 'LINZ AG', logo: '/assets/sponsor-linzag.png' },
-  { name: 'Magnus Packaging', logo: '/assets/sponsor-magnus-packaging.jpg' },
+  { name: 'LINZ AG', logo: '/assets/sponsor-linzag.png', url: 'https://www.linzag.at' },
+  { name: 'Magnus Packaging', logo: '/assets/sponsor-magnus-packaging.jpg', url: 'https://www.magnus.at' },
 ]
 
 export default function Sponsors() {
@@ -21,8 +21,11 @@ export default function Sponsors() {
 
         <div data-stagger className="flex flex-wrap items-center justify-center gap-6">
           {sponsors.map((sponsor, i) => (
-            <div
+            <a
               key={i}
+              href={sponsor.url}
+              target="_blank"
+              rel="noopener noreferrer"
               data-stagger-item
               className="bg-white rounded-lg border border-theme h-24 w-full max-w-[220px] px-6 flex items-center justify-center opacity-0 hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
             >
@@ -31,7 +34,7 @@ export default function Sponsors() {
                 alt={sponsor.name}
                 className="max-h-10 sm:max-h-12 w-auto object-contain"
               />
-            </div>
+            </a>
           ))}
         </div>
       </div>
