@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom'
+import { useTheme } from '@/context/ThemeContext'
 
 export default function Footer() {
+  const { theme } = useTheme()
+
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href.startsWith('/#')) {
       e.preventDefault()
@@ -16,9 +19,11 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
           <div>
             <Link to="/" className="inline-flex items-center">
-              <div className="bg-white rounded-lg px-2.5 py-1.5 flex items-center">
-                <img src="/assets/bsc-logo.jpg" alt="BSC 70 Linz" className="h-8 w-auto object-contain" />
-              </div>
+              <img
+                src={theme === 'dark' ? '/assets/bsc-logo-dark-themepng.png' : '/assets/bsc-logo-light.png'}
+                alt="BSC 70 Linz"
+                className="h-10 w-auto object-contain"
+              />
             </Link>
             <p className="mt-3 text-sm text-muted">Badminton seit 1970</p>
             <p className="mt-4 text-sm text-dim leading-relaxed">

@@ -1,7 +1,7 @@
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
 
 const sponsors = [
-  { name: 'ebcont', logo: '/assets/sponsor-ebcont.jpg' },
+  { name: 'LINZ AG', logo: '/assets/sponsor-linzag.png' },
   { name: 'Magnus Packaging', logo: '/assets/sponsor-magnus-packaging.jpg' },
 ]
 

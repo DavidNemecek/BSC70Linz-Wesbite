@@ -49,6 +49,7 @@ export default function Navigation() {
   const linkTextClass = opaque
     ? 'text-secondary hover:text-primary'
     : 'text-white/70 hover:text-white'
+  const logoIsDark = !opaque || theme === 'dark'
 
   return (
     <>
@@ -61,9 +62,11 @@ export default function Navigation() {
             onClick={() => setMobileOpen(false)}
             className="z-[101] flex items-center"
           >
-            <div className="bg-white rounded-lg px-2.5 py-1.5 flex items-center shadow-sm">
-              <img src="/assets/bsc-logo.jpg" alt="BSC 70 Linz" className="h-7 sm:h-8 w-auto object-contain" />
-            </div>
+            <img
+              src={logoIsDark ? '/assets/bsc-logo-dark-themepng.png' : '/assets/bsc-logo-light.png'}
+              alt="BSC 70 Linz"
+              className="h-9 sm:h-10 w-auto object-contain"
+            />
           </Link>
 
           <div className="hidden lg:flex items-center gap-6">
