@@ -101,22 +101,31 @@ export default function News() {
         {/* Featured Article */}
         {featuredNews && (
           <div data-animate className="mb-12 opacity-0">
-            <div className="bg-card rounded-xl border border-theme p-6 sm:p-10">
-              <span className="inline-block text-xs font-medium uppercase tracking-[0.05em] bg-accent-gradient text-white rounded-full px-3 py-1 mb-4">
-                Top Story
-              </span>
-              <div className="flex items-center gap-3 text-sm text-muted mb-4">
-                <Calendar className="w-4 h-4" />
-                <span>{featuredNews.date}</span>
-                <span className="text-dim">·</span>
-                <span className="text-accent">{featuredNews.category}</span>
+            <div className="bg-card rounded-xl border border-theme overflow-hidden">
+              <div className="h-56 sm:h-72 lg:h-80 overflow-hidden">
+                <img
+                  src="/assets/hero-bg.jpg"
+                  alt={featuredNews.title}
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-primary mb-4 leading-tight">
-                {featuredNews.title}
-              </h2>
-              <p className="text-base text-secondary leading-relaxed max-w-[800px]">
-                {featuredNews.excerpt}
-              </p>
+              <div className="p-6 sm:p-10">
+                <span className="inline-block text-xs font-medium uppercase tracking-[0.05em] bg-accent-gradient text-white rounded-full px-3 py-1 mb-4">
+                  Top Story
+                </span>
+                <div className="flex items-center gap-3 text-sm text-muted mb-4">
+                  <Calendar className="w-4 h-4" />
+                  <span>{featuredNews.date}</span>
+                  <span className="text-dim">·</span>
+                  <span className="text-accent">{featuredNews.category}</span>
+                </div>
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-primary mb-4 leading-tight">
+                  {featuredNews.title}
+                </h2>
+                <p className="text-base text-secondary leading-relaxed max-w-[800px]">
+                  {featuredNews.excerpt}
+                </p>
+              </div>
             </div>
           </div>
         )}

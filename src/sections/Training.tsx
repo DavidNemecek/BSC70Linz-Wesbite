@@ -14,11 +14,13 @@ const locations = [
     title: 'AHS Solar City',
     detail: 'Große Halle – 8 Spielfelder',
     address: 'Heliosallee 140–142, 4030 Linz',
+    image: '/assets/Hall_Solarcity.jpg',
   },
   {
     title: 'Europagymnasium Auhof',
     detail: 'Große Halle (Halle 2+3) – 6 Spielfelder',
     address: 'Aubrunnerweg 4, 4040 Linz',
+    image: '/assets/Hall_Auhof.jpg',
   },
 ]
 
@@ -73,16 +75,25 @@ export default function Training() {
               <div
                 key={i}
                 data-stagger-item
-                className="bg-card rounded-lg border border-theme p-5 sm:p-6 opacity-0 hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
+                className="bg-card rounded-lg border border-theme overflow-hidden opacity-0 hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
               >
-                {loc.label && (
-                  <span className="inline-block text-xs font-medium uppercase tracking-[0.05em] bg-accent-glow text-accent rounded-full px-3 py-1 mb-3">
-                    {loc.label}
-                  </span>
-                )}
-                <h3 className="text-lg font-semibold text-primary tracking-tight mb-1">{loc.title}</h3>
-                <p className="text-sm text-primary mb-1">{loc.detail}</p>
-                <p className="text-sm text-muted">{loc.address}</p>
+                <div className="h-36 overflow-hidden">
+                  <img
+                    src={loc.image}
+                    alt={loc.title}
+                    className="w-full h-full object-cover hover:scale-[1.04] transition-transform duration-700"
+                  />
+                </div>
+                <div className="p-5 sm:p-6">
+                  {loc.label && (
+                    <span className="inline-block text-xs font-medium uppercase tracking-[0.05em] bg-accent-glow text-accent rounded-full px-3 py-1 mb-3">
+                      {loc.label}
+                    </span>
+                  )}
+                  <h3 className="text-lg font-semibold text-primary tracking-tight mb-1">{loc.title}</h3>
+                  <p className="text-sm text-primary mb-1">{loc.detail}</p>
+                  <p className="text-sm text-muted">{loc.address}</p>
+                </div>
               </div>
             ))}
           </div>
