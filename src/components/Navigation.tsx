@@ -46,7 +46,6 @@ export default function Navigation() {
 
   const opaque = scrolled || !isHome || mobileOpen
   const navBgClass = (scrolled || !isHome) ? 'bg-nav backdrop-blur-xl shadow-sm' : 'bg-transparent'
-  const logoTextClass = opaque ? 'text-primary' : 'text-white'
   const linkTextClass = opaque
     ? 'text-secondary hover:text-primary'
     : 'text-white/70 hover:text-white'
@@ -60,10 +59,11 @@ export default function Navigation() {
           <Link
             to="/"
             onClick={() => setMobileOpen(false)}
-            className="font-display text-xl sm:text-2xl tracking-wide z-[101]"
+            className="z-[101] flex items-center"
           >
-            <span className={logoTextClass}>BSC 70</span>
-            <span className="text-gradient ml-1">LINZ</span>
+            <div className="bg-white rounded-lg px-2.5 py-1.5 flex items-center shadow-sm">
+              <img src="/assets/bsc-logo.jpg" alt="BSC 70 Linz" className="h-7 sm:h-8 w-auto object-contain" />
+            </div>
           </Link>
 
           <div className="hidden lg:flex items-center gap-6">

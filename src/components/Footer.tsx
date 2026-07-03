@@ -15,9 +15,10 @@ export default function Footer() {
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10 py-12 lg:py-20">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
           <div>
-            <Link to="/" className="font-display text-2xl tracking-wide inline-block">
-              <span className="text-primary">BSC 70</span>
-              <span className="text-gradient ml-1">LINZ</span>
+            <Link to="/" className="inline-flex items-center">
+              <div className="bg-white rounded-lg px-2.5 py-1.5 flex items-center">
+                <img src="/assets/bsc-logo.jpg" alt="BSC 70 Linz" className="h-8 w-auto object-contain" />
+              </div>
             </Link>
             <p className="mt-3 text-sm text-muted">Badminton seit 1970</p>
             <p className="mt-4 text-sm text-dim leading-relaxed">
