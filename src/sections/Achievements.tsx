@@ -33,22 +33,26 @@ export default function Achievements() {
           ERFOLGE
         </span>
 
-        <h2 data-animate className="text-[clamp(1.5rem,3vw,2.8rem)] font-semibold tracking-tight text-primary leading-[1.15] mb-8 lg:mb-10 opacity-0">
+        <h2 data-animate className="font-display text-[clamp(2rem,5vw,4rem)] tracking-[0.02em] text-primary leading-[1.05] mb-8 lg:mb-10 opacity-0">
           Meister auf allen Ebenen
         </h2>
 
-        <div data-stagger className="flex gap-4 sm:gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none -mx-4 sm:-mx-6 lg:mx-0 px-4 sm:px-6 lg:px-0">
+        <div data-stagger className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {achievements.map((a, i) => (
             <div
               key={i}
               data-stagger-item
-              className="min-w-[260px] sm:min-w-[280px] flex-shrink-0 bg-card rounded-lg border border-theme p-6 sm:p-8 opacity-0 snap-start hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all duration-300"
+              className="relative bg-card rounded-lg border border-theme p-5 sm:p-8 opacity-0 hover:-translate-y-1 hover:border-[var(--border-hover)] hover:shadow-[0_8px_30px_rgba(14,143,185,0.1)] transition-all duration-300 overflow-hidden"
             >
-              <div className="text-[clamp(2rem,5vw,4rem)] font-bold text-accent leading-none mb-3">
+              <div
+                className="absolute -top-6 -right-6 w-24 h-24 rounded-full"
+                style={{ backgroundColor: 'var(--accent-glow)' }}
+              />
+              <div className="relative text-[clamp(1.75rem,4vw,3rem)] font-bold text-accent leading-none mb-3">
                 {a.number}
               </div>
-              <h3 className="text-lg font-semibold text-primary mb-2">{a.title}</h3>
-              <p className="text-sm text-muted leading-relaxed">{a.description}</p>
+              <h3 className="relative text-base sm:text-lg font-semibold text-primary mb-2 break-words">{a.title}</h3>
+              <p className="relative text-xs sm:text-sm text-muted leading-relaxed break-words">{a.description}</p>
             </div>
           ))}
         </div>
