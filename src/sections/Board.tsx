@@ -15,13 +15,13 @@ export default function Board() {
   const ref = useScrollAnimation();
 
   return (
-    <section id="vorstand" className="bg-paper py-20 lg:py-32">
+    <section id="vorstand" className="bg-surface py-20 lg:py-32">
       <div ref={ref} className="max-w-[1280px] mx-auto px-6 lg:px-10">
-        <span data-animate className="inline-block text-xs font-medium uppercase tracking-[0.15em] text-ember mb-4 opacity-0">
+        <span data-animate className="inline-block text-xs font-medium uppercase tracking-[0.15em] text-accent mb-4 opacity-0">
           VORSTAND
         </span>
 
-        <h2 data-animate className="font-display text-[clamp(3rem,7vw,5.5rem)] tracking-[0.02em] text-ink leading-[1.05] mb-12 opacity-0">
+        <h2 data-animate className="font-display text-[clamp(3rem,7vw,5.5rem)] tracking-[0.02em] text-primary leading-[1.05] mb-12 opacity-0">
           Unser Vorstand
         </h2>
 
@@ -30,19 +30,19 @@ export default function Board() {
             <div
               key={i}
               data-stagger-item
-              className="bg-frost rounded-lg p-6 opacity-0 hover:-translate-y-0.5 hover:bg-[#E0E1DC] transition-all duration-300"
+              className="bg-card rounded-lg p-6 opacity-0 hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 border border-theme"
             >
               <div className="flex items-start gap-4">
-                <div className="w-14 h-14 rounded-full bg-[rgba(232,80,44,0.15)] flex items-center justify-center flex-shrink-0">
-                  <span className="text-ember font-semibold text-lg">{member.initials}</span>
+                <div className="w-14 h-14 rounded-full bg-accent-glow flex items-center justify-center flex-shrink-0">
+                  <span className="text-accent font-semibold text-lg">{member.initials}</span>
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold text-ink tracking-tight">{member.name}</h3>
-                  <p className="text-sm text-slate mt-0.5">{member.role}</p>
+                  <h3 className="text-base font-semibold text-primary tracking-tight">{member.name}</h3>
+                  <p className="text-sm text-muted mt-0.5">{member.role}</p>
                   {member.phone && (
                     <a
                       href={`tel:${member.phone.replace(/\s/g, '')}`}
-                      className="text-sm text-ember hover:underline mt-1 inline-block"
+                      className="text-sm text-accent hover:underline mt-1 inline-block"
                     >
                       {member.phone}
                     </a>
