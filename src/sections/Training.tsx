@@ -1,4 +1,5 @@
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
+import { Clock, Users, MapPin } from 'lucide-react'
 
 const schedule = [
   { day: 'Dienstag', time: '17:00 – 19:00', group: 'Nachwuchstraining', location: 'AHS Solar City' },
@@ -40,33 +41,55 @@ export default function Training() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-10 lg:gap-12">
           <div data-stagger className="min-w-0">
-            <div className="overflow-x-auto -mx-4 sm:-mx-6 lg:mx-0 px-4 sm:px-6 lg:px-0">
-              <div className="min-w-[600px] lg:min-w-0 rounded-lg border border-theme overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr style={{ backgroundColor: 'var(--accent-dark)' }} className="text-white">
-                      <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium uppercase tracking-[0.05em]">Tag</th>
-                      <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium uppercase tracking-[0.05em]">Zeit</th>
-                      <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium uppercase tracking-[0.05em]">Gruppe</th>
-                      <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium uppercase tracking-[0.05em]">Ort</th>
+            {/* Mobile: stacked cards */}
+            <div className="lg:hidden space-y-3">
+              {schedule.map((row, i) => (
+                <div
+                  key={i}
+                  data-stagger-item
+                  className="bg-card rounded-xl border border-theme p-5 opacity-0"
+                >
+                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-accent mb-3">
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>{row.day} · {row.time}</span>
+                  </div>
+                  <div className="flex items-start gap-2 mb-1.5">
+                    <Users className="w-4 h-4 text-muted mt-0.5 flex-shrink-0" />
+                    <span className="text-sm font-medium text-primary">{row.group}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <MapPin className="w-4 h-4 text-muted mt-0.5 flex-shrink-0" />
+                    <span className="text-sm text-muted">{row.location}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop: table */}
+            <div data-animate className="hidden lg:block rounded-lg border border-theme overflow-hidden opacity-0">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr style={{ backgroundColor: 'var(--accent-dark)' }} className="text-white">
+                    <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium uppercase tracking-[0.05em]">Tag</th>
+                    <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium uppercase tracking-[0.05em]">Zeit</th>
+                    <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium uppercase tracking-[0.05em]">Gruppe</th>
+                    <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium uppercase tracking-[0.05em]">Ort</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {schedule.map((row, i) => (
+                    <tr
+                      key={i}
+                      className={i % 2 === 0 ? 'bg-card' : 'bg-card-alt'}
+                    >
+                      <td className="px-4 sm:px-5 py-3.5 font-medium text-primary whitespace-nowrap">{row.day}</td>
+                      <td className="px-4 sm:px-5 py-3.5 text-primary whitespace-nowrap">{row.time}</td>
+                      <td className="px-4 sm:px-5 py-3.5 text-primary">{row.group}</td>
+                      <td className="px-4 sm:px-5 py-3.5 text-muted whitespace-nowrap">{row.location}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {schedule.map((row, i) => (
-                      <tr
-                        key={i}
-                        data-stagger-item
-                        className={`opacity-0 ${i % 2 === 0 ? 'bg-card' : 'bg-card-alt'}`}
-                      >
-                        <td className="px-4 sm:px-5 py-3.5 font-medium text-primary whitespace-nowrap">{row.day}</td>
-                        <td className="px-4 sm:px-5 py-3.5 text-primary whitespace-nowrap">{row.time}</td>
-                        <td className="px-4 sm:px-5 py-3.5 text-primary">{row.group}</td>
-                        <td className="px-4 sm:px-5 py-3.5 text-muted whitespace-nowrap">{row.location}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
 

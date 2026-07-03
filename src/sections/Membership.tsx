@@ -35,33 +35,21 @@ export default function Membership() {
           Bei uns ist jeder willkommen — vom Anfänger bis zum erfahrenen Spieler. Wir bieten faire Beiträge, professionelle Betreuung und eine tolle Gemeinschaft.
         </p>
 
-        <div data-stagger className="mb-10 lg:mb-12 -mx-4 sm:-mx-6 lg:mx-0 px-4 sm:px-6 lg:px-0">
-          <div className="overflow-x-auto">
-            <div className="min-w-[500px] lg:min-w-0">
-              <div className="overflow-hidden rounded-lg border border-theme">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-theme">
-                      <th className="text-left px-4 sm:px-6 py-4 text-xs font-medium uppercase tracking-[0.05em] text-accent">Mitgliedschaft</th>
-                      <th className="text-right px-4 sm:px-6 py-4 text-xs font-medium uppercase tracking-[0.05em] text-accent">Jahresbeitrag</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {fees.map((fee, i) => (
-                      <tr
-                        key={i}
-                        data-stagger-item
-                        className={`opacity-0 ${i % 2 === 0 ? 'bg-card' : ''}`}
-                      >
-                        <td className="px-4 sm:px-6 py-4 text-secondary">{fee.label}</td>
-                        <td className="px-4 sm:px-6 py-4 text-right text-base sm:text-lg font-semibold text-primary">{fee.price}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+        <div data-stagger className="mb-10 lg:mb-12 rounded-lg border border-theme overflow-hidden">
+          <div className="flex items-center justify-between gap-4 px-4 sm:px-6 py-4 border-b border-theme">
+            <span className="text-xs font-medium uppercase tracking-[0.05em] text-accent">Mitgliedschaft</span>
+            <span className="text-xs font-medium uppercase tracking-[0.05em] text-accent flex-shrink-0">Jahresbeitrag</span>
           </div>
+          {fees.map((fee, i) => (
+            <div
+              key={i}
+              data-stagger-item
+              className={`flex items-center justify-between gap-4 px-4 sm:px-6 py-4 opacity-0 ${i % 2 === 0 ? 'bg-card' : ''}`}
+            >
+              <span className="text-sm text-secondary">{fee.label}</span>
+              <span className="text-base sm:text-lg font-semibold text-primary whitespace-nowrap flex-shrink-0">{fee.price}</span>
+            </div>
+          ))}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 mb-10 lg:mb-12">
