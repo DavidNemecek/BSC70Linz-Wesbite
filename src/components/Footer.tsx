@@ -1,8 +1,10 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useTheme } from '@/context/ThemeContext'
 
 export default function Footer() {
   const { theme } = useTheme()
+  const location = useLocation()
+  const isHome = location.pathname === '/'
 
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href.startsWith('/#')) {
@@ -13,12 +15,19 @@ export default function Footer() {
     }
   }
 
+  const handleLogoClick = (e: React.MouseEvent) => {
+    if (isHome) {
+      e.preventDefault()
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
   return (
     <footer className="bg-card border-t border-theme">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10 py-12 lg:py-20">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
           <div>
-            <Link to="/" className="inline-flex items-center">
+            <Link to="/" onClick={handleLogoClick} className="inline-flex items-center">
               <img
                 src={theme === 'dark' ? '/assets/bsc-logo-dark-themepng.png' : '/assets/bsc-logo-light.png'}
                 alt="BSC 70 Linz"
@@ -37,7 +46,6 @@ export default function Footer() {
             <h4 className="text-xs font-semibold uppercase tracking-[0.15em] text-dim mb-5">Navigation</h4>
             <ul className="space-y-3">
               {[
-                { label: 'Club', href: '/#club' },
                 { label: 'Training', href: '/#training' },
                 { label: 'Teams', href: '/#teams' },
                 { label: 'Erfolge', href: '/#erfolge' },

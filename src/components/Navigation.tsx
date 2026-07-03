@@ -4,7 +4,6 @@ import { Sun, Moon } from 'lucide-react'
 import { useTheme } from '@/context/ThemeContext'
 
 const navLinks = [
-  { label: 'Club', href: '/#club' },
   { label: 'Training', href: '/#training' },
   { label: 'Teams', href: '/#teams' },
   { label: 'Erfolge', href: '/#erfolge' },
@@ -55,6 +54,14 @@ export default function Navigation() {
     : 'text-white/70 hover:text-white'
   const logoIsDark = !opaque || theme === 'dark'
 
+  const handleLogoClick = (e: React.MouseEvent) => {
+    setMobileOpen(false)
+    if (isHome) {
+      e.preventDefault()
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
   return (
     <>
       <nav
@@ -63,7 +70,7 @@ export default function Navigation() {
         <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10 flex items-center justify-between">
           <Link
             to="/"
-            onClick={() => setMobileOpen(false)}
+            onClick={handleLogoClick}
             className="z-[101] flex items-center"
           >
             <img
