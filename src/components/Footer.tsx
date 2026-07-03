@@ -40,6 +40,7 @@ export default function Footer() {
                 { label: 'Club', href: '/#club' },
                 { label: 'Training', href: '/#training' },
                 { label: 'Teams', href: '/#teams' },
+                { label: 'Erfolge', href: '/#erfolge' },
                 { label: 'Vorstand', href: '/#vorstand' },
                 { label: 'Mitgliedschaft', href: '/#mitgliedschaft' },
                 { label: 'Sponsoren', href: '/#sponsoren' },
