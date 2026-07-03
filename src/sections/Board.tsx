@@ -25,7 +25,7 @@ export default function Board() {
           Unser Vorstand
         </h2>
 
-        <div data-stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div data-stagger className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {boardMembers.map((member, i) => (
             <div
               key={i}
