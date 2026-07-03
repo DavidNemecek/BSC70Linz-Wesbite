@@ -6,7 +6,6 @@ import Achievements from '@/sections/Achievements'
 import Board from '@/sections/Board'
 import Membership from '@/sections/Membership'
 import Sponsors from '@/sections/Sponsors'
-import Contact from '@/sections/Contact'
 
 export default function Home() {
   return (
@@ -19,7 +18,6 @@ export default function Home() {
       <Board />
       <Membership />
       <Sponsors />
-      <Contact />
     </>
   )
 }

@@ -11,7 +11,6 @@ const navLinks = [
   { label: 'Vorstand', href: '/#vorstand' },
   { label: 'Mitgliedschaft', href: '/#mitgliedschaft' },
   { label: 'Sponsoren', href: '/#sponsoren' },
-  { label: 'Kontakt', href: '/#kontakt' },
 ]
 
 export default function Navigation() {
