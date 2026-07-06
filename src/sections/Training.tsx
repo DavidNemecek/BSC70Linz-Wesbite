@@ -25,19 +25,27 @@ const schedule = [
   { day: 'Freitag', time: '18:00 – 20:00', group: 'Alle Mitglieder', location: 'Europagym. Auhof' },
 ]
 
+const imageWidths = [640, 960, 1280, 1920]
+
+const imageSizes = '(min-width: 1280px) 472px, (min-width: 1024px) 370px, (min-width: 640px) calc(100vw - 48px), calc(100vw - 32px)'
+
+function srcSet(image: string, ext: string) {
+  return imageWidths.map((w) => `${image}-${w}.${ext} ${w}w`).join(', ')
+}
+
 const locations = [
   {
     label: 'Hauptstandort',
     title: 'AHS Solar City',
     detail: 'Große Halle – 8 Spielfelder',
     address: 'Heliosallee 140–142, 4030 Linz',
-    image: '/assets/Hall_Solarcity.jpg',
+    image: '/assets/Hall_Solarcity',
   },
   {
     title: 'Europagymnasium Auhof',
     detail: 'Große Halle (Halle 2+3) – 6 Spielfelder',
     address: 'Aubrunnerweg 4, 4040 Linz',
-    image: '/assets/Hall_Auhof.jpg',
+    image: '/assets/Hall_Auhof',
   },
 ]
 
@@ -126,11 +134,19 @@ export default function Training() {
                 className="bg-card rounded-lg border border-theme overflow-hidden opacity-0 hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
               >
                 <div className="aspect-[11/6] overflow-hidden">
-                  <img
-                    src={loc.image}
-                    alt={loc.title}
-                    className="w-full h-full object-cover hover:scale-[1.04] transition-transform duration-700"
-                  />
+                  <picture>
+                    <source type="image/avif" srcSet={srcSet(loc.image, 'avif')} sizes={imageSizes} />
+                    <source type="image/webp" srcSet={srcSet(loc.image, 'webp')} sizes={imageSizes} />
+                    <img
+                      src={`${loc.image}-1280.jpg`}
+                      srcSet={srcSet(loc.image, 'jpg')}
+                      sizes={imageSizes}
+                      alt={loc.title}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover hover:scale-[1.04] transition-transform duration-700"
+                    />
+                  </picture>
                 </div>
                 <div className="p-5 sm:p-6">
                   {loc.label && (
