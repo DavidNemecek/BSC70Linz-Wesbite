@@ -10,7 +10,7 @@ const infoNotes = [
 
 function ArrowBullet() {
   return (
-    <svg viewBox="0 0 24 24" className="w-4 h-4 flex-shrink-0 mt-0.5">
+    <svg viewBox="0 0 24 24" className="w-4 h-4 flex-shrink-0">
       <path d="M2 3 L16 12 L8 12 Z" fill="var(--accent-light)" />
       <path d="M2 21 L16 12 L8 12 Z" fill="var(--accent-dark)" />
     </svg>
@@ -110,7 +110,7 @@ export default function Training() {
 
             <ul data-animate className="mt-6 lg:mt-8 space-y-3 opacity-0">
               {infoNotes.map((note, i) => (
-                <li key={i} className="flex items-start gap-3 text-sm text-secondary leading-relaxed">
+                <li key={i} className="flex items-center gap-3 text-sm text-secondary leading-relaxed">
                   <ArrowBullet />
                   {note}
                 </li>
