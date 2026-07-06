@@ -6,10 +6,10 @@ import { useLenisScroll } from '@/context/LenisContext'
 
 const navLinks = [
   { label: 'Training', href: '/#training' },
-  { label: 'Teams', href: '/#teams' },
-  { label: 'Erfolge', href: '/#erfolge' },
-  { label: 'Vorstand', href: '/#vorstand' },
   { label: 'Mitgliedschaft', href: '/#mitgliedschaft' },
+  { label: 'Teams', href: '/#teams' },
+  { label: 'Vorstand', href: '/#vorstand' },
+  { label: 'Erfolge', href: '/#erfolge' },
   { label: 'Sponsoren', href: '/#sponsoren' },
 ]
 
