@@ -91,6 +91,11 @@ export default function Footer() {
                   ASKÖ
                 </a>
               </li>
+              <li>
+                <Link to="/impressum" className="text-sm text-secondary hover:text-primary transition-colors duration-200">
+                  Impressum
+                </Link>
+              </li>
             </ul>
           </div>
 

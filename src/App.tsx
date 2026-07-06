@@ -4,6 +4,7 @@ import Home from '@/pages/Home'
 import News from '@/pages/News'
 import Registration from '@/pages/Registration'
 import Chronik from '@/pages/Chronik'
+import Impressum from '@/pages/Impressum'
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
         <Route path="/news" element={<News />} />
         <Route path="/anmeldung" element={<Registration />} />
         <Route path="/chronik" element={<Chronik />} />
+        <Route path="/impressum" element={<Impressum />} />
       </Route>
     </Routes>
   )
