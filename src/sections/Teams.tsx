@@ -9,7 +9,6 @@ const teams = [
     positionLabel: 'Platz',
     points: '12',
     pointsLabel: 'Punkte',
-    result: 'Letztes Spiel: 5:3 Sieg gegen SK Vöest',
   },
   {
     badge: '2. Mannschaft',
@@ -19,7 +18,6 @@ const teams = [
     positionLabel: 'Platz',
     points: '1',
     pointsLabel: 'Punkt',
-    result: 'Letztes Spiel: 2:6 gegen UBC Neuhofen VI',
   },
 ]
 
@@ -68,11 +66,10 @@ export default function Teams() {
                   <div className="text-[clamp(2rem,5vw,4rem)] font-bold text-primary leading-none">
                     {team.points}
                   </div>
-                  <div className="text-xs uppercase tracking-[0.05em] text-muted mt-1">{team.pointsLabel}</div>
+                  <div classNameR="text-xs uppercase tracking-[0.05em] text-muted mt-1">{team.pointsLabel}</div>
                 </div>
               </div>
 
-              <p className="text-sm text-muted mt-6">{team.result}</p>
             </div>
           ))}
         </div>
