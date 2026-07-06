@@ -11,12 +11,6 @@ const fees = [
   { label: 'Kindertraining pro Semester', price: '€ 38,50' },
 ]
 
-const membershipTypes = [
-  'Aktive Mitglieder — volle Trainings- und Spielberechtigung',
-  'Unterstützende Mitglieder — fördern den Verein durch Beitrag',
-  'Ehrenmitglieder — für besondere Verdienste um den Verein',
-]
-
 export default function Membership() {
   const ref = useScrollAnimation()
 
@@ -55,27 +49,6 @@ export default function Membership() {
         <p data-animate className="text-xs text-dim mb-10 lg:mb-12 opacity-0">
           Für Turnier- und Meisterschaftsspieler wird zusätzlich die ÖBV Spielberechtigungsgebühr eingehoben.
         </p>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 mb-10 lg:mb-12">
-          <div data-animate className="opacity-0">
-            <h3 className="text-lg font-semibold text-primary mb-4">Mitgliedschaftsarten</h3>
-            <ul className="space-y-3">
-              {membershipTypes.map((type, i) => (
-                <li key={i} className="text-sm text-secondary flex items-start gap-3">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent mt-2 flex-shrink-0" />
-                  {type}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div data-animate className="opacity-0">
-            <h3 className="text-lg font-semibold text-primary mb-4">Schnuppertraining</h3>
-            <p className="text-sm text-secondary leading-relaxed">
-              Niemand kauft gerne die Katze im Sack. In allen Hallen besteht die Möglichkeit eines Schnuppertrainings. Komm vorbei und überzeuge dich selbst!
-            </p>
-          </div>
-        </div>
 
         <div data-animate className="bg-accent-gradient rounded-lg p-6 sm:p-8 lg:p-10 opacity-0">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">

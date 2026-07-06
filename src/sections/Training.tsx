@@ -4,9 +4,9 @@ import { Clock, Users, MapPin } from 'lucide-react'
 const schedule = [
   { day: 'Dienstag', time: '17:00 – 19:00', group: 'Nachwuchstraining', location: 'AHS Solar City' },
   { day: 'Dienstag', time: '19:00 – 21:30', group: 'Hobbysportler', location: 'AHS Solar City' },
-  { day: 'Donnerstag', time: '18:30 – 21:00', group: 'Bundesliga, alle Mitglieder', location: 'AHS Solar City' },
-  { day: 'Freitag', time: '18:00 – 19:30', group: 'Nachwuchstraining (ab 19 Uhr)', location: 'Europagym. Auhof' },
-  { day: 'Freitag', time: '19:00 – 20:00', group: 'Alle Mitglieder', location: 'Europagym. Auhof' },
+  { day: 'Donnerstag', time: '18:30 – 21:00', group: 'alle Mitglieder', location: 'AHS Solar City' },
+  { day: 'Freitag', time: '18:00 – 19:30', group: 'Training für Anfänger', location: 'Europagym. Auhof' },
+  { day: 'Freitag', time: '18:00 – 20:00', group: 'Alle Mitglieder', location: 'Europagym. Auhof' },
 ]
 
 const locations = [
@@ -120,6 +120,21 @@ export default function Training() {
               </div>
             ))}
           </div>
+        </div>
+
+        <div data-animate className="mt-10 lg:mt-12 max-w-[720px] space-y-4 opacity-0">
+          <p className="text-sm text-secondary leading-relaxed">
+            Wir spielen grundsätzlich nur an Schultagen. An den schulfreien Tagen (Schulferien, Feiertage, schulautonome Tage) sind die Hallen geschlossen.
+          </p>
+          <p className="text-sm text-secondary leading-relaxed">
+            Wir bieten ein Training für unsere fortgeschrittenen Nachwuchs-, Hobby- und Ligaspieler an. Badminton-Neulinge jeden Alters können die Grundlagen in unseren Basic-Trainings erlernen.
+          </p>
+          <p className="text-sm text-secondary leading-relaxed">
+            Bei unseren Trainern können auch privat individuelle (Einzel- u. Gruppen-)Trainings gebucht werden.
+          </p>
+          <p className="text-sm text-secondary leading-relaxed">
+            Niemand kauft gerne die Katze im Sack! Nutze die Möglichkeit von bis zu drei Schnuppertrainings zu allen Hallenterminen nach vorheriger Anmeldung. Komm vorbei und überzeuge dich selbst!
+          </p>
         </div>
       </div>
     </section>
