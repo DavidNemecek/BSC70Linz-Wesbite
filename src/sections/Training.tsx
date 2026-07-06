@@ -125,7 +125,7 @@ export default function Training() {
                 data-stagger-item
                 className="bg-card rounded-lg border border-theme overflow-hidden opacity-0 hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
               >
-                <div className="aspect-[5/3] overflow-hidden">
+                <div className="aspect-[11/6] overflow-hidden">
                   <img
                     src={loc.image}
                     alt={loc.title}
