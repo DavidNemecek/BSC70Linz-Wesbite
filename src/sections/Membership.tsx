@@ -32,10 +32,10 @@ export default function Membership() {
         </h2>
 
         <p data-animate className="text-base text-secondary leading-relaxed max-w-[600px] mb-10 lg:mb-12 opacity-0">
-          Bei uns ist jeder willkommen — vom Anfänger bis zum erfahrenen Spieler. Wir bieten faire Beiträge, professionelle Betreuung und eine tolle Gemeinschaft.
+          Bei uns ist jeder willkommen, wir machen für jeden Platz — vom Schüler bis zum Senior und vom Anfänger bis zum erfahrenen Spieler.
         </p>
 
-        <div data-stagger className="mb-10 lg:mb-12 rounded-lg border border-theme overflow-hidden">
+        <div data-stagger className="mb-4 rounded-lg border border-theme overflow-hidden">
           <div className="flex items-center justify-between gap-4 px-4 sm:px-6 py-4 border-b border-theme">
             <span className="text-xs font-medium uppercase tracking-[0.05em] text-accent">Mitgliedschaft</span>
             <span className="text-xs font-medium uppercase tracking-[0.05em] text-accent flex-shrink-0">Jahresbeitrag</span>
@@ -51,6 +51,10 @@ export default function Membership() {
             </div>
           ))}
         </div>
+
+        <p data-animate className="text-xs text-dim mb-10 lg:mb-12 opacity-0">
+          Für Turnier- und Meisterschaftsspieler wird zusätzlich die ÖBV Spielberechtigungsgebühr eingehoben.
+        </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 mb-10 lg:mb-12">
           <div data-animate className="opacity-0">
