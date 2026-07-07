@@ -2,7 +2,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ArrowRight, MapPin, Navigation as NavigationIcon, Image as ImageIcon, PlayCircle } from 'lucide-react'
+import { ArrowRight, MapPin, Navigation as NavigationIcon, PlayCircle } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 import { hallDirections, type HallId } from '@/data/hallDirections'
 
@@ -80,9 +80,14 @@ export default function Anfahrt() {
 
         <div data-animate className="bg-card rounded-xl border border-theme p-6 sm:p-8 opacity-0 mb-8">
           <h2 className="text-lg font-semibold text-primary mb-4">{t.anfahrt.photoHeading}</h2>
-          <div className="aspect-[4/3] rounded-lg border border-dashed border-theme flex flex-col items-center justify-center gap-3 text-dim">
-            <ImageIcon className="w-8 h-8" />
-            <span className="text-sm">{t.anfahrt.photoComingSoon}</span>
+          <div className="rounded-lg border border-theme overflow-hidden">
+            <img
+              src={directions.overviewImage}
+              alt={t.anfahrt.photoHeading}
+              loading="lazy"
+              decoding="async"
+              className="w-full h-auto object-contain"
+            />
           </div>
         </div>
 
