@@ -1,5 +1,6 @@
+import { Link } from 'react-router-dom'
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
-import { Clock, Users, MapPin } from 'lucide-react'
+import { Clock, Users, MapPin, ArrowRight } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 
 function ArrowBullet() {
@@ -128,7 +129,14 @@ export default function Training() {
                   )}
                   <h3 className="text-lg font-semibold text-primary tracking-tight mb-1">{loc.title}</h3>
                   <p className="text-sm text-primary mb-1">{loc.detail}</p>
-                  <p className="text-sm text-muted">{loc.address}</p>
+                  <p className="text-sm text-muted mb-3">{loc.address}</p>
+                  <Link
+                    to={`/anfahrt/${loc.id}`}
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:gap-2.5 transition-all duration-200"
+                  >
+                    {t.training.directionsLink}
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
               </div>
             ))}

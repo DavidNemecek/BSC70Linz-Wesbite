@@ -50,6 +50,7 @@ export const translations = {
     training: {
       overline: 'TRAINING',
       title: 'Trainingszeiten & Spielmöglichkeiten',
+      directionsLink: 'Anfahrt anzeigen',
       tableHeaders: { day: 'Tag', time: 'Zeit', group: 'Gruppe', location: 'Ort' },
       schedule: [
         { day: 'Dienstag', time: '17:00 – 19:00', group: 'Nachwuchstraining', location: 'AHS Solar City' },
@@ -66,6 +67,7 @@ export const translations = {
       ],
       locations: [
         {
+          id: 'solarcity',
           label: 'Hauptstandort',
           title: 'AHS Solar City',
           detail: 'Große Halle – 8 Spielfelder',
@@ -73,6 +75,7 @@ export const translations = {
           image: '/assets/Hall_Solarcity',
         },
         {
+          id: 'auhof',
           label: '',
           title: 'Europagymnasium Auhof',
           detail: 'Große Halle (Halle 2+3) – 6 Spielfelder',
@@ -80,6 +83,17 @@ export const translations = {
           image: '/assets/Hall_Auhof',
         },
       ],
+    },
+    anfahrt: {
+      back: 'Zurück zur Startseite',
+      overline: 'ANFAHRT',
+      titlePrefix: 'So kommst du zur Halle',
+      routeButton: 'Route in Google Maps öffnen',
+      addressHeading: 'Adresse',
+      photoHeading: 'So findest du den Eingang',
+      photoComingSoon: 'Ein Bild zur Anfahrt folgt in Kürze.',
+      videoHeading: 'Video zur Anfahrt',
+      videoComingSoon: 'Ein Video zur Anfahrt folgt in Kürze.',
     },
     membership: {
       overline: 'MITGLIEDSCHAFT',
@@ -409,6 +423,7 @@ export const translations = {
     training: {
       overline: 'TRAINING',
       title: 'Training times & playing opportunities',
+      directionsLink: 'Get directions',
       tableHeaders: { day: 'Day', time: 'Time', group: 'Group', location: 'Location' },
       schedule: [
         { day: 'Tuesday', time: '5:00 – 7:00 PM', group: 'Youth training', location: 'AHS Solar City' },
@@ -425,6 +440,7 @@ export const translations = {
       ],
       locations: [
         {
+          id: 'solarcity',
           label: 'Main location',
           title: 'AHS Solar City',
           detail: 'Large hall – 8 courts',
@@ -432,6 +448,7 @@ export const translations = {
           image: '/assets/Hall_Solarcity',
         },
         {
+          id: 'auhof',
           label: '',
           title: 'Europagymnasium Auhof',
           detail: 'Large hall (Hall 2+3) – 6 courts',
@@ -439,6 +456,17 @@ export const translations = {
           image: '/assets/Hall_Auhof',
         },
       ],
+    },
+    anfahrt: {
+      back: 'Back to homepage',
+      overline: 'DIRECTIONS',
+      titlePrefix: 'How to get to',
+      routeButton: 'Open route in Google Maps',
+      addressHeading: 'Address',
+      photoHeading: 'How to find the entrance',
+      photoComingSoon: 'A photo with directions is coming soon.',
+      videoHeading: 'Directions video',
+      videoComingSoon: 'A directions video is coming soon.',
     },
     membership: {
       overline: 'MEMBERSHIP',
