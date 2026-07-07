@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { ExternalLink } from 'lucide-react'
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
 
 const TEAMS_DATA_URL = 'https://raw.githubusercontent.com/DavidNemecek/BSC70Linz-Wesbite-BackgroundTasks/refs/heads/main/data/bsc70-teams.json'
@@ -105,11 +104,6 @@ export default function Teams() {
                     {team.points === 1 ? 'Punkt' : 'Punkte'}
                   </div>
                 </div>
-              </div>
-
-              <div className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-accent">
-                Team ansehen
-                <ExternalLink className="w-3.5 h-3.5" />
               </div>
             </a>
           ))}
