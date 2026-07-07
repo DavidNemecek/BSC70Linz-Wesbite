@@ -1,40 +1,20 @@
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
-
-const achievements = [
-  {
-    number: '1992',
-    title: 'Europacup-Sieg',
-    description: 'Erste und einzige österreichische Mannschaft mit dem Europameistertitel der Landesmeister',
-  },
-  {
-    number: '7×',
-    title: 'Ö. Staatsmeister',
-    description: '7-facher österreichischer Mannschaftsstaatsmeister mit der 1. Mannschaft',
-  },
-  {
-    number: '15×',
-    title: 'OÖ Landesmeister',
-    description: '15-facher OÖ Mannschafts-Landesmeister mit der 2. Mannschaft',
-  },
-  {
-    number: '2025',
-    title: 'Europameisterschaft',
-    description: 'Daniel-Aria Dinata erreicht das EM-Halbfinale und sichert Bronze',
-  },
-]
+import { useLanguage } from '@/context/LanguageContext'
 
 export default function Achievements() {
   const ref = useScrollAnimation()
+  const { t } = useLanguage()
+  const achievements = t.achievements.items
 
   return (
     <section id="erfolge" className="py-12 sm:py-16 lg:py-20" style={{ backgroundColor: 'var(--accent-glow)' }}>
       <div ref={ref} className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10">
         <span data-animate className="inline-block text-xs font-medium uppercase tracking-[0.15em] text-accent mb-4 opacity-0">
-          ERFOLGE
+          {t.achievements.overline}
         </span>
 
         <h2 data-animate className="font-display text-[clamp(2rem,5vw,4rem)] tracking-[0.02em] text-primary leading-[1.05] mb-8 lg:mb-10 opacity-0">
-          Meister auf allen Ebenen
+          {t.achievements.title}
         </h2>
 
         <div data-stagger className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">

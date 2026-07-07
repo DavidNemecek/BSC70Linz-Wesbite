@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
+import { useLanguage } from '@/context/LanguageContext'
 
 export default function Hero() {
+  const { t } = useLanguage()
   const overlineRef = useRef<HTMLSpanElement>(null)
   const headlineRef = useRef<HTMLHeadingElement>(null)
   const subRef = useRef<HTMLParagraphElement>(null)
@@ -125,20 +127,20 @@ export default function Hero() {
           ref={overlineRef}
           className="inline-block text-xs font-medium uppercase tracking-[0.15em] text-accent mb-6 opacity-0"
         >
-          ASKÖ BSC 70 LINZ
+          {t.hero.overline}
         </span>
 
         <h1 ref={headlineRef} className="font-display text-white leading-[0.95]">
-          <span className="word block text-[clamp(3rem,18vw,9rem)] tracking-[0.02em] opacity-0">BADMINTON</span>
-          <span className="word block text-[clamp(3rem,18vw,9rem)] tracking-[0.08em] opacity-0">MIT</span>
-          <span className="word block text-[clamp(3rem,18vw,9rem)] tracking-[0.02em] opacity-0">TRADITION</span>
+          {t.hero.words.map((word, i) => (
+            <span key={i} className="word block text-[clamp(3rem,18vw,9rem)] tracking-[0.02em] opacity-0">{word}</span>
+          ))}
         </h1>
 
         <p
           ref={subRef}
           className="mt-8 text-base text-white/70 max-w-[480px] leading-relaxed opacity-0"
         >
-          Badminton in Linz seit 1970. Einer der erfolgreichsten Badmintonvereine Österreichs — vom Nachwuchs bis zur Spitze.
+          {t.hero.subtitle}
         </p>
 
         <a
@@ -146,7 +148,7 @@ export default function Hero() {
           href="/anmeldung"
           className="inline-block mt-8 bg-accent-gradient text-white text-sm font-semibold rounded-full px-10 py-3.5 hover:-translate-y-0.5 hover:shadow-[0_6px_24px_rgba(14,143,185,0.4)] transition-all duration-200 opacity-0"
         >
-          Jetzt Mitglied werden
+          {t.hero.cta}
         </a>
       </div>
 
@@ -154,7 +156,7 @@ export default function Hero() {
         ref={indicatorRef}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0 z-10"
       >
-        <span className="text-[0.625rem] uppercase tracking-[0.15em] text-white/30">Scroll</span>
+        <span className="text-[0.625rem] uppercase tracking-[0.15em] text-white/30">{t.hero.scroll}</span>
         <div className="w-px h-10 bg-white/30 animate-scroll-bounce" />
       </div>
     </section>

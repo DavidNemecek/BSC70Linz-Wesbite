@@ -1,33 +1,12 @@
 import { Link } from 'react-router-dom'
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
 import { ArrowRight, Calendar } from 'lucide-react'
-
-const latestNews = [
-  {
-    id: 1,
-    date: 'Mai 2025',
-    category: 'Bundesliga',
-    title: 'Sensationsmeldung — Daniel-Aria Dinata im EM-Halbfinale!',
-    excerpt: 'Der Teamspieler des BSC70 Linz hat bei den Europameisterschaften sensationell das Halbfinale erreicht.',
-  },
-  {
-    id: 2,
-    date: 'Januar 2025',
-    category: 'Mannschaften',
-    title: 'Erste Mannschaftsergebnisse im neuen Jahr',
-    excerpt: 'Die 1er Mannschaft gewinnt gegen Voest 5:3. Die 2er verliert gegen Neuhofen 2:6.',
-  },
-  {
-    id: 3,
-    date: 'Juni 2024',
-    category: 'Verein',
-    title: 'Neuer Vereinsvorstand gewählt',
-    excerpt: 'Mit der ordentlichen Generalversammlung wurde die Zukunft des Vereins neu gestaltet.',
-  },
-]
+import { useLanguage } from '@/context/LanguageContext'
 
 export default function NewsPreview() {
   const ref = useScrollAnimation()
+  const { t } = useLanguage()
+  const latestNews = t.newsPreview.items
 
   return (
     <section className="bg-card-alt py-20 lg:py-32">
@@ -35,25 +14,25 @@ export default function NewsPreview() {
         <div data-animate className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10 opacity-0">
           <div>
             <span className="inline-block text-xs font-medium uppercase tracking-[0.15em] text-accent mb-4">
-              NEWS
+              {t.newsPreview.overline}
             </span>
             <h2 className="font-display text-[clamp(2rem,5vw,4rem)] tracking-[0.02em] text-primary leading-[1.05]">
-              Aktuelles aus dem Verein
+              {t.newsPreview.title}
             </h2>
           </div>
           <Link
             to="/news"
             className="inline-flex items-center gap-2 text-sm font-semibold text-accent hover:gap-3 transition-all duration-200 flex-shrink-0"
           >
-            Alle News ansehen
+            {t.newsPreview.viewAll}
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 
         <div data-stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {latestNews.map((article) => (
+          {latestNews.map((article, i) => (
             <article
-              key={article.id}
+              key={i}
               data-stagger-item
               className="bg-card rounded-xl border border-theme p-6 opacity-0 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(14,143,185,0.08)] transition-all duration-300"
             >

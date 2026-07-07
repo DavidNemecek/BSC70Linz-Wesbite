@@ -1,12 +1,6 @@
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
 import { Clock, Users, MapPin } from 'lucide-react'
-
-const infoNotes = [
-  'Wir spielen grundsätzlich nur an Schultagen. An den schulfreien Tagen (Schulferien, Feiertage, schulautonome Tage) sind die Hallen geschlossen.',
-  'Wir bieten ein Training für unsere fortgeschrittenen Nachwuchs-, Hobby- und Ligaspieler an. Badminton-Neulinge jeden Alters können die Grundlagen in unseren Basic-Trainings erlernen.',
-  'Bei unseren Trainern können auch privat individuelle (Einzel- u. Gruppen-)Trainings gebucht werden.',
-  'Niemand kauft gerne die Katze im Sack! Nutze die Möglichkeit von bis zu drei Schnuppertrainings zu allen Hallenterminen nach vorheriger Anmeldung. Komm vorbei und überzeuge dich selbst!',
-]
+import { useLanguage } from '@/context/LanguageContext'
 
 function ArrowBullet() {
   return (
@@ -17,14 +11,6 @@ function ArrowBullet() {
   )
 }
 
-const schedule = [
-  { day: 'Dienstag', time: '17:00 – 19:00', group: 'Nachwuchstraining', location: 'AHS Solar City' },
-  { day: 'Dienstag', time: '19:00 – 21:30', group: 'Hobbysportler', location: 'AHS Solar City' },
-  { day: 'Donnerstag', time: '18:30 – 21:00', group: 'alle Mitglieder', location: 'AHS Solar City' },
-  { day: 'Freitag', time: '18:00 – 19:30', group: 'Training für Anfänger', location: 'Europagym. Auhof' },
-  { day: 'Freitag', time: '18:00 – 20:00', group: 'Alle Mitglieder', location: 'Europagym. Auhof' },
-]
-
 const imageWidths = [640, 960, 1280, 1920]
 
 const imageSizes = '(min-width: 1280px) 472px, (min-width: 1024px) 370px, (min-width: 640px) calc(100vw - 48px), calc(100vw - 32px)'
@@ -33,34 +19,20 @@ function srcSet(image: string, ext: string) {
   return imageWidths.map((w) => `${image}-${w}.${ext} ${w}w`).join(', ')
 }
 
-const locations = [
-  {
-    label: 'Hauptstandort',
-    title: 'AHS Solar City',
-    detail: 'Große Halle – 8 Spielfelder',
-    address: 'Heliosallee 140–142, 4030 Linz',
-    image: '/assets/Hall_Solarcity',
-  },
-  {
-    title: 'Europagymnasium Auhof',
-    detail: 'Große Halle (Halle 2+3) – 6 Spielfelder',
-    address: 'Aubrunnerweg 4, 4040 Linz',
-    image: '/assets/Hall_Auhof',
-  },
-]
-
 export default function Training() {
   const ref = useScrollAnimation()
+  const { t } = useLanguage()
+  const { schedule, infoNotes, locations, tableHeaders } = t.training
 
   return (
     <section id="training" className="bg-card-alt py-16 sm:py-20 lg:py-32">
       <div ref={ref} className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10">
         <span data-animate className="inline-block text-xs font-medium uppercase tracking-[0.15em] text-accent mb-4 opacity-0">
-          TRAINING
+          {t.training.overline}
         </span>
 
         <h2 data-animate className="font-display text-[clamp(2.5rem,7vw,5.5rem)] tracking-[0.02em] text-primary leading-[1.05] mb-10 lg:mb-12 opacity-0">
-          Trainingszeiten & Spielmöglichkeiten
+          {t.training.title}
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-10 lg:gap-12">
@@ -94,10 +66,10 @@ export default function Training() {
               <table className="w-full text-sm">
                 <thead>
                   <tr style={{ backgroundColor: 'var(--accent-dark)' }} className="text-white">
-                    <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium uppercase tracking-[0.05em]">Tag</th>
-                    <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium uppercase tracking-[0.05em]">Zeit</th>
-                    <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium uppercase tracking-[0.05em]">Gruppe</th>
-                    <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium uppercase tracking-[0.05em]">Ort</th>
+                    <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium uppercase tracking-[0.05em]">{tableHeaders.day}</th>
+                    <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium uppercase tracking-[0.05em]">{tableHeaders.time}</th>
+                    <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium uppercase tracking-[0.05em]">{tableHeaders.group}</th>
+                    <th className="text-left px-4 sm:px-5 py-3 text-xs font-medium uppercase tracking-[0.05em]">{tableHeaders.location}</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
+import { useLanguage } from '@/context/LanguageContext'
 
 const TEAMS_DATA_URL = 'https://raw.githubusercontent.com/DavidNemecek/BSC70Linz-Wesbite-BackgroundTasks/refs/heads/main/data/bsc70-teams.json'
 
@@ -22,6 +23,7 @@ function formatCompetition(competition: string) {
 
 export default function Teams() {
   const ref = useScrollAnimation()
+  const { t } = useLanguage()
   const [data, setData] = useState<TeamsData | null>(null)
   const [error, setError] = useState(false)
 
@@ -41,20 +43,20 @@ export default function Teams() {
     <section id="teams" className="py-16 sm:py-20 lg:py-32" style={{ backgroundColor: 'var(--bg-section)' }}>
       <div ref={ref} className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10">
         <span data-animate className="inline-block text-xs font-medium uppercase tracking-[0.15em] text-accent mb-4 opacity-0">
-          MANNSCHAFTEN
+          {t.teams.overline}
         </span>
 
         <h2 data-animate className="font-display text-[clamp(2.5rem,7vw,5.5rem)] tracking-[0.02em] text-primary leading-[1.05] mb-4 opacity-0">
-          Unsere Mannschaften
+          {t.teams.title}
         </h2>
 
         <p data-animate className="text-base text-secondary leading-relaxed max-w-[640px] mb-10 lg:mb-12 opacity-0">
-          Der BSC 70 Linz ist {teamCount != null ? <>mit {teamCount} Mannschaft{teamCount === 1 ? '' : 'en'}</> : 'mit mehreren Mannschaften'} in den oberösterreichischen Ligen vertreten. Nach über 50 Jahren Bundesliga-Zugehörigkeit haben wir uns 2024 bewusst neu orientiert — und setzen nun mit voller Kraft auf unsere Landesliga-Teams.
+          {teamCount != null ? t.teams.descriptionWithCount(teamCount) : t.teams.descriptionNoCount}
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
           {error && (
-            <p className="text-sm text-muted col-span-full">Mannschaftsdaten sind aktuell nicht verfügbar.</p>
+            <p className="text-sm text-muted col-span-full">{t.teams.errorMessage}</p>
           )}
 
           {!data && !error && [0, 1].map((i) => (
@@ -81,7 +83,7 @@ export default function Teams() {
               className="block bg-card rounded-lg border border-theme p-6 sm:p-8 lg:p-10 hover:-translate-y-1 hover:border-[var(--border-hover)] transition-all duration-300"
             >
               <span className="inline-block text-xs font-medium uppercase tracking-[0.05em] bg-accent-gradient text-white rounded-full px-3 py-1 mb-4">
-                {i + 1}. Mannschaft
+                {t.teams.teamLabel(i + 1)}
               </span>
 
               <h3 className="text-[clamp(1.5rem,3vw,2.8rem)] font-semibold tracking-tight text-primary mb-1">
@@ -94,14 +96,14 @@ export default function Teams() {
                   <div className="text-[clamp(2rem,5vw,4rem)] font-bold text-primary leading-none">
                     {team.standing}.
                   </div>
-                  <div className="text-xs uppercase tracking-[0.05em] text-muted mt-1">Platz</div>
+                  <div className="text-xs uppercase tracking-[0.05em] text-muted mt-1">{t.teams.place}</div>
                 </div>
                 <div>
                   <div className="text-[clamp(2rem,5vw,4rem)] font-bold text-primary leading-none">
                     {team.points}
                   </div>
                   <div className="text-xs uppercase tracking-[0.05em] text-muted mt-1">
-                    {team.points === 1 ? 'Punkt' : 'Punkte'}
+                    {team.points === 1 ? t.teams.point : t.teams.points}
                   </div>
                 </div>
               </div>

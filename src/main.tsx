@@ -3,6 +3,7 @@ import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.tsx'
 import { ThemeProvider } from '@/context/ThemeContext'
+import { LanguageProvider } from '@/context/LanguageContext'
 import { LenisProvider } from '@/context/LenisContext'
 
 // Prevent the browser from restoring a remembered scroll position on
@@ -14,10 +15,12 @@ if ('scrollRestoration' in history) {
 
 createRoot(document.getElementById('root')!).render(
   <ThemeProvider>
-    <LenisProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </LenisProvider>
+    <LanguageProvider>
+      <LenisProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </LenisProvider>
+    </LanguageProvider>
   </ThemeProvider>
 )

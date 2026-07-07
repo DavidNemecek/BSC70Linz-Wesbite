@@ -1,21 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Sun, Moon } from 'lucide-react'
+import { Sun, Moon, Languages } from 'lucide-react'
 import { useTheme } from '@/context/ThemeContext'
+import { useLanguage } from '@/context/LanguageContext'
 import { useLenisScroll } from '@/context/LenisContext'
-
-const navLinks = [
-  { label: 'Training', href: '/#training' },
-  { label: 'Mitgliedschaft', href: '/#mitgliedschaft' },
-  { label: 'Teams', href: '/#teams' },
-  { label: 'Vorstand', href: '/#vorstand' },
-  { label: 'Erfolge', href: '/#erfolge' },
-  { label: 'Sponsoren', href: '/#sponsoren' },
-]
-
-const pageLinks = [
-  { label: 'Chronik', href: '/chronik' },
-]
 
 export default function Navigation() {
   const [scrolled, setScrolled] = useState(false)
@@ -23,7 +11,21 @@ export default function Navigation() {
   const location = useLocation()
   const isHome = location.pathname === '/'
   const { theme, toggleTheme } = useTheme()
+  const { language, toggleLanguage, t } = useLanguage()
   const { scrollTo } = useLenisScroll()
+
+  const navLinks = [
+    { label: t.nav.training, href: '/#training' },
+    { label: t.nav.mitgliedschaft, href: '/#mitgliedschaft' },
+    { label: t.nav.teams, href: '/#teams' },
+    { label: t.nav.vorstand, href: '/#vorstand' },
+    { label: t.nav.erfolge, href: '/#erfolge' },
+    { label: t.nav.sponsoren, href: '/#sponsoren' },
+  ]
+
+  const pageLinks = [
+    { label: t.nav.chronik, href: '/chronik' },
+  ]
 
   useEffect(() => {
     const handleScroll = () => {
@@ -114,11 +116,20 @@ export default function Navigation() {
             >
               {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
+            <button
+              onClick={toggleLanguage}
+              aria-label="Toggle language"
+              className={`w-9 h-9 rounded-full flex items-center justify-center text-[0.7rem] font-semibold tracking-wide transition-all duration-200 ${
+                opaque ? 'text-secondary hover:text-primary hover:bg-[var(--border-color)]' : 'text-white/70 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              {language === 'de' ? 'EN' : 'DE'}
+            </button>
             <Link
               to="/anmeldung"
               className="inline-flex items-center bg-accent-gradient text-white text-sm font-semibold rounded-full px-6 py-2.5 hover:-translate-y-px hover:shadow-[0_4px_16px_rgba(14,143,185,0.35)] transition-all duration-200"
             >
-              Mitglied werden
+              {t.nav.joinButton}
             </Link>
           </div>
 
@@ -162,21 +173,32 @@ export default function Navigation() {
             </Link>
           ))}
 
-          <button
-            onClick={toggleTheme}
-            aria-label="Toggle theme"
-            className="flex items-center gap-2 text-secondary hover:text-primary transition-colors px-4 py-2 rounded-full border border-theme mt-4"
-          >
-            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            <span className="text-sm">{theme === 'dark' ? 'Hell' : 'Dunkel'}</span>
-          </button>
+          <div className="flex items-center gap-3 mt-4">
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              className="flex items-center gap-2 text-secondary hover:text-primary transition-colors px-4 py-2 rounded-full border border-theme"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              <span className="text-sm">{theme === 'dark' ? t.nav.themeLight : t.nav.themeDark}</span>
+            </button>
+
+            <button
+              onClick={toggleLanguage}
+              aria-label="Toggle language"
+              className="flex items-center gap-2 text-secondary hover:text-primary transition-colors px-4 py-2 rounded-full border border-theme"
+            >
+              <Languages className="w-4 h-4" />
+              <span className="text-sm">{language === 'de' ? 'EN' : 'DE'}</span>
+            </button>
+          </div>
 
           <Link
             to="/anmeldung"
             onClick={() => setMobileOpen(false)}
             className="mt-2 bg-accent-gradient text-white text-base font-semibold rounded-full px-8 py-3"
           >
-            Mitglied werden
+            {t.nav.joinButton}
           </Link>
         </div>
       </div>

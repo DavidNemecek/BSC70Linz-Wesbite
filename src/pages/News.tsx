@@ -3,53 +3,13 @@ import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Calendar, ArrowRight } from 'lucide-react'
+import { useLanguage } from '@/context/LanguageContext'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const newsArticles = [
-  {
-    id: 1,
-    date: 'Mai 2025',
-    category: 'Bundesliga',
-    title: 'Sensationsmeldung aus der heimischen Badminton Szene!',
-    excerpt: 'Der Teamspieler des BSC70 Linz, Daniel-Aria Dinata, hat bei den Europameisterschaften im dänischen Horsensen sensationell das Halbfinale erreicht und damit im schlimmsten Fall die Bronzemediaille sicher.',
-    featured: true,
-  },
-  {
-    id: 2,
-    date: 'Januar 2025',
-    category: 'Mannschaften',
-    title: 'Die ersten Mannschaftsergebnisse im neuen Jahr',
-    excerpt: 'Die 1er Mannschaft des BSC70 hat das erste Spiel in der 1. Landesliga gegen die Voest 5:3 gewonnen. Die 2er Mannschaft hat das erste obere Playoff Spiel der 2. Klasse Nord gegen Neuhofen 2:6 verloren.',
-    featured: false,
-  },
-  {
-    id: 3,
-    date: 'Juni 2024',
-    category: 'Verein',
-    title: 'Neuer Vereinsvorstand ab Juni 2024',
-    excerpt: 'Mit der ordentlichen Generalversammlung wurde die Zukunft des Vereins neu gestaltet. Stephan Ziermayr bleibt Obmann, Nikita Arnold wird Stellvertreter. Nach über 50 Jahren wurde der Austieg aus der Badminton Bundesliga beschlossen.',
-    featured: false,
-  },
-  {
-    id: 4,
-    date: 'September 2024',
-    category: 'Mannschaften',
-    title: 'Erfolgreiche Starts in die Herbstsaison 2024',
-    excerpt: 'Unsere Mannschaften sind erfolgreich in die neue Saison gestartet. Die 1. Mannschaft kämpft um die Tabellenspitze in der 1. Landesliga.',
-    featured: false,
-  },
-  {
-    id: 5,
-    date: 'August 2024',
-    category: 'Nachwuchs',
-    title: 'Nachwuchstraining startet wieder durch',
-    excerpt: 'Ab September startet das Nachwuchstraining wieder in beiden Hallen. Neue Spielerinnen und Spieler sind jederzeit herzlich willkommen.',
-    featured: false,
-  },
-]
-
 export default function News() {
+  const { t } = useLanguage()
+  const newsArticles = t.news.articles
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -84,16 +44,16 @@ export default function News() {
         <div data-animate className="mb-12 opacity-0">
           <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted hover:text-accent transition-colors mb-6">
             <ArrowRight className="w-4 h-4 rotate-180" />
-            Zurück zur Startseite
+            {t.news.back}
           </Link>
           <span className="block text-xs font-medium uppercase tracking-[0.15em] text-accent mb-4">
-            BSC 70 LINZ
+            {t.news.overline}
           </span>
           <h1 className="font-display text-[clamp(2.5rem,7vw,5.5rem)] tracking-[0.02em] text-primary leading-[1.05]">
-            Aktuelle News
+            {t.news.title}
           </h1>
           <p className="mt-4 text-base text-secondary max-w-[600px]">
-            Bleib auf dem Laufenden über alles was in unserem Verein passiert.
+            {t.news.subtitle}
           </p>
         </div>
 
@@ -102,7 +62,7 @@ export default function News() {
           <div data-animate className="mb-12 opacity-0">
             <div className="bg-card rounded-xl border border-theme p-6 sm:p-10">
               <span className="inline-block text-xs font-medium uppercase tracking-[0.05em] bg-accent-gradient text-white rounded-full px-3 py-1 mb-4">
-                Top Story
+                {t.news.topStory}
               </span>
               <div className="flex items-center gap-3 text-sm text-muted mb-4">
                 <Calendar className="w-4 h-4" />
@@ -122,9 +82,9 @@ export default function News() {
 
         {/* News Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {regularNews.map((article) => (
+          {regularNews.map((article, i) => (
             <article
-              key={article.id}
+              key={i}
               data-card
               className="bg-card rounded-xl border border-theme p-6 opacity-0 hover:-translate-y-1 hover:border-[var(--border-hover)] transition-all duration-300"
             >

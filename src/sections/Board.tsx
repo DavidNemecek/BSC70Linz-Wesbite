@@ -1,18 +1,20 @@
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { boardMembers } from '@/data/boardMembers';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function Board() {
   const ref = useScrollAnimation();
+  const { t } = useLanguage();
 
   return (
     <section id="vorstand" className="bg-surface py-20 lg:py-32">
       <div ref={ref} className="max-w-[1280px] mx-auto px-6 lg:px-10">
         <span data-animate className="inline-block text-xs font-medium uppercase tracking-[0.15em] text-accent mb-4 opacity-0">
-          VORSTAND
+          {t.board.overline}
         </span>
 
         <h2 data-animate className="font-display text-[clamp(3rem,7vw,5.5rem)] tracking-[0.02em] text-primary leading-[1.05] mb-12 opacity-0">
-          Unser Vorstand
+          {t.board.title}
         </h2>
 
         <div data-stagger className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -28,7 +30,7 @@ export default function Board() {
                 </div>
                 <div>
                   <h3 className="text-base font-semibold text-primary tracking-tight">{member.name}</h3>
-                  <p className="text-sm text-muted mt-0.5">{member.role}</p>
+                  <p className="text-sm text-muted mt-0.5">{t.boardRoles[member.roleKey]}</p>
                   {member.phone && (
                     <a
                       href={`tel:${member.phone.replace(/\s/g, '')}`}

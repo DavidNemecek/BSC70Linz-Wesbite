@@ -1,9 +1,11 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useTheme } from '@/context/ThemeContext'
+import { useLanguage } from '@/context/LanguageContext'
 import { useLenisScroll } from '@/context/LenisContext'
 
 export default function Footer() {
   const { theme } = useTheme()
+  const { t } = useLanguage()
   const location = useLocation()
   const isHome = location.pathname === '/'
   const { scrollTo } = useLenisScroll()
@@ -36,24 +38,27 @@ export default function Footer() {
                 className="h-10 w-auto object-contain"
               />
             </Link>
-            <p className="mt-3 text-sm text-muted">Badminton seit 1970</p>
+            <p className="mt-3 text-sm text-muted">{t.footer.tagline}</p>
             <p className="mt-4 text-sm text-dim leading-relaxed">
-              ASKÖ BSC 70 Linz<br />
-              Badminton Sport Club Linz<br />
-              Oberösterreich, Austria
+              {t.footer.addressLines.map((line, i) => (
+                <span key={i}>
+                  {line}
+                  {i < t.footer.addressLines.length - 1 && <br />}
+                </span>
+              ))}
             </p>
           </div>
 
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-[0.15em] text-dim mb-5">Navigation</h4>
+            <h4 className="text-xs font-semibold uppercase tracking-[0.15em] text-dim mb-5">{t.footer.navHeading}</h4>
             <ul className="space-y-3">
               {[
-                { label: 'Training', href: '/#training' },
-                { label: 'Mitgliedschaft', href: '/#mitgliedschaft' },
-                { label: 'Teams', href: '/#teams' },
-                { label: 'Vorstand', href: '/#vorstand' },
-                { label: 'Erfolge', href: '/#erfolge' },
-                { label: 'Sponsoren', href: '/#sponsoren' },
+                { label: t.nav.training, href: '/#training' },
+                { label: t.nav.mitgliedschaft, href: '/#mitgliedschaft' },
+                { label: t.nav.teams, href: '/#teams' },
+                { label: t.nav.vorstand, href: '/#vorstand' },
+                { label: t.nav.erfolge, href: '/#erfolge' },
+                { label: t.nav.sponsoren, href: '/#sponsoren' },
               ].map((link) => (
                 <li key={link.href}>
                   <a
@@ -67,40 +72,40 @@ export default function Footer() {
               ))}
               <li>
                 <Link to="/chronik" className="text-sm text-secondary hover:text-primary transition-colors duration-200">
-                  Chronik
+                  {t.nav.chronik}
                 </Link>
               </li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-[0.15em] text-dim mb-5">Links</h4>
+            <h4 className="text-xs font-semibold uppercase tracking-[0.15em] text-dim mb-5">{t.footer.linksHeading}</h4>
             <ul className="space-y-3">
               <li>
                 <Link to="/anmeldung" className="text-sm text-secondary hover:text-primary transition-colors duration-200">
-                  Beitrittserklärung
+                  {t.footer.membershipDeclaration}
                 </Link>
               </li>
               <li>
                 <a href="https://www.badminton.at" target="_blank" rel="noopener noreferrer" className="text-sm text-secondary hover:text-primary transition-colors duration-200">
-                  Badminton Österreich
+                  {t.footer.badmintonAustria}
                 </a>
               </li>
               <li>
                 <a href="https://www.askoe.at" target="_blank" rel="noopener noreferrer" className="text-sm text-secondary hover:text-primary transition-colors duration-200">
-                  ASKÖ
+                  {t.footer.asko}
                 </a>
               </li>
               <li>
                 <Link to="/impressum" className="text-sm text-secondary hover:text-primary transition-colors duration-200">
-                  Impressum
+                  {t.footer.impressum}
                 </Link>
               </li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-[0.15em] text-dim mb-5">Kontakt</h4>
+            <h4 className="text-xs font-semibold uppercase tracking-[0.15em] text-dim mb-5">{t.footer.contactHeading}</h4>
             <a
               href="mailto:anmeldung@bsc70linz.at"
               className="text-sm text-accent hover:text-primary transition-colors duration-200 block mb-3"
@@ -108,7 +113,7 @@ export default function Footer() {
               anmeldung@bsc70linz.at
             </a>
             <p className="text-sm text-dim">
-              Obmann: Stephan Ziermayr<br />
+              {t.footer.chairman}: Stephan Ziermayr<br />
               <a href="tel:+436767042186" className="text-secondary hover:text-primary transition-colors">+43 676 7042187</a>
             </p>
           </div>
@@ -116,7 +121,7 @@ export default function Footer() {
 
         <div className="mt-12 lg:mt-16 pt-8 border-t border-theme">
           <p className="text-xs text-dim text-center">
-            &copy; {new Date().getFullYear()} BSC 70 Linz &middot; Alle Rechte vorbehalten
+            {t.footer.copyright(new Date().getFullYear())}
           </p>
         </div>
       </div>
