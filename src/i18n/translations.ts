@@ -99,7 +99,7 @@ export const translations = {
       overline: 'MITGLIEDSCHAFT',
       title: 'Werde Teil des BSC 70 Linz',
       subtitle: 'Bei uns ist jeder willkommen, wir machen für jeden Platz — vom Schüler bis zum Senior und vom Anfänger bis zum erfahrenen Spieler.',
-      tableHeaders: { membership: 'Mitgliedschaft', fee: 'Jahresbeitrag' },
+      tableHeaders: { membership: 'Mitgliedschaft', fee: 'Beitrag' },
       fees: [
         { label: 'Erwachsene', price: '€ 154,00' },
         { label: 'Studenten (bis 26 J.)', price: '€ 84,00' },
@@ -472,7 +472,7 @@ export const translations = {
       overline: 'MEMBERSHIP',
       title: 'Become part of BSC 70 Linz',
       subtitle: 'Everyone is welcome with us — we have a place for everyone, from schoolchildren to seniors, and from beginners to experienced players.',
-      tableHeaders: { membership: 'Membership', fee: 'Annual fee' },
+      tableHeaders: { membership: 'Membership', fee: 'Fee' },
       fees: [
         { label: 'Adults', price: '€ 154.00' },
         { label: 'Students (up to 26 yrs)', price: '€ 84.00' },
