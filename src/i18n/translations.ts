@@ -143,7 +143,7 @@ export const translations = {
           description: '7-facher österreichischer Mannschaftsstaatsmeister mit der 1. Mannschaft',
         },
         {
-          number: '15×',
+          number: '18×',
           title: 'OÖ Landesmeister',
           description: '18-facher OÖ Mannschafts-Landesmeister mit der 2. Mannschaft',
         },
@@ -413,7 +413,7 @@ export const translations = {
       overline: 'ABOUT US',
       title: 'Over 55 years of badminton in Linz',
       paragraph1: 'BSC 70 Linz is one of the most successful badminton clubs in Austria. Founded in 1970, we look back on more than 55 years of history filled with sporting highlights — from youth players to seniors.',
-      paragraph2: 'Our sporting achievements span from youth players to seniors. In 1992, BSC 70 Feibra Linz became the first and only Austrian team to win the European Champion Clubs’ Cup. Our 1st team is 7-time Austrian national champion, and our 2nd team is 15-time Upper Austrian state champion.',
+      paragraph2: 'Our sporting achievements span from youth players to seniors. In 1992, BSC 70 Feibra Linz became the first and only Austrian team to win the European Champion Clubs’ Cup. Our 1st team is 7-time Austrian national champion, and our 2nd team is 18-time Upper Austrian state champion.',
       stats: [
         { number: '55+', label: 'years of badminton' },
         { number: '2', label: 'teams' },
@@ -516,9 +516,9 @@ export const translations = {
           description: '7-time Austrian national team champion with the 1st team',
         },
         {
-          number: '15×',
+          number: '18×',
           title: 'Upper Austrian champions',
-          description: '15-time Upper Austrian state team champion with the 2nd team',
+          description: '18-time Upper Austrian state team champion with the 2nd team',
         },
         {
           number: '2025',
