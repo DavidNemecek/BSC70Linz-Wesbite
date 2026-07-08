@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { useLanguage } from '@/context/LanguageContext'
 
@@ -143,13 +144,13 @@ export default function Hero() {
           {t.hero.subtitle}
         </p>
 
-        <a
+        <Link
           ref={ctaRef}
-          href="/anmeldung"
+          to="/anmeldung"
           className="inline-block mt-8 bg-accent-gradient text-white text-sm font-semibold rounded-full px-10 py-3.5 hover:-translate-y-0.5 hover:shadow-[0_6px_24px_rgba(14,143,185,0.4)] transition-all duration-200 opacity-0"
         >
           {t.hero.cta}
-        </a>
+        </Link>
       </div>
 
       <div
