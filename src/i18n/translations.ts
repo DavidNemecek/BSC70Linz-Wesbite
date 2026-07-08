@@ -40,7 +40,7 @@ export const translations = {
       overline: 'ÜBER UNS',
       title: 'Seit über 55 Jahren Badminton in Linz',
       paragraph1: 'Der BSC 70 Linz ist einer der erfolgreichsten Badmintonvereine in Österreich. Gegründet 1970, blicken wir auf eine über 55-jährige Geschichte voller sportlicher Höhepunkte zurück — vom Nachwuchs bis zu den Senioren.',
-      paragraph2: 'Unsere sportlichen Erfolge reichen vom Nachwuchs bis zu den Senioren. 1992 gelang es dem BSC 70 Feibra Linz als erste und einzige Mannschaft Österreichs, den Europameistertitel der Landesmeister zu erringen. Die 1. Mannschaft ist 7-facher österreichischer Mannschaftsstaatsmeister, die 2. Mannschaft 15-facher OÖ Mannschafts-Landesmeister.',
+      paragraph2: 'Unsere sportlichen Erfolge reichen vom Nachwuchs bis zu den Senioren. 1992 gelang es dem BSC 70 Feibra Linz als erste und einzige Mannschaft Österreichs, den Europameistertitel der Landesmeister zu erringen. Die 1. Mannschaft ist 7-facher österreichischer Mannschaftsstaatsmeister, die 2. Mannschaft 18-facher OÖ Mannschafts-Landesmeister.',
       stats: [
         { number: '55+', label: 'Jahre Badminton' },
         { number: '2', label: 'Mannschaften' },
@@ -145,7 +145,7 @@ export const translations = {
         {
           number: '15×',
           title: 'OÖ Landesmeister',
-          description: '15-facher OÖ Mannschafts-Landesmeister mit der 2. Mannschaft',
+          description: '18-facher OÖ Mannschafts-Landesmeister mit der 2. Mannschaft',
         },
         {
           number: '2025',
