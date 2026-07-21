@@ -1,10 +1,14 @@
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
 import { Link } from 'react-router-dom'
-import { juniorTraining, membershipTiers } from '@/data/membership'
 
 const fees = [
-  ...membershipTiers.map((tier) => ({ label: tier.label, price: `€ ${tier.price}` })),
-  { label: juniorTraining.label, price: `€ ${juniorTraining.price}` },
+  { label: 'Erwachsene', price: '€ 154,00' },
+  { label: 'Studenten (bis 26 J.)', price: '€ 84,00' },
+  { label: 'Jugendliche (15–18 J.)', price: '€ 55,00' },
+  { label: 'Kinder (bis 14 J.)', price: '€ 44,00' },
+  { label: 'Familienkarte (2 Erw. + max. 2 Kinder)', price: '€ 264,00' },
+  { label: 'Unterstützende Mitglieder', price: '€ 44,00' },
+  { label: 'Kindertraining pro Semester', price: '€ 38,50' },
 ]
 
 const membershipTypes = [
