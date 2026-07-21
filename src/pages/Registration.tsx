@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useRef, useEffect } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ArrowRight, Mail, FileDown, Eye, Info } from 'lucide-react'
+import { ArrowRight, Mail, FileDown, Info } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 import { clubInfo } from '@/data/clubInfo'
 import { buildMembershipMailto } from '@/lib/membershipMailto'
@@ -84,22 +84,13 @@ export default function Registration() {
           <p className="text-sm text-secondary mb-6">
             {t.registration.downloadCardText}
           </p>
-          <div className="flex flex-wrap gap-4">
-            <button
-              onClick={() => generateMembershipPdf()}
-              className="inline-flex items-center gap-2 border border-theme text-primary text-base font-semibold rounded-full px-8 py-4 hover:bg-card-alt transition-all duration-200"
-            >
-              <FileDown className="w-4 h-4" />
-              {t.registration.downloadButton}
-            </button>
-            <Link
-              to="/beitrittserklaerung"
-              className="inline-flex items-center gap-2 text-sm text-muted hover:text-primary transition-colors self-center"
-            >
-              <Eye className="w-4 h-4" />
-              {t.registration.previewLink}
-            </Link>
-          </div>
+          <button
+            onClick={() => generateMembershipPdf()}
+            className="inline-flex items-center gap-2 border border-theme text-primary text-base font-semibold rounded-full px-8 py-4 hover:bg-card-alt transition-all duration-200"
+          >
+            <FileDown className="w-4 h-4" />
+            {t.registration.downloadButton}
+          </button>
         </div>
 
         {/* Fallback instructions */}
