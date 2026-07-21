@@ -1,28 +1,18 @@
 import { Link } from 'react-router-dom'
-import { useState, useRef, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ArrowRight, Check, User, Mail, Phone, MapPin, Calendar, Users } from 'lucide-react'
+import { ArrowRight, Mail, FileDown, Eye, Info } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
+import { clubInfo } from '@/data/clubInfo'
+import { buildMembershipMailto } from '@/lib/membershipMailto'
+import { generateMembershipPdf } from '@/lib/generateMembershipPdf'
 
 gsap.registerPlugin(ScrollTrigger)
 
 export default function Registration() {
   const { t } = useLanguage()
-  const membershipOptions = t.registration.membershipOptions
-  const [submitted, setSubmitted] = useState(false)
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    birthDate: '',
-    address: '',
-    city: '',
-    zip: '',
-    membership: '',
-    message: '',
-  })
+  const { fees, tableHeaders } = t.membership
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -41,17 +31,7 @@ export default function Registration() {
     return () => ctx.revert()
   }, [])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setSubmitted(true)
-  }
-
-  const inputClass = 'w-full bg-input-theme border border-theme rounded-lg px-4 py-3 text-primary placeholder-[var(--text-dim)] text-sm focus:outline-none focus:border-[var(--border-hover)] focus:ring-1 focus:ring-[var(--border-hover)] transition-all'
-  const labelClass = 'block text-sm font-medium text-secondary mb-1.5'
+  const mailtoHref = buildMembershipMailto()
 
   return (
     <div className="bg-page min-h-screen pt-[72px]">
@@ -69,171 +49,92 @@ export default function Registration() {
             {t.registration.title}
           </h1>
           <p className="mt-4 text-base text-secondary">
-            {t.registration.subtitlePrefix}{' '}
-            <a href="mailto:anmeldung@bsc70linz.at" className="text-accent hover:underline">anmeldung@bsc70linz.at</a>.
+            {t.registration.subtitlePrefix}
           </p>
         </div>
 
-        {submitted ? (
-          <div data-animate className="bg-card rounded-xl border border-theme p-8 sm:p-12 text-center opacity-0">
-            <div className="w-16 h-16 rounded-full bg-accent-glow flex items-center justify-center mx-auto mb-6">
-              <Check className="w-8 h-8 text-accent" />
+        {/* Option 1: E-Mail */}
+        <div data-animate className="bg-card rounded-xl border border-theme p-6 sm:p-8 mb-6 opacity-0">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-full bg-accent-glow flex items-center justify-center shrink-0">
+              <Mail className="w-5 h-5 text-accent" />
             </div>
-            <h2 className="text-2xl font-semibold text-primary mb-3">{t.registration.thankYouTitle}</h2>
-            <p className="text-secondary mb-6">
-              {t.registration.thankYouText}
-            </p>
-            <Link
-              to="/"
-              className="inline-flex items-center bg-accent-gradient text-white text-sm font-semibold rounded-full px-8 py-3 hover:-translate-y-0.5 transition-all duration-200"
+            <h2 className="text-lg font-semibold text-primary">{t.registration.emailCardTitle}</h2>
+          </div>
+          <p className="text-sm text-secondary mb-6">
+            {t.registration.emailCardText}
+          </p>
+          <a
+            href={mailtoHref}
+            className="inline-flex items-center gap-2 bg-accent-gradient text-white text-base font-semibold rounded-full px-8 py-4 hover:-translate-y-0.5 hover:shadow-[0_6px_24px_rgba(14,143,185,0.4)] transition-all duration-200"
+          >
+            <Mail className="w-4 h-4" />
+            {t.registration.emailButton}
+          </a>
+        </div>
+
+        {/* Option 2: Download */}
+        <div data-animate className="bg-card rounded-xl border border-theme p-6 sm:p-8 mb-6 opacity-0">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-full bg-accent-glow flex items-center justify-center shrink-0">
+              <FileDown className="w-5 h-5 text-accent" />
+            </div>
+            <h2 className="text-lg font-semibold text-primary">{t.registration.downloadCardTitle}</h2>
+          </div>
+          <p className="text-sm text-secondary mb-6">
+            {t.registration.downloadCardText}
+          </p>
+          <div className="flex flex-wrap gap-4">
+            <button
+              onClick={() => generateMembershipPdf()}
+              className="inline-flex items-center gap-2 border border-theme text-primary text-base font-semibold rounded-full px-8 py-4 hover:bg-card-alt transition-all duration-200"
             >
-              {t.registration.backHome}
+              <FileDown className="w-4 h-4" />
+              {t.registration.downloadButton}
+            </button>
+            <Link
+              to="/beitrittserklaerung"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm text-muted hover:text-primary transition-colors self-center"
+            >
+              <Eye className="w-4 h-4" />
+              {t.registration.previewLink}
             </Link>
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Personal Info */}
-            <div data-animate className="bg-card rounded-xl border border-theme p-6 sm:p-8 opacity-0">
-              <div className="flex items-center gap-3 mb-6">
-                <User className="w-5 h-5 text-accent" />
-                <h2 className="text-lg font-semibold text-primary">{t.registration.personalData}</h2>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className={labelClass}>{t.registration.firstName}</label>
-                  <input
-                    type="text" name="firstName" required
-                    value={formData.firstName} onChange={handleChange}
-                    className={inputClass} placeholder={t.registration.firstNamePh}
-                  />
-                </div>
-                <div>
-                  <label className={labelClass}>{t.registration.lastName}</label>
-                  <input
-                    type="text" name="lastName" required
-                    value={formData.lastName} onChange={handleChange}
-                    className={inputClass} placeholder={t.registration.lastNamePh}
-                  />
-                </div>
-                <div>
-                  <label className={labelClass}>{t.registration.email}</label>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-dim" />
-                    <input
-                      type="email" name="email" required
-                      value={formData.email} onChange={handleChange}
-                      className={`${inputClass} pl-11`} placeholder={t.registration.emailPh}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className={labelClass}>{t.registration.phone}</label>
-                  <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-dim" />
-                    <input
-                      type="tel" name="phone"
-                      value={formData.phone} onChange={handleChange}
-                      className={`${inputClass} pl-11`} placeholder={t.registration.phonePh}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className={labelClass}>{t.registration.birthDate}</label>
-                  <div className="relative">
-                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-dim" />
-                    <input
-                      type="date" name="birthDate"
-                      value={formData.birthDate} onChange={handleChange}
-                      className={`${inputClass} pl-11`}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+        </div>
 
-            {/* Address */}
-            <div data-animate className="bg-card rounded-xl border border-theme p-6 sm:p-8 opacity-0">
-              <div className="flex items-center gap-3 mb-6">
-                <MapPin className="w-5 h-5 text-accent" />
-                <h2 className="text-lg font-semibold text-primary">{t.registration.addressHeading}</h2>
-              </div>
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label className={labelClass}>{t.registration.streetLabel}</label>
-                  <input
-                    type="text" name="address"
-                    value={formData.address} onChange={handleChange}
-                    className={inputClass} placeholder={t.registration.streetPh}
-                  />
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  <div className="col-span-1">
-                    <label className={labelClass}>{t.registration.zip}</label>
-                    <input
-                      type="text" name="zip"
-                      value={formData.zip} onChange={handleChange}
-                      className={inputClass} placeholder={t.registration.zipPh}
-                    />
-                  </div>
-                  <div className="col-span-1 sm:col-span-2">
-                    <label className={labelClass}>{t.registration.city}</label>
-                    <input
-                      type="text" name="city"
-                      value={formData.city} onChange={handleChange}
-                      className={inputClass} placeholder={t.registration.cityPh}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+        {/* Fallback instructions */}
+        <div data-animate className="flex items-start gap-3 text-sm text-muted mb-10 opacity-0">
+          <Info className="w-4 h-4 text-accent mt-0.5 shrink-0" />
+          <p>
+            {t.registration.fallbackNote}{' '}
+            <a href={`mailto:${clubInfo.registrationEmail}`} className="text-accent hover:underline">
+              {clubInfo.registrationEmail}
+            </a>{' '}
+            {t.registration.fallbackNoteSuffix}
+          </p>
+        </div>
 
-            {/* Membership */}
-            <div data-animate className="bg-card rounded-xl border border-theme p-6 sm:p-8 opacity-0">
-              <div className="flex items-center gap-3 mb-6">
-                <Users className="w-5 h-5 text-accent" />
-                <h2 className="text-lg font-semibold text-primary">{t.registration.membershipHeading}</h2>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <label className={labelClass}>{t.registration.membershipTypeLabel}</label>
-                  <select
-                    name="membership" required
-                    value={formData.membership} onChange={handleChange}
-                    className={`${inputClass} appearance-none cursor-pointer`}
-                  >
-                    {membershipOptions.map(opt => (
-                      <option key={opt.value} value={opt.value} className="bg-card text-primary">
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className={labelClass}>{t.registration.messageLabel}</label>
-                  <textarea
-                    name="message" rows={4}
-                    value={formData.message} onChange={handleChange}
-                    className={`${inputClass} resize-none`}
-                    placeholder={t.registration.messagePh}
-                  />
-                </div>
-              </div>
+        {/* Fee overview */}
+        <div data-animate className="opacity-0">
+          <h2 className="text-lg font-semibold text-primary mb-4">{t.registration.feesHeading}</h2>
+          <div className="rounded-xl border border-theme overflow-hidden">
+            <div className="flex items-center justify-between gap-4 px-4 sm:px-6 py-4 border-b border-theme">
+              <span className="text-xs font-medium uppercase tracking-[0.05em] text-accent">{tableHeaders.membership}</span>
+              <span className="text-xs font-medium uppercase tracking-[0.05em] text-accent flex-shrink-0">{tableHeaders.fee}</span>
             </div>
-
-            {/* Submit */}
-            <div data-animate className="opacity-0">
-              <button
-                type="submit"
-                className="w-full sm:w-auto bg-accent-gradient text-white text-base font-semibold rounded-full px-10 py-4 hover:-translate-y-0.5 hover:shadow-[0_6px_24px_rgba(14,143,185,0.4)] transition-all duration-200"
+            {fees.map((fee, i) => (
+              <div
+                key={i}
+                className={`flex items-center justify-between gap-4 px-4 sm:px-6 py-3.5 ${i % 2 === 0 ? 'bg-card' : ''}`}
               >
-                {t.registration.submitButton}
-              </button>
-              <p className="text-xs text-dim mt-4">
-                {t.registration.requiredNote}
-              </p>
-            </div>
-          </form>
-        )}
+                <span className="text-sm text-secondary">{fee.label}</span>
+                <span className="font-semibold text-primary whitespace-nowrap flex-shrink-0">{fee.price}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )

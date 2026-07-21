@@ -3,6 +3,7 @@ import Layout from '@/components/Layout'
 import Home from '@/pages/Home'
 import News from '@/pages/News'
 import Registration from '@/pages/Registration'
+import Beitrittserklaerung from '@/pages/Beitrittserklaerung'
 import Chronik from '@/pages/Chronik'
 import Impressum from '@/pages/Impressum'
 import Anfahrt from '@/pages/Anfahrt'
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/impressum" element={<Impressum />} />
         <Route path="/anfahrt/:hall" element={<Anfahrt />} />
       </Route>
+      <Route path="/beitrittserklaerung" element={<Beitrittserklaerung />} />
     </Routes>
   )
 }
