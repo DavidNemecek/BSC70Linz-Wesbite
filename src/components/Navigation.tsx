@@ -12,7 +12,7 @@ export default function Navigation() {
   const isHome = location.pathname === '/'
   const { theme, toggleTheme } = useTheme()
   const { language, toggleLanguage, t } = useLanguage()
-  const { scrollTo } = useLenisScroll()
+  const { scrollTo, subscribeScroll } = useLenisScroll()
 
   const navLinks = [
     { label: t.nav.training, href: '/#training' },
@@ -32,8 +32,18 @@ export default function Navigation() {
       setScrolled(window.scrollY > 100)
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+
+    // Backstop: some browsers don't reliably dispatch native `scroll`
+    // events on `window` while Lenis is driving the scroll animation, which
+    // left the nav permanently stuck in its transparent/top-of-page state.
+    // Reading the position straight from Lenis avoids depending on that.
+    const unsubscribe = subscribeScroll((scroll) => setScrolled(scroll > 100))
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      unsubscribe()
+    }
+  }, [subscribeScroll])
 
   const handleAnchorClick = (e: React.MouseEvent, href: string) => {
     e.preventDefault()

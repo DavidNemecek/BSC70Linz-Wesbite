@@ -9,6 +9,7 @@ type ScrollTarget = number | string | HTMLElement
 
 interface LenisContextValue {
   scrollTo: (target: ScrollTarget, options?: { immediate?: boolean }) => void
+  subscribeScroll: (callback: (scroll: number) => void) => () => void
 }
 
 const LenisContext = createContext<LenisContextValue | null>(null)
@@ -51,8 +52,21 @@ export function LenisProvider({ children }: { children: ReactNode }) {
     lenisRef.current?.scrollTo(target, options)
   }
 
+  // Consumers that need the live scroll position (e.g. the nav bar's
+  // opaque-on-scroll state) should read it from Lenis directly rather than
+  // from native `window.scroll` events — Lenis drives the actual scroll
+  // position itself, and relying on a separate native listener risks the two
+  // getting out of sync depending on how a given browser dispatches scroll
+  // events while Lenis is animating.
+  const subscribeScroll: LenisContextValue['subscribeScroll'] = (callback) => {
+    const lenis = lenisRef.current!
+    const handler = (instance: Lenis) => callback(instance.scroll)
+    lenis.on('scroll', handler)
+    return () => lenis.off('scroll', handler)
+  }
+
   return (
-    <LenisContext.Provider value={{ scrollTo }}>
+    <LenisContext.Provider value={{ scrollTo, subscribeScroll }}>
       {children}
     </LenisContext.Provider>
   )
