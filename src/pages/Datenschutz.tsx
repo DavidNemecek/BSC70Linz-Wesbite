@@ -65,8 +65,7 @@ export default function Datenschutz() {
 
           <section className="pt-8 border-t border-theme">
             <h2 className="text-lg font-semibold text-primary mb-3">{t.datenschutz.hostingHeading}</h2>
-            <p className="text-sm text-secondary leading-relaxed mb-3">{t.datenschutz.hostingText1}</p>
-            <p className="text-sm text-secondary leading-relaxed">{t.datenschutz.hostingText2}</p>
+            <p className="text-sm text-secondary leading-relaxed">{t.datenschutz.hostingText1}</p>
           </section>
 
           <section className="pt-8 border-t border-theme">
@@ -91,14 +90,8 @@ export default function Datenschutz() {
           </section>
 
           <section className="pt-8 border-t border-theme">
-            <h2 className="text-lg font-semibold text-primary mb-3">{t.datenschutz.contactHeading}</h2>
-            <p className="text-sm text-secondary leading-relaxed mb-3">{t.datenschutz.contactIntro}</p>
-            <ul className="text-sm text-secondary leading-relaxed list-disc list-inside space-y-1 mb-3">
-              {t.datenschutz.contactDataItems.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-            <p className="text-sm text-secondary leading-relaxed">{t.datenschutz.contactPurpose}</p>
+            <h2 className="text-lg font-semibold text-primary mb-3">{t.datenschutz.vereinsplanerHeading}</h2>
+            <p className="text-sm text-secondary leading-relaxed">{t.datenschutz.vereinsplanerText}</p>
           </section>
 
           <section className="pt-8 border-t border-theme">
@@ -122,11 +115,6 @@ export default function Datenschutz() {
           </section>
 
           <section className="pt-8 border-t border-theme">
-            <h2 className="text-lg font-semibold text-primary mb-3">{t.datenschutz.automatedHeading}</h2>
-            <p className="text-sm text-secondary leading-relaxed">{t.datenschutz.automatedText}</p>
-          </section>
-
-          <section className="pt-8 border-t border-theme">
             <h2 className="text-lg font-semibold text-primary mb-3">{t.datenschutz.rightsHeading}</h2>
             <p className="text-sm text-secondary leading-relaxed mb-3">{t.datenschutz.rightsIntro}</p>
             <ul className="text-sm text-secondary leading-relaxed list-disc list-inside space-y-1">
@@ -134,11 +122,6 @@ export default function Datenschutz() {
                 <li key={item}>{item}</li>
               ))}
             </ul>
-          </section>
-
-          <section className="pt-8 border-t border-theme">
-            <h2 className="text-lg font-semibold text-primary mb-3">{t.datenschutz.complaintHeading}</h2>
-            <p className="text-sm text-secondary leading-relaxed">{t.datenschutz.complaintText}</p>
           </section>
         </div>
       </div>
