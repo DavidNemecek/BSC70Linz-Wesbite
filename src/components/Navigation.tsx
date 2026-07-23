@@ -75,12 +75,14 @@ export default function Navigation() {
           <Link
             to="/"
             onClick={handleLogoClick}
-            className="z-[101] flex items-center"
+            className="z-[101] flex items-center h-9 sm:h-10 shrink-0 overflow-hidden"
           >
             <img
               src={logoIsDark ? '/assets/bsc-logo-dark-themepng.png' : '/assets/bsc-logo-light.png'}
               alt="BSC 70 Linz"
-              className="h-9 sm:h-10 w-auto object-contain"
+              width={200}
+              height={94}
+              className="h-full w-auto max-w-none object-contain"
             />
           </Link>
 
