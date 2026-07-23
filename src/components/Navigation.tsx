@@ -15,6 +15,10 @@ export default function Navigation() {
   const { scrollTo } = useLenisScroll()
 
   useEffect(() => {
+    // This threshold must stay below the scroll offset at which Hero.tsx's
+    // overline can reach this nav's 72px band (see the pt-48 comment
+    // there) — otherwise the nav is still transparent when the text
+    // scrolls underneath it.
     const handleScroll = () => setScrolled(window.scrollY > 100)
     handleScroll()
     window.addEventListener('scroll', handleScroll, { passive: true })

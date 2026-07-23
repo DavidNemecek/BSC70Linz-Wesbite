@@ -106,7 +106,15 @@ export default function Hero() {
   }, [])
 
   return (
-    <section className="relative w-full min-h-[100dvh] flex overflow-hidden bg-[#0B0C0F] pt-24">
+    // pt-48: when this content block is too tall for the viewport (short
+    // window, or heavy browser zoom shrinking the effective dvh), the
+    // my-auto centering below collapses flush against this padding instead
+    // of centering. That floor must clear the fixed 72px nav *plus* the
+    // nav's scroll-to-opaque threshold in Navigation.tsx (currently 100px)
+    // — otherwise the overline scrolls into the still-transparent nav band
+    // and appears to slide out from behind the logo instead of vanishing
+    // behind it.
+    <section className="relative w-full min-h-[100dvh] flex overflow-hidden bg-[#0B0C0F] pt-48">
       <img
         src="/assets/hero-bg.jpg"
         alt=""
