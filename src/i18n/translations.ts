@@ -355,7 +355,7 @@ export const translations = {
           date: 'Mai 2025',
           category: 'Bundesliga',
           title: 'Sensationsmeldung aus der heimischen Badminton Szene!',
-          excerpt: 'Der Teamspieler des BSC70 Linz, Daniel-Aria Dinata, hat bei den Europameisterschaften im dänischen Horsensen sensationell das Halbfinale erreicht und damit im schlimmsten Fall die Bronzemediaille sicher.',
+          excerpt: 'Der Teamspieler des BSC70 Linz, Daniel-Aria Dinata, hat bei den Europameisterschaften im dänischen Horsens sensationell das Halbfinale erreicht und damit im schlimmsten Fall die Bronzemediaille sicher.',
           featured: true,
         },
         {
@@ -369,7 +369,7 @@ export const translations = {
           date: 'Juni 2024',
           category: 'Verein',
           title: 'Neuer Vereinsvorstand ab Juni 2024',
-          excerpt: 'Mit der ordentlichen Generalversammlung wurde die Zukunft des Vereins neu gestaltet. Stephan Ziermayr bleibt Obmann, Nikita Arnold wird Stellvertreter. Nach über 50 Jahren wurde der Austieg aus der Badminton Bundesliga beschlossen.',
+          excerpt: 'Mit der ordentlichen Generalversammlung wurde die Zukunft des Vereins neu gestaltet. Stephan Ziermayr bleibt Obmann, Nikita Arnold wird Stellvertreter. Nach über 50 Jahren wurde der Ausstieg aus der Badminton Bundesliga beschlossen.',
           featured: false,
         },
         {
