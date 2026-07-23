@@ -121,7 +121,7 @@ export default function Footer() {
             </a>
             <p className="text-sm text-dim">
               {t.footer.chairman}: Stephan Ziermayr<br />
-              <a href="tel:+436767042186" className="text-secondary hover:text-primary transition-colors">+43 676 7042187</a>
+              <a href="tel:+436767042186" className="text-secondary hover:text-primary transition-colors">+43 676 7042186</a>
             </p>
           </div>
         </div>

@@ -7,7 +7,7 @@ export default function Achievements() {
   const achievements = t.achievements.items
 
   return (
-    <section id="erfolge" className="py-12 sm:py-16 lg:py-20" style={{ backgroundColor: 'var(--accent-glow)' }}>
+    <section id="erfolge" className="py-16 sm:py-20 lg:py-32" style={{ backgroundColor: 'var(--accent-glow)' }}>
       <div ref={ref} className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10">
         <span data-animate className="inline-block text-xs font-medium uppercase tracking-[0.15em] text-accent mb-4 opacity-0">
           {t.achievements.overline}

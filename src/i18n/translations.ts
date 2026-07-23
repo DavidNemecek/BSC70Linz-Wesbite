@@ -152,7 +152,7 @@ export const translations = {
         },
         {
           number: '2025',
-          title: 'Europameisterschaft',
+          title: 'Europa­meisterschaft',
           description: 'Daniel-Aria Dinata erreicht das EM-Halbfinale und sichert Bronze',
         },
       ],

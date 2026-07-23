@@ -7,7 +7,7 @@ export default function Board() {
   const { t } = useLanguage();
 
   return (
-    <section id="vorstand" className="bg-surface py-20 lg:py-32">
+    <section id="vorstand" className="bg-surface py-16 sm:py-20 lg:py-32">
       <div ref={ref} className="max-w-[1280px] mx-auto px-6 lg:px-10">
         <span data-animate className="inline-block text-xs font-medium uppercase tracking-[0.15em] text-accent mb-4 opacity-0">
           {t.board.overline}

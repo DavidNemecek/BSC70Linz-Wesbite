@@ -36,7 +36,7 @@ export default function Training() {
           {t.training.title}
         </h2>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-10 lg:gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-10 lg:gap-12 items-start">
           <div data-stagger className="min-w-0">
             {/* Mobile: stacked cards */}
             <div className="lg:hidden space-y-3">

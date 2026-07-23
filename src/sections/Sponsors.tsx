@@ -11,7 +11,7 @@ export default function Sponsors() {
   const { t } = useLanguage()
 
   return (
-    <section id="sponsoren" className="bg-card-alt py-16 sm:py-20 lg:py-24">
+    <section id="sponsoren" className="bg-card-alt py-16 sm:py-20 lg:py-32">
       <div ref={ref} className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10 text-center">
         <span data-animate className="inline-block text-xs font-medium uppercase tracking-[0.15em] text-accent mb-4 opacity-0">
           {t.sponsors.overline}
