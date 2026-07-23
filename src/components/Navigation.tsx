@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Sun, Moon, Languages } from 'lucide-react'
 import { useTheme } from '@/context/ThemeContext'
@@ -62,7 +62,20 @@ export default function Navigation() {
   }
 
   const opaque = scrolled || !isHome || mobileOpen
-  const navBgClass = (scrolled || !isHome) ? 'bg-nav backdrop-blur-xl shadow-sm' : 'bg-transparent'
+  const navIsSolid = scrolled || !isHome
+  // Set directly as an inline style rather than toggling a Tailwind class:
+  // this background flip was reported as never visually happening in some
+  // browsers despite the underlying scroll state updating correctly, so
+  // bypass class/cascade resolution entirely and drive the paint straight
+  // from React state.
+  const navStyle: CSSProperties = navIsSolid
+    ? {
+        backgroundColor: theme === 'dark' ? 'rgba(11, 12, 15, 0.92)' : 'rgba(240, 241, 245, 0.92)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
+        boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+      }
+    : { backgroundColor: 'transparent' }
   const linkTextClass = opaque
     ? 'text-secondary hover:text-primary'
     : 'text-white/70 hover:text-white'
@@ -79,7 +92,8 @@ export default function Navigation() {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-[100] h-[72px] flex items-center transition-all duration-300 ${navBgClass}`}
+        className="fixed top-0 left-0 right-0 z-[100] h-[72px] flex items-center transition-all duration-300"
+        style={navStyle}
       >
         <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10 flex items-center justify-between">
           <Link

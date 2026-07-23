@@ -115,6 +115,7 @@ export const translations = {
       ctaTitle: 'Bereit durchzustarten?',
       ctaText: 'Melde dich zum Schnuppertraining an oder werde direkt Mitglied.',
       ctaButton: 'Zur Anmeldung',
+      trialButton: 'Schnuppertraining anfragen',
     },
     board: {
       overline: 'VORSTAND',
@@ -502,6 +503,7 @@ export const translations = {
       ctaTitle: 'Ready to get started?',
       ctaText: 'Sign up for a trial training session or become a member right away.',
       ctaButton: 'Go to registration',
+      trialButton: 'Request a trial session',
     },
     board: {
       overline: 'BOARD',

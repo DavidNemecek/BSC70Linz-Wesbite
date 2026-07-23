@@ -1,11 +1,13 @@
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '@/context/LanguageContext'
+import { buildTrialMailto } from '@/lib/trialMailto'
 
 export default function Membership() {
   const ref = useScrollAnimation()
   const { t } = useLanguage()
   const { fees, tableHeaders } = t.membership
+  const trialMailtoHref = buildTrialMailto()
 
   return (
     <section id="mitgliedschaft" className="py-16 sm:py-20 lg:py-32" style={{ backgroundColor: 'var(--bg-section)' }}>
@@ -53,12 +55,20 @@ export default function Membership() {
                 {t.membership.ctaText}
               </p>
             </div>
-            <Link
-              to="/anmeldung"
-              className="inline-flex items-center justify-center bg-white text-accent font-semibold text-sm rounded-full px-8 py-3.5 hover:scale-[1.02] transition-transform duration-200 flex-shrink-0"
-            >
-              {t.membership.ctaButton}
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
+              <a
+                href={trialMailtoHref}
+                className="inline-flex items-center justify-center bg-transparent border border-white/60 text-white font-semibold text-sm rounded-full px-8 py-3.5 hover:bg-white/10 transition-colors duration-200"
+              >
+                {t.membership.trialButton}
+              </a>
+              <Link
+                to="/anmeldung"
+                className="inline-flex items-center justify-center bg-white text-accent font-semibold text-sm rounded-full px-8 py-3.5 hover:scale-[1.02] transition-transform duration-200"
+              >
+                {t.membership.ctaButton}
+              </Link>
+            </div>
           </div>
         </div>
       </div>
