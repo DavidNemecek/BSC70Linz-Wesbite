@@ -92,15 +92,15 @@ export default function Anfahrt() {
           </div>
         </div>
 
-        {directions.secondHallImages && directions.secondHallImages.length > 0 && (
+        {directions.routeImages && directions.routeImages.length > 0 && (
           <div data-animate className="bg-card rounded-xl border border-theme p-6 sm:p-8 opacity-0 mb-8">
-            <h2 className="text-lg font-semibold text-primary mb-4">{t.anfahrt.secondHallHeading}</h2>
+            <h2 className="text-lg font-semibold text-primary mb-4">{t.anfahrt.routePhotosHeading}</h2>
             <div className="space-y-4">
-              {directions.secondHallImages.map((image, i) => (
+              {directions.routeImages.map((image, i) => (
                 <div key={image} className="rounded-lg border border-theme overflow-hidden">
                   <img
                     src={image}
-                    alt={`${t.anfahrt.secondHallHeading} ${i + 1}`}
+                    alt={`${t.anfahrt.routePhotosHeading} ${i + 1}`}
                     loading="lazy"
                     decoding="async"
                     className="w-full h-auto object-contain"
