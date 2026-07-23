@@ -2,7 +2,8 @@ import { Link, useParams } from 'react-router-dom'
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ArrowRight, MapPin, Navigation as NavigationIcon, PlayCircle } from 'lucide-react'
+import { ArrowRight, MapPin, Navigation as NavigationIcon } from 'lucide-react'
+// import { PlayCircle } from 'lucide-react' // re-add when the "Video zur Anfahrt" section below is reactivated
 import { useLanguage } from '@/context/LanguageContext'
 import { hallDirections, type HallId } from '@/data/hallDirections'
 
@@ -110,6 +111,7 @@ export default function Anfahrt() {
           </div>
         )}
 
+        {/* Video zur Anfahrt — vorerst ausgeblendet, bis ein echtes Video vorhanden ist.
         <div data-animate className="bg-card rounded-xl border border-theme p-6 sm:p-8 opacity-0">
           <h2 className="text-lg font-semibold text-primary mb-4">{t.anfahrt.videoHeading}</h2>
           <div className="aspect-video rounded-lg border border-dashed border-theme flex flex-col items-center justify-center gap-3 text-dim">
@@ -117,6 +119,7 @@ export default function Anfahrt() {
             <span className="text-sm">{t.anfahrt.videoComingSoon}</span>
           </div>
         </div>
+        */}
       </div>
     </div>
   )
