@@ -168,6 +168,7 @@ export const translations = {
       place: 'Platz',
       point: 'Punkt',
       points: 'Punkte',
+      externalLinkHint: 'Tabelle auf Turniersoftware.com ansehen',
     },
     sponsors: {
       overline: 'PARTNER',
@@ -554,6 +555,7 @@ export const translations = {
       place: 'Place',
       point: 'Point',
       points: 'Points',
+      externalLinkHint: 'View table on Turniersoftware.com',
     },
     sponsors: {
       overline: 'PARTNERS',

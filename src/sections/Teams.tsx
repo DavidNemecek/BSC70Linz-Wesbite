@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { ExternalLink } from 'lucide-react'
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
 import { useLanguage } from '@/context/LanguageContext'
 
@@ -80,6 +81,7 @@ export default function Teams() {
               href={team.team_url}
               target="_blank"
               rel="noopener noreferrer"
+              title={t.teams.externalLinkHint}
               className="block bg-card rounded-lg border border-theme p-6 sm:p-8 lg:p-10 hover:-translate-y-1 hover:border-[var(--border-hover)] transition-all duration-300"
             >
               <span className="inline-block text-xs font-medium uppercase tracking-[0.05em] bg-accent-gradient text-white rounded-full px-3 py-1 mb-4">
@@ -106,6 +108,11 @@ export default function Teams() {
                     {team.points === 1 ? t.teams.point : t.teams.points}
                   </div>
                 </div>
+              </div>
+
+              <div className="flex items-center gap-1.5 text-xs text-muted mt-6">
+                <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>{t.teams.externalLinkHint}</span>
               </div>
             </a>
           ))}
