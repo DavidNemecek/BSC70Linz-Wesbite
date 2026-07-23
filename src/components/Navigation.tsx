@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useState, type CSSProperties } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Sun, Moon, Languages } from 'lucide-react'
 import { useTheme } from '@/context/ThemeContext'
@@ -6,13 +6,12 @@ import { useLanguage } from '@/context/LanguageContext'
 import { useLenisScroll } from '@/context/LenisContext'
 
 export default function Navigation() {
-  const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const location = useLocation()
   const isHome = location.pathname === '/'
   const { theme, toggleTheme } = useTheme()
   const { language, toggleLanguage, t } = useLanguage()
-  const { scrollTo, subscribeScroll } = useLenisScroll()
+  const { scrollTo } = useLenisScroll()
 
   const navLinks = [
     { label: t.nav.training, href: '/#training' },
@@ -26,24 +25,6 @@ export default function Navigation() {
   const pageLinks = [
     { label: t.nav.chronik, href: '/chronik' },
   ]
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 100)
-    }
-    window.addEventListener('scroll', handleScroll, { passive: true })
-
-    // Backstop: some browsers don't reliably dispatch native `scroll`
-    // events on `window` while Lenis is driving the scroll animation, which
-    // left the nav permanently stuck in its transparent/top-of-page state.
-    // Reading the position straight from Lenis avoids depending on that.
-    const unsubscribe = subscribeScroll((scroll) => setScrolled(scroll > 100))
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll)
-      unsubscribe()
-    }
-  }, [subscribeScroll])
 
   const handleAnchorClick = (e: React.MouseEvent, href: string) => {
     e.preventDefault()
@@ -61,25 +42,18 @@ export default function Navigation() {
     }
   }
 
-  const opaque = scrolled || !isHome || mobileOpen
-  const navIsSolid = scrolled || !isHome
-  // Set directly as an inline style rather than toggling a Tailwind class:
-  // this background flip was reported as never visually happening in some
-  // browsers despite the underlying scroll state updating correctly, so
-  // bypass class/cascade resolution entirely and drive the paint straight
-  // from React state.
-  const navStyle: CSSProperties = navIsSolid
-    ? {
-        backgroundColor: theme === 'dark' ? 'rgba(11, 12, 15, 0.92)' : 'rgba(240, 241, 245, 0.92)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
-        boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-      }
-    : { backgroundColor: 'transparent' }
-  const linkTextClass = opaque
-    ? 'text-secondary hover:text-primary'
-    : 'text-white/70 hover:text-white'
-  const logoIsDark = !opaque || theme === 'dark'
+  // The nav always has a solid background (never a transparent overlay over
+  // the hero) — set directly as an inline style rather than a Tailwind
+  // class so the paint comes straight from React state with no class/
+  // cascade resolution involved.
+  const navStyle: CSSProperties = {
+    backgroundColor: theme === 'dark' ? 'rgba(11, 12, 15, 0.92)' : 'rgba(240, 241, 245, 0.92)',
+    backdropFilter: 'blur(24px)',
+    WebkitBackdropFilter: 'blur(24px)',
+    boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+  }
+  const linkTextClass = 'text-secondary hover:text-primary'
+  const logoIsDark = theme === 'dark'
 
   const handleLogoClick = (e: React.MouseEvent) => {
     setMobileOpen(false)
@@ -136,18 +110,14 @@ export default function Navigation() {
             <button
               onClick={toggleTheme}
               aria-label="Toggle theme"
-              className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 ${
-                opaque ? 'text-secondary hover:text-primary hover:bg-[var(--border-color)]' : 'text-white/70 hover:text-white hover:bg-white/10'
-              }`}
+              className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 text-secondary hover:text-primary hover:bg-[var(--border-color)]"
             >
               {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
             <button
               onClick={toggleLanguage}
               aria-label="Toggle language"
-              className={`w-9 h-9 rounded-full flex items-center justify-center text-[0.7rem] font-semibold tracking-wide transition-all duration-200 ${
-                opaque ? 'text-secondary hover:text-primary hover:bg-[var(--border-color)]' : 'text-white/70 hover:text-white hover:bg-white/10'
-              }`}
+              className="w-9 h-9 rounded-full flex items-center justify-center text-[0.7rem] font-semibold tracking-wide transition-all duration-200 text-secondary hover:text-primary hover:bg-[var(--border-color)]"
             >
               {language === 'de' ? 'EN' : 'DE'}
             </button>
@@ -164,9 +134,9 @@ export default function Navigation() {
             className="lg:hidden flex flex-col gap-1.5 p-2 z-[101]"
             aria-label="Menu"
           >
-            <span className={`block w-6 h-0.5 transition-all duration-300 ${opaque ? 'bg-[var(--text-primary)]' : 'bg-white'} ${mobileOpen ? 'rotate-45 translate-y-2' : ''}`} />
-            <span className={`block w-6 h-0.5 transition-all duration-300 ${opaque ? 'bg-[var(--text-primary)]' : 'bg-white'} ${mobileOpen ? 'opacity-0' : ''}`} />
-            <span className={`block w-6 h-0.5 transition-all duration-300 ${opaque ? 'bg-[var(--text-primary)]' : 'bg-white'} ${mobileOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+            <span className={`block w-6 h-0.5 bg-[var(--text-primary)] transition-all duration-300 ${mobileOpen ? 'rotate-45 translate-y-2' : ''}`} />
+            <span className={`block w-6 h-0.5 bg-[var(--text-primary)] transition-all duration-300 ${mobileOpen ? 'opacity-0' : ''}`} />
+            <span className={`block w-6 h-0.5 bg-[var(--text-primary)] transition-all duration-300 ${mobileOpen ? '-rotate-45 -translate-y-2' : ''}`} />
           </button>
         </div>
       </nav>
