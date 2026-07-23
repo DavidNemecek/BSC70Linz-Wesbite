@@ -164,55 +164,62 @@ export default function Navigation() {
           mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >
-        <div className="flex flex-col items-center justify-center h-full gap-6 pt-20 px-6">
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={(e) => handleAnchorClick(e, link.href)}
-              className="text-xl sm:text-2xl font-display tracking-wide text-secondary hover:text-accent transition-colors"
-            >
-              {link.label}
-            </a>
-          ))}
-          {pageLinks.map((link) => (
+        <div className="flex flex-col items-center h-full overflow-y-auto pt-20 pb-6 px-6">
+          {/* `my-auto` (not `justify-center` on the scroll parent) so this
+              block centers vertically when it fits, but degrades to
+              top-aligned-and-scrollable instead of overflowing above the
+              screen — and off the nav — when the drawer's content (links +
+              theme/language toggles + CTA) is taller than a short viewport. */}
+          <div className="flex flex-col items-center gap-6 my-auto">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={(e) => handleAnchorClick(e, link.href)}
+                className="text-xl sm:text-2xl font-display tracking-wide text-secondary hover:text-accent transition-colors"
+              >
+                {link.label}
+              </a>
+            ))}
+            {pageLinks.map((link) => (
+              <Link
+                key={link.href}
+                to={link.href}
+                onClick={() => setMobileOpen(false)}
+                className="text-xl sm:text-2xl font-display tracking-wide text-secondary hover:text-accent transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
+
+            <div className="flex items-center gap-3 mt-4">
+              <button
+                onClick={toggleTheme}
+                aria-label="Toggle theme"
+                className="flex items-center gap-2 text-secondary hover:text-primary transition-colors px-4 py-2 rounded-full border border-theme"
+              >
+                {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                <span className="text-sm">{theme === 'dark' ? t.nav.themeLight : t.nav.themeDark}</span>
+              </button>
+
+              <button
+                onClick={toggleLanguage}
+                aria-label="Toggle language"
+                className="flex items-center gap-2 text-secondary hover:text-primary transition-colors px-4 py-2 rounded-full border border-theme"
+              >
+                <Languages className="w-4 h-4" />
+                <span className="text-sm">{language === 'de' ? 'EN' : 'DE'}</span>
+              </button>
+            </div>
+
             <Link
-              key={link.href}
-              to={link.href}
+              to="/anmeldung"
               onClick={() => setMobileOpen(false)}
-              className="text-xl sm:text-2xl font-display tracking-wide text-secondary hover:text-accent transition-colors"
+              className="mt-2 bg-accent-gradient text-white text-base font-semibold rounded-full px-8 py-3"
             >
-              {link.label}
+              {t.nav.joinButton}
             </Link>
-          ))}
-
-          <div className="flex items-center gap-3 mt-4">
-            <button
-              onClick={toggleTheme}
-              aria-label="Toggle theme"
-              className="flex items-center gap-2 text-secondary hover:text-primary transition-colors px-4 py-2 rounded-full border border-theme"
-            >
-              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              <span className="text-sm">{theme === 'dark' ? t.nav.themeLight : t.nav.themeDark}</span>
-            </button>
-
-            <button
-              onClick={toggleLanguage}
-              aria-label="Toggle language"
-              className="flex items-center gap-2 text-secondary hover:text-primary transition-colors px-4 py-2 rounded-full border border-theme"
-            >
-              <Languages className="w-4 h-4" />
-              <span className="text-sm">{language === 'de' ? 'EN' : 'DE'}</span>
-            </button>
           </div>
-
-          <Link
-            to="/anmeldung"
-            onClick={() => setMobileOpen(false)}
-            className="mt-2 bg-accent-gradient text-white text-base font-semibold rounded-full px-8 py-3"
-          >
-            {t.nav.joinButton}
-          </Link>
         </div>
       </div>
     </>
