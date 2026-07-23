@@ -110,9 +110,11 @@ export default function Teams() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5 text-xs text-muted mt-6">
-                <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
-                <span>{t.teams.externalLinkHint}</span>
+              <div className="mt-6">
+                <span className="inline-flex items-center gap-2 bg-accent-gradient text-white text-xs font-semibold rounded-full px-4 py-2">
+                  <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
+                  {t.teams.externalLinkHint}
+                </span>
               </div>
             </a>
           ))}
