@@ -101,6 +101,11 @@ export default function Footer() {
                   {t.footer.impressum}
                 </Link>
               </li>
+              <li>
+                <Link to="/datenschutz" className="text-sm text-secondary hover:text-primary transition-colors duration-200">
+                  {t.footer.datenschutz}
+                </Link>
+              </li>
             </ul>
           </div>
 
