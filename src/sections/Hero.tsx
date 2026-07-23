@@ -106,7 +106,7 @@ export default function Hero() {
   }, [])
 
   return (
-    <section className="relative w-full min-h-[100dvh] flex [align-items:safe_center] overflow-hidden bg-[#0B0C0F] pt-24">
+    <section className="relative w-full min-h-[100dvh] flex overflow-hidden bg-[#0B0C0F] pt-24">
       <img
         src="/assets/hero-bg.jpg"
         alt=""
@@ -123,7 +123,7 @@ export default function Hero() {
         style={{ zIndex: 2 }}
       />
 
-      <div className="relative z-10 w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10">
+      <div className="relative z-10 w-full max-w-[1280px] mx-auto my-auto px-4 sm:px-6 lg:px-10">
         <span
           ref={overlineRef}
           className="inline-block text-xs font-medium uppercase tracking-[0.15em] text-accent mb-6 opacity-0"
