@@ -1,79 +1,122 @@
+import { useEffect, useState } from 'react'
+import { ExternalLink } from 'lucide-react'
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
+import { useLanguage } from '@/context/LanguageContext'
 
-const teams = [
-  {
-    badge: '1. Mannschaft',
-    name: 'BSC 70 Linz I',
-    league: '1. Landesliga',
-    position: '2.',
-    positionLabel: 'Platz',
-    points: '12',
-    pointsLabel: 'Punkte',
-    result: 'Letztes Spiel: 5:3 Sieg gegen SK Vöest',
-  },
-  {
-    badge: '2. Mannschaft',
-    name: 'BSC 70 Linz II',
-    league: '2. Klasse Nord — Playoff',
-    position: '3.',
-    positionLabel: 'Platz',
-    points: '1',
-    pointsLabel: 'Punkt',
-    result: 'Letztes Spiel: 2:6 gegen UBC Neuhofen VI',
-  },
-]
+const TEAMS_DATA_URL = 'https://raw.githubusercontent.com/DavidNemecek/BSC70Linz-Wesbite-BackgroundTasks/refs/heads/main/data/bsc70-teams.json'
+
+interface Team {
+  name: string
+  competition: string
+  standing: number
+  points: number
+  team_url: string
+}
+
+interface TeamsData {
+  club: { team_count: number }
+  teams: Team[]
+}
+
+function formatCompetition(competition: string) {
+  return competition.replace(/^(\d+)\.(?=\S)/, '$1. ')
+}
 
 export default function Teams() {
   const ref = useScrollAnimation()
+  const { t } = useLanguage()
+  const [data, setData] = useState<TeamsData | null>(null)
+  const [error, setError] = useState(false)
+
+  useEffect(() => {
+    fetch(TEAMS_DATA_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error('Request failed')
+        return res.json() as Promise<TeamsData>
+      })
+      .then(setData)
+      .catch(() => setError(true))
+  }, [])
+
+  const teamCount = data?.club.team_count ?? data?.teams.length
 
   return (
-    <section id="teams" className="bg-night py-16 sm:py-20 lg:py-32">
+    <section id="teams" className="py-16 sm:py-20 lg:py-32" style={{ backgroundColor: 'var(--bg-section)' }}>
       <div ref={ref} className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10">
-        <span data-animate className="inline-block text-xs font-medium uppercase tracking-[0.15em] text-ember mb-4 opacity-0">
-          MANNSCHAFTEN
+        <span data-animate className="inline-block text-xs font-medium uppercase tracking-[0.15em] text-accent mb-4 opacity-0">
+          {t.teams.overline}
         </span>
 
-        <h2 data-animate className="font-display text-[clamp(2.5rem,7vw,5.5rem)] tracking-[0.02em] text-white leading-[1.05] mb-4 opacity-0">
-          Unsere Mannschaften
+        <h2 data-animate className="font-display text-[clamp(2.5rem,7vw,5.5rem)] tracking-[0.02em] text-primary leading-[1.05] mb-4 opacity-0">
+          {t.teams.title}
         </h2>
 
-        <p data-animate className="text-base text-white/60 leading-relaxed max-w-[640px] mb-10 lg:mb-12 opacity-0">
-          Der BSC 70 Linz stellt zwei Mannschaften in den oberösterreichischen Ligen. Nach über 50 Jahren Bundesliga-Zugehörigkeit haben wir uns 2024 bewusst neu orientiert — und setzen nun mit voller Kraft auf unsere Landesliga-Teams.
+        <p data-animate className="text-base text-secondary leading-relaxed max-w-[640px] mb-10 lg:mb-12 opacity-0">
+          {teamCount != null ? t.teams.descriptionWithCount(teamCount) : t.teams.descriptionNoCount}
         </p>
 
-        <div data-stagger className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-          {teams.map((team, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+          {error && (
+            <p className="text-sm text-muted col-span-full">{t.teams.errorMessage}</p>
+          )}
+
+          {!data && !error && [0, 1].map((i) => (
             <div
               key={i}
-              data-stagger-item
-              className="bg-charcoal rounded-lg border border-white/[0.08] p-6 sm:p-8 lg:p-10 opacity-0 hover:-translate-y-1 hover:border-ember/30 transition-all duration-300"
+              className="bg-card rounded-lg border border-theme p-6 sm:p-8 lg:p-10 animate-pulse"
             >
-              <span className="inline-block text-xs font-medium uppercase tracking-[0.05em] bg-ember text-white rounded-full px-3 py-1 mb-4">
-                {team.badge}
+              <div className="h-5 w-28 rounded-full bg-card-alt mb-4" />
+              <div className="h-8 w-40 rounded bg-card-alt mb-2" />
+              <div className="h-4 w-32 rounded bg-card-alt mb-6" />
+              <div className="border-t border-theme pt-6 flex gap-8 sm:gap-12">
+                <div className="h-10 w-12 rounded bg-card-alt" />
+                <div className="h-10 w-12 rounded bg-card-alt" />
+              </div>
+            </div>
+          ))}
+
+          {data?.teams.map((team, i) => (
+            <a
+              key={team.team_url}
+              href={team.team_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={t.teams.externalLinkHint}
+              className="block bg-card rounded-lg border border-theme p-6 sm:p-8 lg:p-10 hover:-translate-y-1 hover:border-[var(--border-hover)] transition-all duration-300"
+            >
+              <span className="inline-block text-xs font-medium uppercase tracking-[0.05em] bg-accent-gradient text-white rounded-full px-3 py-1 mb-4">
+                {t.teams.teamLabel(i + 1)}
               </span>
 
-              <h3 className="text-[clamp(1.5rem,3vw,2.8rem)] font-semibold tracking-tight text-white mb-1">
+              <h3 className="text-[clamp(1.5rem,3vw,2.8rem)] font-semibold tracking-tight text-primary mb-1">
                 {team.name}
               </h3>
-              <p className="text-base text-white/50 mb-6">{team.league}</p>
+              <p className="text-base text-secondary mb-6">{formatCompetition(team.competition)}</p>
 
-              <div className="border-t border-white/[0.08] pt-6 flex gap-8 sm:gap-12">
+              <div className="border-t border-theme pt-6 flex gap-8 sm:gap-12">
                 <div>
-                  <div className="text-[clamp(2rem,5vw,4rem)] font-bold text-white leading-none">
-                    {team.position}
+                  <div className="text-[clamp(2rem,5vw,4rem)] font-bold text-primary leading-none">
+                    {team.standing}.
                   </div>
-                  <div className="text-xs uppercase tracking-[0.05em] text-slate mt-1">{team.positionLabel}</div>
+                  <div className="text-xs uppercase tracking-[0.05em] text-muted mt-1">{t.teams.place}</div>
                 </div>
                 <div>
-                  <div className="text-[clamp(2rem,5vw,4rem)] font-bold text-white leading-none">
+                  <div className="text-[clamp(2rem,5vw,4rem)] font-bold text-primary leading-none">
                     {team.points}
                   </div>
-                  <div className="text-xs uppercase tracking-[0.05em] text-slate mt-1">{team.pointsLabel}</div>
+                  <div className="text-xs uppercase tracking-[0.05em] text-muted mt-1">
+                    {team.points === 1 ? t.teams.point : t.teams.points}
+                  </div>
                 </div>
               </div>
 
-              <p className="text-sm text-white/40 mt-6">{team.result}</p>
-            </div>
+              <div className="mt-6">
+                <span className="inline-flex items-center gap-2 bg-accent-gradient text-white text-xs font-semibold rounded-full px-4 py-2">
+                  <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
+                  {t.teams.externalLinkHint}
+                </span>
+              </div>
+            </a>
           ))}
         </div>
       </div>

@@ -5,8 +5,7 @@ import Teams from '@/sections/Teams'
 import Achievements from '@/sections/Achievements'
 import Board from '@/sections/Board'
 import Membership from '@/sections/Membership'
-import Contact from '@/sections/Contact'
-import NewsPreview from '@/sections/NewsPreview'
+import Sponsors from '@/sections/Sponsors'
 
 export default function Home() {
   return (
@@ -14,12 +13,11 @@ export default function Home() {
       <Hero />
       <About />
       <Training />
-      <Teams />
-      <Achievements />
-      <Board />
       <Membership />
-      <NewsPreview />
-      <Contact />
+      <Teams />
+      <Board />
+      <Achievements />
+      <Sponsors />
     </>
   )
 }

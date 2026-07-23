@@ -4,17 +4,48 @@
 
 @layer base {
   :root {
-    --night: #0B0C0F;
-    --paper: #F4F4F0;
-    --frost: #E8E9E4;
-    --charcoal: #1A1C23;
-    --ink: #1A1C23;
-    --ember: #E8502C;
-    --ember-glow: rgba(232, 80, 44, 0.15);
-    --slate: #6B7280;
-    --border-light: rgba(26, 28, 35, 0.08);
-    --border-dark: rgba(255, 255, 255, 0.08);
+    --accent: #0E8FB9;
+    --accent-light: #3BAFD4;
+    --accent-dark: #0A6E8F;
+    --accent-glow: rgba(14, 143, 185, 0.15);
+    --accent-glow-strong: rgba(14, 143, 185, 0.25);
+    --accent-gradient: linear-gradient(135deg, #3BAFD4, #0E8FB9);
+    --accent-gradient-hover: linear-gradient(135deg, #63C2E0, #0E8FB9);
     --radius: 0.5rem;
+  }
+
+  [data-theme="dark"] {
+    --bg-page: #0B0C0F;
+    --bg-section: #0B0C0F;
+    --bg-card: #1A1C23;
+    --bg-card-alt: #13141A;
+    --bg-surface: #1E2030;
+    --text-primary: #FFFFFF;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --text-muted: rgba(255, 255, 255, 0.5);
+    --text-dim: rgba(255, 255, 255, 0.3);
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(14, 143, 185, 0.3);
+    --nav-bg: rgba(11, 12, 15, 0.92);
+    --hero-bg: #0B0C0F;
+    --input-bg: #1A1C23;
+  }
+
+  [data-theme="light"] {
+    --bg-page: #F0F1F5;
+    --bg-section: #F0F1F5;
+    --bg-card: #FFFFFF;
+    --bg-card-alt: #F8F9FC;
+    --bg-surface: #E8EBF0;
+    --text-primary: #0B0C0F;
+    --text-secondary: rgba(11, 12, 15, 0.7);
+    --text-muted: rgba(11, 12, 15, 0.5);
+    --text-dim: rgba(11, 12, 15, 0.35);
+    --border-color: rgba(11, 12, 15, 0.08);
+    --border-hover: rgba(14, 143, 185, 0.4);
+    --nav-bg: rgba(240, 241, 245, 0.92);
+    --hero-bg: #0B0C0F;
+    --input-bg: #FFFFFF;
   }
 
   html {
@@ -23,15 +54,16 @@
 
   body {
     font-family: 'Inter', sans-serif;
-    background-color: var(--night);
-    color: var(--ink);
+    background-color: var(--bg-page);
+    color: var(--text-primary);
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.25s ease, color 0.25s ease;
   }
 
   ::selection {
-    background-color: var(--ember);
+    background-color: var(--accent);
     color: #FFFFFF;
   }
 }
@@ -40,45 +72,90 @@
   .font-display {
     font-family: 'Bebas Neue', sans-serif;
   }
+}
 
-  .text-ember {
-    color: var(--ember);
+@layer utilities {
+  .bg-page {
+    background-color: var(--bg-page);
   }
 
-  .bg-ember {
-    background-color: var(--ember);
+  .bg-section {
+    background-color: var(--bg-section);
   }
 
-  .bg-night {
-    background-color: var(--night);
+  .bg-card {
+    background-color: var(--bg-card);
   }
 
-  .bg-paper {
-    background-color: var(--paper);
+  .bg-card-alt {
+    background-color: var(--bg-card-alt);
   }
 
-  .bg-frost {
-    background-color: var(--frost);
+  .bg-surface {
+    background-color: var(--bg-surface);
   }
 
-  .bg-charcoal {
-    background-color: var(--charcoal);
+  .bg-nav {
+    background-color: var(--nav-bg);
   }
 
-  .bg-ember-glow {
-    background-color: var(--ember-glow);
+  .bg-input-theme {
+    background-color: var(--input-bg);
   }
 
-  .text-slate {
-    color: var(--slate);
+  .text-primary {
+    color: var(--text-primary);
   }
 
-  .border-light {
-    border-color: var(--border-light);
+  .text-secondary {
+    color: var(--text-secondary);
   }
 
-  .border-dark {
-    border-color: var(--border-dark);
+  .text-muted {
+    color: var(--text-muted);
+  }
+
+  .text-dim {
+    color: var(--text-dim);
+  }
+
+  .border-theme {
+    border-color: var(--border-color);
+  }
+
+  .border-primary {
+    border-color: var(--text-primary);
+  }
+
+  .bg-primary {
+    background-color: var(--text-primary);
+  }
+
+  .text-accent {
+    color: var(--accent);
+  }
+
+  .bg-accent {
+    background-color: var(--accent);
+  }
+
+  .border-accent {
+    border-color: var(--accent);
+  }
+
+  .bg-accent-glow {
+    background-color: var(--accent-glow);
+  }
+
+  .bg-accent-gradient {
+    background: var(--accent-gradient);
+  }
+
+  .text-gradient {
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 }
 
@@ -94,7 +171,6 @@
   @media (prefers-reduced-motion: reduce) {
     * {
       animation: none !important;
-      transition: none !important;
     }
   }
 }

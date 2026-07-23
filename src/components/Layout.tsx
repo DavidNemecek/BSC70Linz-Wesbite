@@ -1,19 +1,23 @@
 import { Outlet, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
-import { useLenis } from '@/hooks/useLenis'
+import { useLenisScroll } from '@/context/LenisContext'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 
 export default function Layout() {
-  const lenisRef = useLenis()
+  const { scrollTo } = useLenisScroll()
   const location = useLocation()
 
   useEffect(() => {
-    window.scrollTo(0, 0)
-    if (lenisRef.current) {
-      lenisRef.current.scrollTo(0, { immediate: true })
+    if (location.hash) {
+      const el = document.getElementById(location.hash.slice(1))
+      if (el) {
+        scrollTo(el)
+        return
+      }
     }
-  }, [location.pathname, lenisRef])
+    scrollTo(0)
+  }, [location.pathname, location.hash, scrollTo])
 
   return (
     <div className="relative">

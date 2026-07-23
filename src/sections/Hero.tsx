@@ -1,7 +1,10 @@
 import { useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
+import { useLanguage } from '@/context/LanguageContext'
 
 export default function Hero() {
+  const { t } = useLanguage()
   const overlineRef = useRef<HTMLSpanElement>(null)
   const headlineRef = useRef<HTMLHeadingElement>(null)
   const subRef = useRef<HTMLParagraphElement>(null)
@@ -38,8 +41,7 @@ export default function Hero() {
       const w = canvas.width
       const h = canvas.height
 
-      ctx.fillStyle = '#0B0C0F'
-      ctx.fillRect(0, 0, w, h)
+      ctx.clearRect(0, 0, w, h)
 
       const mx = mouseRef.current.x
       const my = mouseRef.current.y
@@ -57,11 +59,11 @@ export default function Hero() {
         const y = baseY + (dy / (dist + 1)) * influence
 
         const size = 1 + Math.sin(i + time * 2) * 0.5
-        const alpha = 0.03 + Math.sin(i * 0.5 + time) * 0.02
+        const alpha = 0.15 + Math.sin(i * 0.5 + time) * 0.1
 
         ctx.beginPath()
         ctx.arc(x, y, size, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(232, 80, 44, ${alpha})`
+        ctx.fillStyle = `rgba(14, 143, 185, ${alpha})`
         ctx.fill()
       }
 
@@ -104,48 +106,66 @@ export default function Hero() {
   }, [])
 
   return (
-    <section className="relative w-full min-h-[100dvh] flex items-center overflow-hidden">
+    // pt-48: when this content block is too tall for the viewport (short
+    // window, or heavy browser zoom shrinking the effective dvh), the
+    // my-auto centering below collapses flush against this padding instead
+    // of centering. That floor must clear the fixed 72px nav *plus* the
+    // nav's scroll-to-opaque threshold in Navigation.tsx (currently 100px)
+    // — otherwise the overline scrolls into the still-transparent nav band
+    // and appears to slide out from behind the logo instead of vanishing
+    // behind it.
+    <section className="relative w-full min-h-[100dvh] flex overflow-hidden bg-[#0B0C0F] pt-48">
+      <img
+        src="/assets/hero-bg.jpg"
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{ zIndex: 0 }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{ zIndex: 1, background: 'linear-gradient(100deg, rgba(11,12,15,0.92) 0%, rgba(11,12,15,0.78) 40%, rgba(11,12,15,0.55) 70%, rgba(11,12,15,0.4) 100%)' }}
+      />
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full"
-        style={{ zIndex: 0 }}
+        style={{ zIndex: 2 }}
       />
 
-      <div className="relative z-10 w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10">
+      <div className="relative z-10 w-full max-w-[1280px] mx-auto my-auto px-4 sm:px-6 lg:px-10">
         <span
           ref={overlineRef}
-          className="inline-block text-xs font-medium uppercase tracking-[0.15em] text-ember mb-6 opacity-0"
+          className="inline-block text-xs font-medium uppercase tracking-[0.15em] text-accent mb-6 opacity-0"
         >
-          ASKÖ BSC 70 LINZ
+          {t.hero.overline}
         </span>
 
         <h1 ref={headlineRef} className="font-display text-white leading-[0.95]">
-          <span className="word block text-[clamp(3rem,18vw,9rem)] tracking-[0.02em] opacity-0">SCHLÄGE</span>
-          <span className="word block text-[clamp(3rem,18vw,9rem)] tracking-[0.08em] opacity-0">MIT</span>
-          <span className="word block text-[clamp(3rem,18vw,9rem)] tracking-[0.02em] opacity-0">TRADITION</span>
+          {t.hero.words.map((word, i) => (
+            <span key={i} className="word block text-[clamp(3rem,18vw,9rem)] tracking-[0.02em] opacity-0">{word}</span>
+          ))}
         </h1>
 
         <p
           ref={subRef}
           className="mt-8 text-base text-white/70 max-w-[480px] leading-relaxed opacity-0"
         >
-          Badminton in Linz seit 1970. Einer der erfolgreichsten Badmintonvereine Österreichs — vom Nachwuchs bis zur Spitze.
+          {t.hero.subtitle}
         </p>
 
-        <a
+        <Link
           ref={ctaRef}
-          href="/anmeldung"
-          className="inline-block mt-8 bg-ember text-white text-sm font-semibold rounded-full px-10 py-3.5 hover:-translate-y-0.5 hover:shadow-[0_6px_24px_rgba(232,80,44,0.4)] transition-all duration-200 opacity-0"
+          to="/anmeldung"
+          className="inline-block mt-8 bg-accent-gradient text-white text-sm font-semibold rounded-full px-10 py-3.5 hover:-translate-y-0.5 hover:shadow-[0_6px_24px_rgba(14,143,185,0.4)] transition-all duration-200 opacity-0"
         >
-          Jetzt Mitglied werden
-        </a>
+          {t.hero.cta}
+        </Link>
       </div>
 
       <div
         ref={indicatorRef}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0 z-10"
       >
-        <span className="text-[0.625rem] uppercase tracking-[0.15em] text-white/30">Scroll</span>
+        <span className="text-[0.625rem] uppercase tracking-[0.15em] text-white/30">{t.hero.scroll}</span>
         <div className="w-px h-10 bg-white/30 animate-scroll-bounce" />
       </div>
     </section>
