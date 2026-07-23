@@ -31,13 +31,13 @@ export default function Footer() {
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10 py-12 lg:py-20">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
           <div>
-            <Link to="/" onClick={handleLogoClick} className="inline-flex items-center h-10 shrink-0 overflow-hidden">
+            <Link to="/" onClick={handleLogoClick} className="inline-flex items-center min-w-0 shrink-0 overflow-hidden">
               <img
                 src={theme === 'dark' ? '/assets/bsc-logo-dark-themepng.png' : '/assets/bsc-logo-light.png'}
                 alt="BSC 70 Linz"
                 width={200}
                 height={94}
-                className="h-full w-auto max-w-none object-contain"
+                className="w-[85px] h-10 min-w-0 object-contain"
               />
             </Link>
             <p className="mt-3 text-sm text-muted">{t.footer.tagline}</p>
