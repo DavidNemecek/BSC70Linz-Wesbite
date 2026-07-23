@@ -106,7 +106,7 @@ export default function Hero() {
   }, [])
 
   return (
-    <section className="relative w-full min-h-[100dvh] flex items-center overflow-hidden bg-[#0B0C0F] pt-24">
+    <section className="relative w-full min-h-[100dvh] flex [align-items:safe_center] overflow-hidden bg-[#0B0C0F] pt-24">
       <img
         src="/assets/hero-bg.jpg"
         alt=""
