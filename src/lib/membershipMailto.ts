@@ -25,7 +25,10 @@ E-Mail:
 
 Nur bei Familienkarte: bitte Name, Geburtsdatum und Geschlecht der weiteren Familienmitglieder ergänzen.
 
-Ich nehme zur Kenntnis, dass ein Austritt nur zum 31.3./30.6./30.9./31.12. möglich ist und dem Vorstand vorher schriftlich bekanntzugeben ist. Mit dem Absenden dieser E-Mail stimme ich der Verarbeitung meiner Daten gemäß DSGVO zur Vereins- und Mitgliederverwaltung zu.
+Ich nehme zur Kenntnis, dass ein Austritt nur zum 31.3./30.6./30.9./31.12. möglich ist und dem Vorstand vorher schriftlich bekanntzugeben ist.
+
+INFORMATIONSPFLICHT UND EINWILLIGUNG GEM. DSGVO
+Der Beitrittswillige erteilt hiermit freiwillig die Einwilligung zur Verarbeitung von personenbezogenen Daten (Name, Geburtsdatum, Geschlecht, Kontaktdaten, Bild(er), sportliche Ausbildungen) zum Zweck der allgemeinen Vereins- und Mitgliederverwaltung. Verantwortlicher ist das Leitungsorgan des Vereines (Obmann). Ihnen stehen die Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung und Widerspruch gemäß Art. 15–21 DSGVO sowie ein Beschwerderecht bei der Aufsichtsbehörde zu. Mit dem Absenden dieser E-Mail bestätige ich diese Einwilligung.
 
 Datum: `
 
