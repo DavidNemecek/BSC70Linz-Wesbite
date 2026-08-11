@@ -38,6 +38,18 @@ export function absoluteUrl(path: string): string {
   return `${origin()}${path}`
 }
 
+/**
+ * Routes that load but must not be advertised. /news is deliberately unlinked
+ * — there is no nav entry and NewsPreview is not rendered anywhere — and stays
+ * hidden for now, so it must not invite indexing either.
+ *
+ * Note this is noindex rather than a robots.txt Disallow on purpose: a
+ * disallowed URL cannot be crawled, so the noindex would never be read and the
+ * page could still get listed from external links. To publish the page, drop
+ * it here AND add it back to the routes in api/sitemap.ts.
+ */
+const UNLISTED_ROUTES = new Set<string>(['/news'])
+
 const STATIC_ROUTES = {
   '/': 'home',
   '/news': 'news',
@@ -67,7 +79,7 @@ export function resolveSeo(pathname: string, t: Translation, language: Language)
       canonical: absoluteUrl(path),
       image,
       locale,
-      noindex: false,
+      noindex: UNLISTED_ROUTES.has(path),
     }
   }
 

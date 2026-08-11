@@ -2,10 +2,15 @@ import { originFrom } from './_origin'
 
 export const config = { runtime: 'edge' }
 
-/** Keep in sync with the routes in src/App.tsx. */
+/**
+ * Keep in sync with the routes in src/App.tsx.
+ *
+ * /news is deliberately absent: the page is unlinked and meant to stay
+ * invisible for now, so it is not submitted for indexing. It is also marked
+ * noindex in src/lib/seo.ts — add it back in both places to publish it.
+ */
 const ROUTES: { path: string; changefreq: string; priority: string }[] = [
   { path: '/', changefreq: 'weekly', priority: '1.0' },
-  { path: '/news', changefreq: 'weekly', priority: '0.8' },
   { path: '/anmeldung', changefreq: 'monthly', priority: '0.8' },
   { path: '/chronik', changefreq: 'yearly', priority: '0.5' },
   { path: '/anfahrt/solarcity', changefreq: 'yearly', priority: '0.6' },
