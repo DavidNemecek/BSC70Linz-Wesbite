@@ -388,6 +388,36 @@ export const translations = {
         },
       ],
     },
+    seo: {
+      home: {
+        title: 'BSC 70 Linz — Badminton Sport Club',
+        description: 'ASKÖ BSC 70 Linz — Einer der erfolgreichsten Badmintonvereine Österreichs seit 1970. Training, Mannschaften, Mitgliedschaft.',
+      },
+      news: {
+        title: 'News — BSC 70 Linz',
+        description: 'Aktuelle Meldungen aus dem BSC 70 Linz: Ergebnisse, Turniere, Vereinsleben und Neuigkeiten aus dem Nachwuchs.',
+      },
+      anmeldung: {
+        title: 'Anmeldung — BSC 70 Linz',
+        description: 'Mitglied werden beim BSC 70 Linz: Anmeldung, Beiträge und bis zu drei Schnuppertrainings zum Kennenlernen.',
+      },
+      chronik: {
+        title: 'Chronik — BSC 70 Linz',
+        description: 'Die Geschichte des BSC 70 Linz seit der Gründung 1970 — Jahrzehnt für Jahrzehnt.',
+      },
+      impressum: {
+        title: 'Impressum — BSC 70 Linz',
+        description: 'Impressum und Offenlegung des ASKÖ BSC 70 Linz.',
+      },
+      datenschutz: {
+        title: 'Datenschutz — BSC 70 Linz',
+        description: 'Datenschutzerklärung des ASKÖ BSC 70 Linz.',
+      },
+      anfahrt: {
+        title: 'Anfahrt {hall} — BSC 70 Linz',
+        description: 'So kommst du zur Halle {hall}: Adresse, Route in Google Maps und Wegbeschreibung zum Eingang.',
+      },
+    },
   },
   en: {
     nav: {
@@ -775,6 +805,36 @@ export const translations = {
           featured: false,
         },
       ],
+    },
+    seo: {
+      home: {
+        title: 'BSC 70 Linz — Badminton Sport Club',
+        description: 'ASKÖ BSC 70 Linz — one of Austria’s most successful badminton clubs since 1970. Training, teams, membership.',
+      },
+      news: {
+        title: 'News — BSC 70 Linz',
+        description: 'Latest news from BSC 70 Linz: results, tournaments, club life and updates from the youth section.',
+      },
+      anmeldung: {
+        title: 'Registration — BSC 70 Linz',
+        description: 'Join BSC 70 Linz: registration, fees and up to three trial sessions to get to know the club.',
+      },
+      chronik: {
+        title: 'History — BSC 70 Linz',
+        description: 'The history of BSC 70 Linz since its founding in 1970 — decade by decade.',
+      },
+      impressum: {
+        title: 'Imprint — BSC 70 Linz',
+        description: 'Imprint and legal disclosure for ASKÖ BSC 70 Linz.',
+      },
+      datenschutz: {
+        title: 'Privacy Policy — BSC 70 Linz',
+        description: 'Privacy policy of ASKÖ BSC 70 Linz.',
+      },
+      anfahrt: {
+        title: 'Directions {hall} — BSC 70 Linz',
+        description: 'How to reach the {hall} hall: address, Google Maps route and directions to the entrance.',
+      },
     },
   },
 }

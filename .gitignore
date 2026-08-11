@@ -3,5 +3,6 @@ legacy/
 .DS_Store
 Thumbs.db
 
-# Deploy output (generated)
+# Build/deploy output (generated)
+dist/
 docs/
