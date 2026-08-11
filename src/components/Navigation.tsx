@@ -87,19 +87,48 @@ export default function Navigation() {
         style={navStyle}
       >
         <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10 flex items-center justify-between">
-          <Link
-            to="/"
-            onClick={handleLogoClick}
-            className="z-[101] flex items-center min-w-0 shrink-0 overflow-hidden"
-          >
-            <img
-              src={logoIsDark ? '/assets/bsc-logo-dark-themepng.png' : '/assets/bsc-logo-light.png'}
-              alt="BSC 70 Linz"
-              width={200}
-              height={94}
-              className="w-[76px] h-9 sm:w-[85px] sm:h-10 min-w-0 object-contain"
+          {/* The ASKÖ logo sits in the header on every page and breakpoint on
+              purpose: ASKÖ Oberösterreich only grants funding to member clubs
+              that carry it in the header of each of their web presences
+              (board resolution of 9 Oct 2014). Do not drop it from a
+              breakpoint without checking that requirement first. */}
+          <div className="z-[101] flex items-center gap-2.5 sm:gap-3.5 min-w-0 shrink-0">
+            <Link
+              to="/"
+              onClick={handleLogoClick}
+              className="flex items-center min-w-0 overflow-hidden"
+            >
+              <img
+                src={logoIsDark ? '/assets/bsc-logo-dark-themepng.png' : '/assets/bsc-logo-light.png'}
+                alt="BSC 70 Linz"
+                width={200}
+                height={94}
+                className="w-[76px] h-9 sm:w-[85px] sm:h-10 min-w-0 object-contain"
+              />
+            </Link>
+
+            <span
+              aria-hidden="true"
+              className={`h-6 w-px shrink-0 transition-colors duration-300 ${
+                opaque ? 'bg-[var(--border-color)]' : 'bg-white/25'
+              }`}
             />
-          </Link>
+
+            <a
+              href="https://www.askoe-ooe.at"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center shrink-0 opacity-90 hover:opacity-100 transition-opacity duration-200"
+            >
+              <img
+                src="/assets/asko-logo.png"
+                alt={t.nav.askoAlt}
+                width={277}
+                height={53}
+                className="w-[80px] sm:w-[92px] h-auto object-contain"
+              />
+            </a>
+          </div>
 
           <div className="hidden lg:flex items-center gap-6">
             {navLinks.map((link) => (

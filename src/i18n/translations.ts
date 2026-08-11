@@ -15,6 +15,7 @@ export const translations = {
       themeDark: 'Dunkel',
       menuLabel: 'Menü',
       languageLabel: 'Sprache',
+      askoAlt: 'ASKÖ — ASKÖ BSC 70 Linz ist Mitglied der ASKÖ',
     },
     footer: {
       tagline: 'Badminton seit 1970',
@@ -252,7 +253,7 @@ export const translations = {
       boardLinkSuffix: 'auf der Startseite.',
       sportManagementHeading: 'Sportliche Leitung',
       membershipHeading: 'Mitgliedschaft',
-      membershipText: 'Mitgliedsverein der ASKÖ.',
+      membershipText: 'ASKÖ BSC 70 Linz ist Mitglied der ASKÖ.',
       responsibleHeading: 'Verantwortlich für den Inhalt',
       responsibleText: 'ASKÖ BSC 70 Linz',
       copyrightHeading: 'Urheberrecht',
@@ -433,6 +434,7 @@ export const translations = {
       themeDark: 'Dark',
       menuLabel: 'Menu',
       languageLabel: 'Language',
+      askoAlt: 'ASKÖ — ASKÖ BSC 70 Linz is a member of the ASKÖ',
     },
     footer: {
       tagline: 'Badminton since 1970',
@@ -670,7 +672,7 @@ export const translations = {
       boardLinkSuffix: 'on the homepage.',
       sportManagementHeading: 'Sports management',
       membershipHeading: 'Membership',
-      membershipText: 'Member club of the ASKÖ.',
+      membershipText: 'ASKÖ BSC 70 Linz ist Mitglied der ASKÖ (member of the ASKÖ).',
       responsibleHeading: 'Responsible for content',
       responsibleText: 'ASKÖ BSC 70 Linz',
       copyrightHeading: 'Copyright',
