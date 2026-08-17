@@ -6,7 +6,7 @@ import { ArrowRight, ClipboardList, FileDown, Info, ExternalLink, CheckCircle2 }
 import { useLanguage } from '@/context/LanguageContext'
 import { clubInfo } from '@/data/clubInfo'
 import { generateMembershipPdf } from '@/lib/generateMembershipPdf'
-import { FORM_ORIGIN, registrationFormUrl, hasLocalisedForm } from '@/data/registrationForm'
+import { FORM_ORIGIN, REGISTRATION_FORM_URL } from '@/data/registrationForm'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -22,7 +22,6 @@ gsap.registerPlugin(ScrollTrigger)
  */
 export default function Registration() {
   const { t, language } = useLanguage()
-  const formUrl = registrationFormUrl(language)
   const { fees, tableHeaders } = t.membership
   const containerRef = useRef<HTMLDivElement>(null)
   const [submitted, setSubmitted] = useState(false)
@@ -116,9 +115,9 @@ export default function Registration() {
               </p>
               <p className="text-sm text-secondary mb-6">
                 {t.registration.formAccountText}
-                {!hasLocalisedForm(language) && (
-                  <> {t.registration.formGermanOnlyNote}</>
-                )}
+                {/* The embedded form is German-only, so every other locale
+                    needs to say that outright. */}
+                {language !== 'de' && <> {t.registration.formGermanOnlyNote}</>}
               </p>
 
               {/* bg-white: the embedded form is locked to a light colour scheme
@@ -129,11 +128,10 @@ export default function Registration() {
                   only becomes an inset, rounded sheet from sm upwards. */}
               <div className="-mx-6 sm:mx-0 border-y sm:border sm:rounded-lg border-theme overflow-hidden bg-white">
                 <iframe
-                  // Keyed by language so switching swaps in a fresh frame
-                  // rather than navigating the existing one, which would push
-                  // an entry onto the browser's history.
-                  key={language}
-                  src={formUrl}
+                  // Deliberately not keyed by language: the src is the same in
+                  // every language, so switching must not remount the frame and
+                  // throw away whatever the visitor has already typed in.
+                  src={REGISTRATION_FORM_URL}
                   title={t.registration.formIframeTitle}
                   className="block w-full h-[80vh] min-h-[560px] max-h-[1100px] border-0"
                 />
@@ -148,7 +146,7 @@ export default function Registration() {
                   .
                 </p>
                 <a
-                  href={formUrl}
+                  href={REGISTRATION_FORM_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-sm text-accent hover:underline shrink-0"

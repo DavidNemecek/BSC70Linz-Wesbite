@@ -74,8 +74,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
     const applyIfTranslating = () => {
       if (!isBrowserTranslating()) return false
-      // Machine translation does not reach across into the cross-origin form
-      // embed, so a translated page would otherwise still show a German form.
+      // Worth doing even though the registration form stays German either way:
+      // the visitor gets the site's own English wording instead of a machine
+      // rendering of the German, and the note explaining that the form is
+      // German-only appears with it.
       setLanguageState('en')
       return true
     }
