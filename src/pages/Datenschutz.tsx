@@ -69,22 +69,6 @@ export default function Datenschutz() {
           </section>
 
           <section className="pt-8 border-t border-theme">
-            <h2 className="text-lg font-semibold text-primary mb-3">{t.datenschutz.fontsHeading}</h2>
-            <p className="text-sm text-secondary leading-relaxed mb-3">{t.datenschutz.fontsText1}</p>
-            <p className="text-sm text-secondary leading-relaxed">
-              {t.datenschutz.fontsText2}{' '}
-              <a
-                href="https://policies.google.com/privacy"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-accent hover:underline"
-              >
-                {t.datenschutz.fontsLinkText}
-              </a>.
-            </p>
-          </section>
-
-          <section className="pt-8 border-t border-theme">
             <h2 className="text-lg font-semibold text-primary mb-3">{t.datenschutz.mapsHeading}</h2>
             <p className="text-sm text-secondary leading-relaxed">{t.datenschutz.mapsText}</p>
           </section>
