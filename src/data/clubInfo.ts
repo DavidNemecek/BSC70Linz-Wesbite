@@ -15,6 +15,8 @@ export const clubInfo = {
   officeEmail: 'office@bsc70linz.at',
   registrationEmail: 'anmeldung@bsc70linz.at',
   phone: '+43 664 2179311',
+  // Always the www host: the bare bsc70linz.at only 308-redirects here, so
+  // linking it would send people through a needless hop.
   website: 'www.bsc70linz.at',
   zvr: '222569469',
   iban: 'AT51 5400 0000 0032 3337',

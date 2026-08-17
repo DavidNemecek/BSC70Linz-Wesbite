@@ -18,7 +18,7 @@ export function buildMembershipMailto(): string {
 
 GEWÜNSCHTE MITGLIEDSCHAFT (bitte zutreffende Option(en) ankreuzen, Rest löschen)
 ${tierLines}
-Bedingungen zu den einzelnen Beitragsarten: ${clubInfo.website}/#mitgliedschaft
+Bedingungen zu den einzelnen Beitragsarten: https://${clubInfo.website}/#mitgliedschaft
 
 PERSÖNLICHE DATEN
 Vor- und Nachname:

@@ -78,10 +78,6 @@ export default function Membership() {
           })}
         </div>
 
-        <p data-animate className="text-base text-primary mb-2 opacity-0">
-          {t.membership.validity}
-        </p>
-
         <p data-animate className="text-base text-primary mb-10 lg:mb-12 opacity-0">
           {t.membership.note}
         </p>

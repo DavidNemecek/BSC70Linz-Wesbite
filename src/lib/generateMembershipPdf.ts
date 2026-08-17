@@ -19,7 +19,7 @@ function checkbox(doc: jsPDF, x: number, y: number) {
 }
 
 export function buildMembershipPdf(): jsPDF {
-  const { fees, note, validity } = translations.de.membership
+  const { fees, note } = translations.de.membership
   const doc = new jsPDF({ unit: 'mm', format: 'a4' })
   let y = MARGIN
 
@@ -82,7 +82,7 @@ export function buildMembershipPdf(): jsPDF {
   y += 1
   doc.setFont('helvetica', 'italic')
   doc.setFontSize(8)
-  const oebv = doc.splitTextToSize(`${validity} ${note}`, CONTENT_WIDTH)
+  const oebv = doc.splitTextToSize(note, CONTENT_WIDTH)
   doc.text(oebv, MARGIN, y)
   y += oebv.length * 3.6 + 6
 
