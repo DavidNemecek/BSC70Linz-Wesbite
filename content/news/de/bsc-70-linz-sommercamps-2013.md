@@ -26,7 +26,7 @@ AHS Solar City Halle
 Trainer:  
 Miha Horvat, Andi Böhm & Daniel Walchshofer
 
-Infos & Anmeldung bitte bei Andi Böhm (0664/8430613)
+Infos & Anmeldung bitte bei Andi Böhm
 
 *   [< Zurück](/de/news/bsc-70-linz-nostalgietreffen-2013/)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/315-sommertraining-des-askoe-bsc-70-linz-2013)

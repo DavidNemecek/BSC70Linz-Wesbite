@@ -18,7 +18,7 @@ Beginnzeit - 5.3.2011, 11.00 Uhr
 
   
 Solar City Halle, Helios Alle 140-142  
-Tel.: 0664 9111016    Fax: 0732 783660-236
+Fax: 0732 783660-236
 
 Anfahrt - siehe Menü [Spiel- und Trainingshallen](https://www.bsc70linz.at/cms/index.php/component/content/?id=170&Itemid=81)
 

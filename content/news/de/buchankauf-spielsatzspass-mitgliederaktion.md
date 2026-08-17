@@ -37,13 +37,13 @@ Skisprung-Olympiasieger Toni Innauer kommt dabei ebenso zu Wort wie Kabarettist 
 
 Kontakte:  
 Hans Bogensperger, BSC 70 Linz  
-Tel.: 0664 65 65 841; Email: Diese E-Mail-Adresse ist vor Spambots geschützt! Zur Anzeige muss JavaScript eingeschaltet sein!; Web: [www.habolinz.at](http://www.habolinz.at)
+Email: Diese E-Mail-Adresse ist vor Spambots geschützt! Zur Anzeige muss JavaScript eingeschaltet sein!; Web: [www.habolinz.at](http://www.habolinz.at)
 
 Reinhard Hechenberger, BSC 70 Linz  
-Tel.: 0664/2007392; Email: Diese E-Mail-Adresse ist vor Spambots geschützt! Zur Anzeige muss JavaScript eingeschaltet sein!; Web: www.bsc70linz.at
+Email: Diese E-Mail-Adresse ist vor Spambots geschützt! Zur Anzeige muss JavaScript eingeschaltet sein!; Web: www.bsc70linz.at
 
 Egon Theiner, egoth-Verlag  
-Tel.: 0660 5951 666; Email: Diese E-Mail-Adresse ist vor Spambots geschützt! Zur Anzeige muss JavaScript eingeschaltet sein!; Web: www.egoth.at
+Email: Diese E-Mail-Adresse ist vor Spambots geschützt! Zur Anzeige muss JavaScript eingeschaltet sein!; Web: www.egoth.at
 
 *   [< Zurück](/de/news/es-geht-wieder-los/)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-mitglieder/645-buchpraesentation)

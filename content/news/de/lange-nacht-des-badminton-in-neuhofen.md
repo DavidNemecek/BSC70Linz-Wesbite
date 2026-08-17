@@ -29,7 +29,7 @@ für Verpflegung ist gesorgt
 
 \-Eintritt frei (freiwillige Spenden)
 
-Weitere Infos bei Andreas Rabel vom UBC Neuhofen (Mobil 0664-1147807).
+Weitere Infos bei Andreas Rabel vom UBC Neuhofen.
 
 *   [< Zurück](/de/news/ooe-landesmeisterschaften-2011/)
 *   [Weiter >](https://www.bsc70linz.at/cms/index.php/news/news-turniere/29-ooe-turniere/125-3-ooebv-hobby-doppel-rlt-19122010-linz-solar-city)

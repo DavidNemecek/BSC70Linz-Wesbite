@@ -79,10 +79,6 @@ Anschrift:
 
 //
 
-Nennungen Telefon: \*
-
-0664/9111016
-
 Nennu ngen Fax:
 
 0732/783660-236

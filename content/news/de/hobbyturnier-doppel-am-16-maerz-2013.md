@@ -29,7 +29,7 @@ Wir freuen uns auf ein erfolgreiches Turnier und viele Anmeldungen.
 
 Der Turniermodus und Ablauf ist wie gehabt - Start 11:30  bis ca. 17 Uhr.
 
-Infos und Anmeldungen unter 0650/9012226 oder unter Diese E-Mail-Adresse ist vor Spambots geschützt! Zur Anzeige muss JavaScript eingeschaltet sein!!
+Infos und Anmeldungen unter Diese E-Mail-Adresse ist vor Spambots geschützt! Zur Anzeige muss JavaScript eingeschaltet sein!!
 
 Die Anmeldung ist sowohl als Doppelpaarnennung, als auch als Einzelnennung möglich. Die Einzelnennungen werden am Spieltag, 1 Stunde vor Spielbeginn zugeteilt. Es können auch 2 Bewerbe gespielt werden.
 
