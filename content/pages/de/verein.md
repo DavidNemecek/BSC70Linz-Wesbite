@@ -32,20 +32,6 @@ Danach: weitere Meistertitel, starke Nachwuchsarbeit, neue Spieler und Spielerin
 
 ---
 
-## Vorstand
-
-| Funktion | Name |
-|---|---|
-| Obmann | DI Stephan Ziermayr |
-| Obmann-Stv. | Nikita Arnold |
-| Kassier | Christoph Kainrath |
-| Kassier-Stv. | Johann Burgstaller |
-| Schriftf&uuml;hrerin | Ursula Hochgatterer |
-| Schriftf&uuml;hrer-Stv. | Arthur Tomsovic |
-| Sportliche Leitung | Harald Hochgatterer, Andreas B&ouml;hm |
-
----
-
 ## Sponsoren & Partner
 
 Danke an alle, die den BSC 70 Linz unterst&uuml;tzen &ndash; finanziell, mit Hallenzeiten oder einfach durch Dabeisein. Unsere Partner sind unter anderem Magnus Austria, Linz AG, FAW, ebcont, Hypo Ober&ouml;sterreich, Stadt Linz und Sportland O&Ouml;.

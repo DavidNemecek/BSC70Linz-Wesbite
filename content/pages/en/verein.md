@@ -33,20 +33,6 @@ After that: more titles, strong youth development, new players. Over 50 years wi
 
 ---
 
-## Board
-
-| Role | Name |
-|---|---|
-| President | DI Stephan Ziermayr |
-| Vice President | Nikita Arnold |
-| Treasurer | Christoph Kainrath |
-| Deputy Treasurer | Johann Burgstaller |
-| Secretary | Ursula Hochgatterer |
-| Deputy Secretary | Arthur Tomsovic |
-| Sports Directors | Harald Hochgatterer, Andreas B&ouml;hm |
-
----
-
 ## Sponsors & Partners
 
 Thank you to everyone who supports BSC 70 Linz &ndash; financially, with venue access, or simply by being part of the club. Our partners include Magnus Austria, Linz AG, FAW, ebcont, Hypo Upper Austria, City of Linz and Sportland Upper Austria.
