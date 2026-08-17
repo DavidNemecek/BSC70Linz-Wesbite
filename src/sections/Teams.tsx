@@ -3,7 +3,10 @@ import { ExternalLink } from 'lucide-react'
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
 import { useLanguage } from '@/context/LanguageContext'
 
-const TEAMS_DATA_URL = 'https://raw.githubusercontent.com/DavidNemecek/BSC70Linz-Wesbite-BackgroundTasks/refs/heads/main/data/bsc70-teams.json'
+// Served by api/teams.ts, which fetches the background task's JSON on our
+// behalf. Deliberately a same-origin path: hitting the upstream repository
+// directly would disclose every visitor's IP address to GitHub.
+const TEAMS_DATA_URL = '/api/teams'
 
 interface Team {
   name: string
