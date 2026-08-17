@@ -112,8 +112,11 @@ export default function Registration() {
                 </div>
                 <h2 className="text-lg font-semibold text-primary">{t.registration.formCardTitle}</h2>
               </div>
-              <p className="text-sm text-secondary mb-6">
+              <p className="text-sm text-secondary mb-3">
                 {t.registration.formCardText}
+              </p>
+              <p className="text-sm text-secondary mb-6">
+                {t.registration.formAccountText}
               </p>
 
               {/* bg-white: the embedded form is locked to a light colour scheme
