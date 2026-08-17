@@ -683,7 +683,7 @@ export const translations = {
       submittedTitle: 'Registration submitted',
       submittedText: 'Thank you! We have received your membership declaration. You will get a confirmation by e-mail, and we will contact you directly if anything is unclear.',
       downloadCardTitle: 'Download the form',
-      downloadCardText: 'Prefer to register on paper? Download the official German membership declaration (Beitrittserklärung) as a PDF to print and fill in by hand.',
+      downloadCardText: 'Prefer to register on paper? Download the membership declaration as a PDF to print and fill in by hand. You will get the English version; the German wording remains the authoritative one.',
       downloadButton: 'Download form as PDF',
       fallbackNote: 'Questions about registering, or trouble with the form? Write to us at',
       fallbackNoteSuffix: '— you can also hand the completed membership declaration in at the hall.',

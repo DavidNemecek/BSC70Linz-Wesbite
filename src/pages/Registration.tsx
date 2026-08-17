@@ -173,7 +173,7 @@ export default function Registration() {
             {t.registration.downloadCardText}
           </p>
           <button
-            onClick={() => generateMembershipPdf()}
+            onClick={() => generateMembershipPdf(language)}
             className="inline-flex items-center gap-2 border border-theme text-primary text-base font-semibold rounded-full px-8 py-4 hover:bg-card-alt transition-all duration-200"
           >
             <FileDown className="w-4 h-4" />
