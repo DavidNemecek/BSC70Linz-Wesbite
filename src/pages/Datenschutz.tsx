@@ -76,6 +76,7 @@ export default function Datenschutz() {
           <section className="pt-8 border-t border-theme">
             <h2 className="text-lg font-semibold text-primary mb-3">{t.datenschutz.vereinsplanerHeading}</h2>
             <p className="text-sm text-secondary leading-relaxed">{t.datenschutz.vereinsplanerText}</p>
+            <p className="text-sm text-secondary leading-relaxed mt-3">{t.datenschutz.vereinsplanerFormText}</p>
           </section>
 
           <section className="pt-8 border-t border-theme">
