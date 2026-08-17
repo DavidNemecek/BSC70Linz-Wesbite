@@ -235,6 +235,9 @@ export const translations = {
       formCardTitle: 'Online anmelden',
       formCardText: 'Alle Felder mit * sind Pflichtfelder. Die Standardmitgliedschaft wird automatisch anhand des Alters ermittelt; ermäßigte Mitgliedschaften kannst du im Formular ankreuzen.',
       formAccountText: 'Für die Vereinsverwaltung nutzen wir Vereinsplaner.at. Jedes Mitglied bekommt dort einen eigenen Zugang: Darin kannst du deine persönlichen Daten selbst verwalten und auf Vereinsinformationen zugreifen.',
+      // Nur sichtbar, solange für die jeweilige Sprache kein eigenes
+      // Vereinsplaner-Formular hinterlegt ist (siehe data/registrationForm.ts).
+      formGermanOnlyNote: 'Das Formular selbst ist nur auf Deutsch verfügbar — schreib uns, wenn du beim Ausfüllen Hilfe brauchst.',
       formIframeTitle: 'Anmeldeformular ASKÖ BSC 70 Linz',
       formOpenExternal: 'Formular in neuem Tab öffnen',
       formPrivacyNote: 'Das Formular wird von unserer Vereinsverwaltung Vereinsplaner bereitgestellt und direkt in diese Seite eingebettet. Details dazu in der',
@@ -670,8 +673,9 @@ export const translations = {
       title: 'Become a member',
       subtitle: 'Fill in the registration form right here — pick your membership, enter your details, submit. Your membership declaration goes straight to the club.',
       formCardTitle: 'Register online',
-      formCardText: 'Fields marked * are required. The standard membership is determined automatically from your age; reduced memberships can be ticked in the form. Please note the form itself is in German.',
+      formCardText: 'Fields marked * are required. The standard membership is determined automatically from your age; reduced memberships can be ticked in the form.',
       formAccountText: 'We use Vereinsplaner.at to run the club. Every member gets their own account there, where you can manage your personal details yourself and access club information.',
+      formGermanOnlyNote: 'Please note that the form itself is only available in German — write to us if you would like help filling it in.',
       formIframeTitle: 'Registration form ASKÖ BSC 70 Linz',
       formOpenExternal: 'Open the form in a new tab',
       formPrivacyNote: 'The form is provided by Vereinsplaner, our club administration software, and embedded directly into this page. Details are in our',

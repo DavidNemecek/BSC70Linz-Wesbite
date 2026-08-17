@@ -6,6 +6,7 @@ import { ArrowRight, ClipboardList, FileDown, Info, ExternalLink, CheckCircle2 }
 import { useLanguage } from '@/context/LanguageContext'
 import { clubInfo } from '@/data/clubInfo'
 import { generateMembershipPdf } from '@/lib/generateMembershipPdf'
+import { FORM_ORIGIN, registrationFormUrl, hasLocalisedForm } from '@/data/registrationForm'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -19,11 +20,9 @@ gsap.registerPlugin(ScrollTrigger)
  * content across origins. Hence the fixed viewport-relative height below and
  * the form's own internal scrollbar.
  */
-const FORM_EMBED_URL = 'https://formular.vereinsplaner.com/embed/da9f7886-3ee4-4974-a64d-cf9cfdf92bea'
-const FORM_ORIGIN = 'https://formular.vereinsplaner.com'
-
 export default function Registration() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
+  const formUrl = registrationFormUrl(language)
   const { fees, tableHeaders } = t.membership
   const containerRef = useRef<HTMLDivElement>(null)
   const [submitted, setSubmitted] = useState(false)
@@ -117,6 +116,9 @@ export default function Registration() {
               </p>
               <p className="text-sm text-secondary mb-6">
                 {t.registration.formAccountText}
+                {!hasLocalisedForm(language) && (
+                  <> {t.registration.formGermanOnlyNote}</>
+                )}
               </p>
 
               {/* bg-white: the embedded form is locked to a light colour scheme
@@ -127,7 +129,11 @@ export default function Registration() {
                   only becomes an inset, rounded sheet from sm upwards. */}
               <div className="-mx-6 sm:mx-0 border-y sm:border sm:rounded-lg border-theme overflow-hidden bg-white">
                 <iframe
-                  src={FORM_EMBED_URL}
+                  // Keyed by language so switching swaps in a fresh frame
+                  // rather than navigating the existing one, which would push
+                  // an entry onto the browser's history.
+                  key={language}
+                  src={formUrl}
                   title={t.registration.formIframeTitle}
                   className="block w-full h-[80vh] min-h-[560px] max-h-[1100px] border-0"
                 />
@@ -142,7 +148,7 @@ export default function Registration() {
                   .
                 </p>
                 <a
-                  href={FORM_EMBED_URL}
+                  href={formUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-sm text-accent hover:underline shrink-0"
