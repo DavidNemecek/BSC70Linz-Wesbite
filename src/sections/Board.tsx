@@ -28,13 +28,19 @@ export default function Board() {
                 <div className="w-14 h-14 rounded-full bg-accent-glow flex items-center justify-center flex-shrink-0">
                   <span className="text-accent font-semibold text-lg">{member.initials}</span>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <h3 className="text-base font-semibold text-primary tracking-tight">{member.name}</h3>
                   <p className="text-sm text-muted mt-0.5">{t.boardRoles[member.roleKey]}</p>
+                  <a
+                    href={`mailto:${member.email}`}
+                    className="text-sm text-accent hover:underline mt-1 block break-all"
+                  >
+                    {member.email}
+                  </a>
                   {member.phone && (
                     <a
                       href={`tel:${member.phone.replace(/\s/g, '')}`}
-                      className="text-sm text-accent hover:underline mt-1 inline-block"
+                      className="text-sm text-accent hover:underline inline-block"
                     >
                       {member.phone}
                     </a>

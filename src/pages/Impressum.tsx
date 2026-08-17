@@ -4,12 +4,10 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ArrowRight } from 'lucide-react'
 import { boardMembers } from '@/data/boardMembers'
+import { clubInfo } from '@/data/clubInfo'
 import { useLanguage } from '@/context/LanguageContext'
 
 gsap.registerPlugin(ScrollTrigger)
-
-const vorstand = boardMembers.filter((m) => !m.roleKey.startsWith('sportlicherLeiter'))
-const sportlicheLeitung = boardMembers.filter((m) => m.roleKey.startsWith('sportlicherLeiter'))
 
 export default function Impressum() {
   const { t } = useLanguage()
@@ -71,8 +69,8 @@ export default function Impressum() {
           <section className="pt-8 border-t border-theme">
             <h2 className="text-lg font-semibold text-primary mb-3">{t.impressum.contactHeading}</h2>
             <p className="text-sm text-secondary leading-relaxed">
-              {t.impressum.emailLabel}: <a href="mailto:office@bsc70linz.at" className="text-accent hover:underline">office@bsc70linz.at</a><br />
-              {t.impressum.phoneLabel}: <a href="tel:+436767042186" className="text-accent hover:underline">+43 676 7042186</a>
+              {t.impressum.emailLabel}: <a href={`mailto:${clubInfo.officeEmail}`} className="text-accent hover:underline">{clubInfo.officeEmail}</a><br />
+              {t.impressum.phoneLabel}: <a href={`tel:${clubInfo.phone.replace(/\s/g, '')}`} className="text-accent hover:underline">{clubInfo.phone}</a>
             </p>
           </section>
 
@@ -96,17 +94,11 @@ export default function Impressum() {
               {t.impressum.boardSeeAlso} <Link to="/#vorstand" className="text-accent hover:underline">{t.impressum.boardLinkText}</Link> {t.impressum.boardLinkSuffix}
             </p>
             <ul className="text-sm text-secondary leading-relaxed space-y-1">
-              {vorstand.map((m) => (
-                <li key={m.name}>{m.name}, {t.boardRoles[m.roleKey]}</li>
-              ))}
-            </ul>
-          </section>
-
-          <section className="pt-8 border-t border-theme">
-            <h2 className="text-lg font-semibold text-primary mb-3">{t.impressum.sportManagementHeading}</h2>
-            <ul className="text-sm text-secondary leading-relaxed space-y-1">
-              {sportlicheLeitung.map((m) => (
-                <li key={m.name}>{m.name}, {t.boardRoles[m.roleKey]}</li>
+              {boardMembers.map((m) => (
+                <li key={m.name}>
+                  {m.name}, {t.boardRoles[m.roleKey]} —{' '}
+                  <a href={`mailto:${m.email}`} className="text-accent hover:underline break-all">{m.email}</a>
+                </li>
               ))}
             </ul>
           </section>

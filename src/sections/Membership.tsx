@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
 import { Link } from 'react-router-dom'
+import { Info } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 import { buildTrialMailto } from '@/lib/trialMailto'
 
@@ -8,6 +10,9 @@ export default function Membership() {
   const { t } = useLanguage()
   const { fees, tableHeaders } = t.membership
   const trialMailtoHref = buildTrialMailto()
+  // Which tier has its conditions expanded. Only one at a time keeps the
+  // table from growing tall enough to lose the header on small screens.
+  const [openFee, setOpenFee] = useState<number | null>(null)
 
   return (
     <section id="mitgliedschaft" className="py-16 sm:py-20 lg:py-32" style={{ backgroundColor: 'var(--bg-section)' }}>
@@ -29,17 +34,53 @@ export default function Membership() {
             <span className="text-xs font-medium uppercase tracking-[0.05em] text-accent">{tableHeaders.membership}</span>
             <span className="text-xs font-medium uppercase tracking-[0.05em] text-accent flex-shrink-0">{tableHeaders.fee}</span>
           </div>
-          {fees.map((fee, i) => (
-            <div
-              key={i}
-              data-stagger-item
-              className={`flex items-center justify-between gap-4 px-4 sm:px-6 py-4 opacity-0 ${i % 2 === 0 ? 'bg-card' : ''}`}
-            >
-              <span className="text-sm text-secondary">{fee.label}</span>
-              <span className="text-base sm:text-lg font-semibold text-primary whitespace-nowrap flex-shrink-0">{fee.price}</span>
-            </div>
-          ))}
+          {fees.map((fee, i) => {
+            const isOpen = openFee === i
+            return (
+              <div
+                key={i}
+                data-stagger-item
+                className={`opacity-0 ${i % 2 === 0 ? 'bg-card' : ''}`}
+              >
+                <div className="flex items-center justify-between gap-4 px-4 sm:px-6 py-4">
+                  <span className="text-sm text-secondary min-w-0">
+                    {fee.label}
+                    {fee.detail && (
+                      <button
+                        type="button"
+                        onClick={() => setOpenFee(isOpen ? null : i)}
+                        aria-expanded={isOpen}
+                        aria-controls={`fee-detail-${i}`}
+                        aria-label={`${fee.label} — ${t.membership.detailToggleLabel}`}
+                        title={t.membership.detailToggleLabel}
+                        className={`ml-1.5 inline-flex items-center justify-center w-5 h-5 rounded-full align-middle transition-colors duration-200 ${
+                          isOpen
+                            ? 'bg-accent text-white'
+                            : 'text-accent hover:bg-accent-glow'
+                        }`}
+                      >
+                        <Info className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </span>
+                  <span className="text-base sm:text-lg font-semibold text-primary whitespace-nowrap flex-shrink-0">{fee.price}</span>
+                </div>
+                {fee.detail && isOpen && (
+                  <p
+                    id={`fee-detail-${i}`}
+                    className="mx-4 sm:mx-6 mb-4 border-l-2 border-accent bg-accent-glow rounded-r px-4 py-3 text-sm text-secondary leading-relaxed max-w-[70ch]"
+                  >
+                    {fee.detail}
+                  </p>
+                )}
+              </div>
+            )
+          })}
         </div>
+
+        <p data-animate className="text-base text-primary mb-2 opacity-0">
+          {t.membership.validity}
+        </p>
 
         <p data-animate className="text-base text-primary mb-10 lg:mb-12 opacity-0">
           {t.membership.note}

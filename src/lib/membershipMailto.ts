@@ -6,6 +6,10 @@ import { translations } from '@/i18n/translations'
 export function buildMembershipMailto(): string {
   const subject = 'Beitrittserklärung – Anmeldung ASKÖ BSC 70 Linz'
 
+  // Deliberately tiers only, no per-tier conditions: spelling them out here
+  // pushed the mailto: URL past ~3300 characters, which some mail clients
+  // (notably Outlook) truncate. The conditions are on the website and in the
+  // PDF form instead, and the line below points at them.
   const tierLines = translations.de.membership.fees
     .map((fee) => `[ ] ${fee.label} - ${fee.price}`)
     .join('\n')
@@ -14,6 +18,7 @@ export function buildMembershipMailto(): string {
 
 GEWÜNSCHTE MITGLIEDSCHAFT (bitte zutreffende Option(en) ankreuzen, Rest löschen)
 ${tierLines}
+Bedingungen zu den einzelnen Beitragsarten: ${clubInfo.website}/#mitgliedschaft
 
 PERSÖNLICHE DATEN
 Vor- und Nachname:
@@ -28,7 +33,7 @@ Nur bei Familienkarte: bitte Name, Geburtsdatum und Geschlecht der weiteren Fami
 Ich nehme zur Kenntnis, dass ein Austritt nur zum 31.3./30.6./30.9./31.12. möglich ist und dem Vorstand vorher schriftlich bekanntzugeben ist.
 
 INFORMATIONSPFLICHT UND EINWILLIGUNG GEM. DSGVO
-Der Beitrittswillige erteilt hiermit freiwillig die Einwilligung zur Verarbeitung von personenbezogenen Daten (Name, Geburtsdatum, Geschlecht, Kontaktdaten, Bild(er), sportliche Ausbildungen) zum Zweck der allgemeinen Vereins- und Mitgliederverwaltung. Verantwortlicher ist das Leitungsorgan des Vereines (Obmann). Ihnen stehen die Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung und Widerspruch gemäß Art. 15–21 DSGVO sowie ein Beschwerderecht bei der Aufsichtsbehörde zu. Mit dem Absenden dieser E-Mail bestätige ich diese Einwilligung.
+Der Beitrittswillige erteilt hiermit freiwillig die Einwilligung zur Verarbeitung von personenbezogenen Daten (Name, Geburtsdatum, Geschlecht, Kontaktdaten, Bild(er), sportliche Ausbildungen) zum Zweck der allgemeinen Vereins- und Mitgliederverwaltung. Verantwortlicher ist das Leitungsorgan des Vereines (Obfrau). Ihnen stehen die Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung und Widerspruch gemäß Art. 15–21 DSGVO sowie ein Beschwerderecht bei der Aufsichtsbehörde zu. Mit dem Absenden dieser E-Mail bestätige ich diese Einwilligung.
 
 Datum: `
 

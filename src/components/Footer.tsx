@@ -2,6 +2,12 @@ import { Link, useLocation } from 'react-router-dom'
 import { useTheme } from '@/context/ThemeContext'
 import { useLanguage } from '@/context/LanguageContext'
 import { useLenisScroll } from '@/context/LenisContext'
+import { boardMembers } from '@/data/boardMembers'
+
+// Read the chair off the board list rather than hardcoding a name here, so
+// the footer can't drift out of sync with src/data/boardMembers.ts. That list
+// is kept in statutory order, so the chair is always the first entry.
+const chair = boardMembers[0]
 
 export default function Footer() {
   const { theme } = useTheme()
@@ -120,8 +126,8 @@ export default function Footer() {
               anmeldung@bsc70linz.at
             </a>
             <p className="text-sm text-dim">
-              {t.footer.chairman}: Stephan Ziermayr<br />
-              <a href="tel:+436767042186" className="text-secondary hover:text-primary transition-colors">+43 676 7042186</a>
+              {t.footer.chairman}: {chair.name}<br />
+              <a href={`mailto:${chair.email}`} className="text-secondary hover:text-primary transition-colors break-all">{chair.email}</a>
             </p>
           </div>
         </div>

@@ -19,7 +19,7 @@ function checkbox(doc: jsPDF, x: number, y: number) {
 }
 
 export function buildMembershipPdf(): jsPDF {
-  const { fees, note } = translations.de.membership
+  const { fees, note, validity } = translations.de.membership
   const doc = new jsPDF({ unit: 'mm', format: 'a4' })
   let y = MARGIN
 
@@ -63,13 +63,26 @@ export function buildMembershipPdf(): jsPDF {
     doc.text(fee.label, MARGIN + 6, y)
     doc.setFont('helvetica', 'bold')
     doc.text(fee.price, PAGE_WIDTH - MARGIN, y, { align: 'right' })
-    y += 5.5
+    y += 5
+
+    // The conditions belong on the form too — tiers like the student special
+    // or the family membership are ambiguous without them.
+    if (fee.detail) {
+      doc.setFont('helvetica', 'italic')
+      doc.setFontSize(7.5)
+      const lines = doc.splitTextToSize(fee.detail, CONTENT_WIDTH - 30)
+      doc.text(lines, MARGIN + 6, y)
+      y += lines.length * 3.2 + 1.5
+      doc.setFontSize(9.5)
+    } else {
+      y += 0.5
+    }
   })
 
   y += 1
   doc.setFont('helvetica', 'italic')
   doc.setFontSize(8)
-  const oebv = doc.splitTextToSize(note, CONTENT_WIDTH)
+  const oebv = doc.splitTextToSize(`${validity} ${note}`, CONTENT_WIDTH)
   doc.text(oebv, MARGIN, y)
   y += oebv.length * 3.6 + 6
 
@@ -143,7 +156,7 @@ export function buildMembershipPdf(): jsPDF {
   y += 3.6
   doc.setFont('helvetica', 'normal')
   const dsgvo = doc.splitTextToSize(
-    'Der Beitrittswillige erteilt hiermit freiwillig die Einwilligung zur Verarbeitung von personenbezogenen Daten (Name, Geburtsdatum, Geschlecht, Kontaktdaten, Bild(er), sportliche Ausbildungen) zum Zweck der allgemeinen Vereins- und Mitgliederverwaltung. Verantwortlicher ist das Leitungsorgan des Vereines (Obmann). Ihnen stehen die Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung und Widerspruch gemäß Art. 15–21 DSGVO sowie ein Beschwerderecht bei der Aufsichtsbehörde zu.',
+    'Der Beitrittswillige erteilt hiermit freiwillig die Einwilligung zur Verarbeitung von personenbezogenen Daten (Name, Geburtsdatum, Geschlecht, Kontaktdaten, Bild(er), sportliche Ausbildungen) zum Zweck der allgemeinen Vereins- und Mitgliederverwaltung. Verantwortlicher ist das Leitungsorgan des Vereines (Obfrau). Ihnen stehen die Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung und Widerspruch gemäß Art. 15–21 DSGVO sowie ein Beschwerderecht bei der Aufsichtsbehörde zu.',
     CONTENT_WIDTH
   )
   doc.text(dsgvo, MARGIN, y)
@@ -179,7 +192,7 @@ export function buildMembershipPdf(): jsPDF {
   doc.line(MARGIN, y, PAGE_WIDTH - MARGIN, y)
   y += 5
   doc.setFontSize(8.5)
-  doc.text(`Obmann ${clubInfo.obmann}, ${clubInfo.address}`, MARGIN, y)
+  doc.text(`${clubInfo.chairRole} ${clubInfo.chair}, ${clubInfo.address}`, MARGIN, y)
   doc.text(`E-Mail: ${clubInfo.officeEmail}`, MARGIN, y + 4)
   doc.text(`ZVR-Nr.: ${clubInfo.zvr}`, MARGIN, y + 8)
   doc.text(`IBAN: ${clubInfo.iban}, BIC: ${clubInfo.bic}`, MARGIN, y + 12)
