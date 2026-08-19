@@ -3,6 +3,7 @@ import { useTheme } from '@/context/ThemeContext'
 import { useLanguage } from '@/context/LanguageContext'
 import { useLenisScroll } from '@/context/LenisContext'
 import { boardMembers } from '@/data/boardMembers'
+import { clubInfo } from '@/data/clubInfo'
 
 // Read the chair off the board list rather than hardcoding a name here, so
 // the footer can't drift out of sync with src/data/boardMembers.ts. That list
@@ -127,7 +128,10 @@ export default function Footer() {
             </a>
             <p className="text-sm text-dim">
               {t.footer.chairman}: {chair.name}<br />
-              <a href={`mailto:${chair.email}`} className="text-secondary hover:text-primary transition-colors break-all">{chair.email}</a>
+              {/* The club's office address, not the chair's personal one: this
+                  is a public contact block, and general enquiries should reach
+                  the office regardless of who currently holds the role. */}
+              <a href={`mailto:${clubInfo.officeEmail}`} className="text-secondary hover:text-primary transition-colors break-all">{clubInfo.officeEmail}</a>
             </p>
           </div>
         </div>
