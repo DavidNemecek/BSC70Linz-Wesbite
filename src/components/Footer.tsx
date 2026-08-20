@@ -2,13 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { useTheme } from '@/context/ThemeContext'
 import { useLanguage } from '@/context/LanguageContext'
 import { useLenisScroll } from '@/context/LenisContext'
-import { boardMembers } from '@/data/boardMembers'
 import { clubInfo } from '@/data/clubInfo'
-
-// Read the chair off the board list rather than hardcoding a name here, so
-// the footer can't drift out of sync with src/data/boardMembers.ts. That list
-// is kept in statutory order, so the chair is always the first entry.
-const chair = boardMembers[0]
 
 export default function Footer() {
   const { theme } = useTheme()
@@ -120,19 +114,15 @@ export default function Footer() {
 
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-[0.15em] text-dim mb-5">{t.footer.contactHeading}</h4>
+            {/* The office address alone. Who currently holds which office is
+                stated in the Impressum and on the board section, and repeating
+                it here would only be a second place to keep in sync. */}
             <a
-              href="mailto:anmeldung@bsc70linz.at"
-              className="text-sm text-accent hover:text-primary transition-colors duration-200 block mb-3"
+              href={`mailto:${clubInfo.officeEmail}`}
+              className="text-sm text-accent hover:text-primary transition-colors duration-200 block break-all"
             >
-              anmeldung@bsc70linz.at
+              {clubInfo.officeEmail}
             </a>
-            <p className="text-sm text-dim">
-              {t.footer.chairman}: {chair.name}<br />
-              {/* The club's office address, not the chair's personal one: this
-                  is a public contact block, and general enquiries should reach
-                  the office regardless of who currently holds the role. */}
-              <a href={`mailto:${clubInfo.officeEmail}`} className="text-secondary hover:text-primary transition-colors break-all">{clubInfo.officeEmail}</a>
-            </p>
           </div>
         </div>
 
