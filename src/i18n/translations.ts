@@ -28,7 +28,6 @@ export const translations = {
       asko: 'ASKÖ',
       impressum: 'Impressum',
       datenschutz: 'Datenschutz',
-      chairman: 'Obfrau',
       copyright: (year: number) => `© ${year} BSC 70 Linz · Alle Rechte vorbehalten`,
     },
     hero: {
@@ -471,7 +470,6 @@ export const translations = {
       asko: 'ASKÖ',
       impressum: 'Legal notice',
       datenschutz: 'Privacy policy',
-      chairman: 'Chairwoman',
       copyright: (year: number) => `© ${year} BSC 70 Linz · All rights reserved`,
     },
     hero: {
