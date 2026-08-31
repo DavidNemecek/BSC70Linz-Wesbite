@@ -31,20 +31,6 @@ export default function Board() {
                 <div className="min-w-0">
                   <h3 className="text-base font-semibold text-primary tracking-tight">{member.name}</h3>
                   <p className="text-sm text-muted mt-0.5">{t.boardRoles[member.roleKey]}</p>
-                  <a
-                    href={`mailto:${member.email}`}
-                    className="text-sm text-accent hover:underline mt-1 block break-all"
-                  >
-                    {member.email}
-                  </a>
-                  {member.phone && (
-                    <a
-                      href={`tel:${member.phone.replace(/\s/g, '')}`}
-                      className="text-sm text-accent hover:underline inline-block"
-                    >
-                      {member.phone}
-                    </a>
-                  )}
                 </div>
               </div>
             </div>
