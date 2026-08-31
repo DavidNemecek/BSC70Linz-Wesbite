@@ -10,6 +10,14 @@ const sponsors: { name: string; logo: string; url: string; label?: string }[] = 
   { name: 'Magnus Packaging', logo: '/assets/sponsor-magnus-packaging.jpg', url: 'https://www.magnus.at' },
   { name: 'VICTOR Europe', logo: '/assets/sponsor-victor-europe.png', url: 'https://www.victor-europe.com', label: 'Europe' },
   { name: 'VICTOR Austria', logo: '/assets/sponsor-victor-austria.png', url: 'https://www.victor-austria.at', label: 'Austria' },
+  // Reuses the header's ASKÖ file — same current mark, no second copy to keep
+  // in step. Labelled because it points at the Oberösterreich association that
+  // actually funds the club, while the footer links the federal ASKÖ.
+  { name: 'ASKÖ Oberösterreich', logo: '/assets/asko-logo.png', url: 'https://www.askoe-ooe.at', label: 'Oberösterreich' },
+  { name: 'Sportland Oberösterreich', logo: '/assets/sponsor-sportland-ooe.png', url: 'https://www.sport-ooe.at' },
+  // The city's mark is the stylised "L_nz" wordmark, which does not say
+  // "Stadt" — and LINZ AG sits in the same row, so the label disambiguates.
+  { name: 'Stadt Linz', logo: '/assets/sponsor-stadt-linz.svg', url: 'https://www.linz.at', label: 'Stadt' },
 ]
 
 export default function Sponsors() {
