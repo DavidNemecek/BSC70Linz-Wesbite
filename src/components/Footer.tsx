@@ -114,15 +114,24 @@ export default function Footer() {
 
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-[0.15em] text-dim mb-5">{t.footer.contactHeading}</h4>
-            {/* The office address alone. Who currently holds which office is
-                stated in the Impressum and on the board section, and repeating
-                it here would only be a second place to keep in sync. */}
+            {/* Office address plus the person who answers the phone. Board
+                roles are not repeated here — those are in the Impressum and on
+                the board section, and would only be a second place to sync. */}
             <a
               href={`mailto:${clubInfo.officeEmail}`}
               className="text-sm text-accent hover:text-primary transition-colors duration-200 block break-all"
             >
               {clubInfo.officeEmail}
             </a>
+            <p className="text-sm text-dim mt-3">
+              {clubInfo.contactPerson}<br />
+              <a
+                href={`tel:${clubInfo.phone.replace(/\s/g, '')}`}
+                className="text-secondary hover:text-primary transition-colors"
+              >
+                {clubInfo.phone}
+              </a>
+            </p>
           </div>
         </div>
 

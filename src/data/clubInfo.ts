@@ -14,6 +14,11 @@ export const clubInfo = {
   address: 'Suttnerstraße 15, 4030 Linz',
   officeEmail: 'office@bsc70linz.at',
   registrationEmail: 'anmeldung@bsc70linz.at',
+  // The person who actually answers this number, named alongside it so callers
+  // know who they are reaching. Kept here rather than derived from
+  // boardMembers: it is a deliberate choice of contact, not an automatic
+  // consequence of holding a particular office.
+  contactPerson: 'David Nemecek',
   phone: '+43 664 2179311',
   // Always the www host: the bare bsc70linz.at only 308-redirects here, so
   // linking it would send people through a needless hop.

@@ -96,8 +96,7 @@ export default function Impressum() {
             <ul className="text-sm text-secondary leading-relaxed space-y-1">
               {boardMembers.map((m) => (
                 <li key={m.name}>
-                  {m.name}, {t.boardRoles[m.roleKey]} —{' '}
-                  <a href={`mailto:${m.email}`} className="text-accent hover:underline break-all">{m.email}</a>
+                  {m.name}, {t.boardRoles[m.roleKey]}
                 </li>
               ))}
             </ul>
