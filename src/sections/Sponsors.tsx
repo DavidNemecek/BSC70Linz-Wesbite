@@ -1,11 +1,15 @@
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
 import { useLanguage } from '@/context/LanguageContext'
 
-const sponsors = [
+// `label` distinguishes tiles that share a brand mark. VICTOR runs both sites
+// as one company — victor-austria.at's own imprint names VICTOR Europe GmbH —
+// so there is no Austria-specific logo to tell them apart, and the two tiles
+// would otherwise read as the same sponsor listed twice.
+const sponsors: { name: string; logo: string; url: string; label?: string }[] = [
   { name: 'LINZ AG', logo: '/assets/sponsor-linzag.png', url: 'https://www.linzag.at' },
   { name: 'Magnus Packaging', logo: '/assets/sponsor-magnus-packaging.jpg', url: 'https://www.magnus.at' },
-  { name: 'VICTOR Europe', logo: '/assets/sponsor-victor-europe.png', url: 'https://www.victor-europe.com' },
-  { name: 'VICTOR Austria', logo: '/assets/sponsor-victor-austria.png', url: 'https://www.victor-austria.at' },
+  { name: 'VICTOR Europe', logo: '/assets/sponsor-victor-europe.png', url: 'https://www.victor-europe.com', label: 'Europe' },
+  { name: 'VICTOR Austria', logo: '/assets/sponsor-victor-austria.png', url: 'https://www.victor-austria.at', label: 'Austria' },
 ]
 
 export default function Sponsors() {
@@ -29,7 +33,7 @@ export default function Sponsors() {
               target="_blank"
               rel="noopener noreferrer"
               data-stagger-item
-              className="bg-white rounded-lg border border-theme h-24 w-full max-w-[220px] px-6 flex items-center justify-center opacity-0 hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
+              className="bg-white rounded-lg border border-theme h-24 w-full max-w-[220px] px-6 flex flex-col items-center justify-center gap-1.5 opacity-0 hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
             >
               {/* max-w-full as well as the height cap: wide wordmarks (the
                   VICTOR one is 7:1) would otherwise be sized by height alone
@@ -39,6 +43,14 @@ export default function Sponsors() {
                 alt={sponsor.name}
                 className="max-h-10 sm:max-h-12 max-w-full w-auto object-contain"
               />
+              {sponsor.label && (
+                // Fixed grey rather than a theme colour: the tile stays white
+                // in dark mode, so a theme-aware muted tone would wash out.
+                // aria-hidden because alt already carries the full name.
+                <span aria-hidden className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#6b7280] leading-none">
+                  {sponsor.label}
+                </span>
+              )}
             </a>
           ))}
         </div>
