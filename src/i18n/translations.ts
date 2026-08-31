@@ -190,8 +190,7 @@ export const translations = {
       externalLinkHint: 'Tabelle auf Turniersoftware.com ansehen',
     },
     sponsors: {
-      overline: 'PARTNER',
-      title: 'Unsere Sponsoren',
+      title: 'Unsere Sponsoren und Partner',
     },
     contact: {
       title: 'Wir freuen uns auf dich',
@@ -629,8 +628,7 @@ export const translations = {
       externalLinkHint: 'View table on Turniersoftware.com',
     },
     sponsors: {
-      overline: 'PARTNERS',
-      title: 'Our sponsors',
+      title: 'Our sponsors and partners',
     },
     contact: {
       title: 'We look forward to hearing from you',
