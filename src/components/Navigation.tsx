@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { Sun, Moon, Languages } from 'lucide-react'
 import { useTheme } from '@/context/ThemeContext'
 import { useLanguage } from '@/context/LanguageContext'
-import { useLenisScroll } from '@/context/LenisContext'
+import { useAnchorNavigation } from '@/hooks/useAnchorNavigation'
 
 export default function Navigation() {
   const [scrolled, setScrolled] = useState(false)
@@ -12,7 +12,7 @@ export default function Navigation() {
   const isHome = location.pathname === '/'
   const { theme, toggleTheme } = useTheme()
   const { language, toggleLanguage, t } = useLanguage()
-  const { scrollTo } = useLenisScroll()
+  const { handleAnchorClick, handleTopClick } = useAnchorNavigation(() => setMobileOpen(false))
 
   useEffect(() => {
     // This threshold must stay below the scroll offset at which Hero.tsx's
@@ -38,22 +38,6 @@ export default function Navigation() {
     { label: t.nav.chronik, href: '/chronik' },
   ]
 
-  const handleAnchorClick = (e: React.MouseEvent, href: string) => {
-    e.preventDefault()
-    setMobileOpen(false)
-
-    if (!isHome) {
-      window.location.href = href
-      return
-    }
-
-    const id = href.replace('/#', '')
-    const el = document.getElementById(id)
-    if (el) {
-      scrollTo(el)
-    }
-  }
-
   const opaque = scrolled || !isHome || mobileOpen
   const navIsSolid = scrolled || !isHome
   // Set directly as an inline style rather than a Tailwind class so the
@@ -72,14 +56,6 @@ export default function Navigation() {
     : 'text-white/70 hover:text-white'
   const logoIsDark = !opaque || theme === 'dark'
 
-  const handleLogoClick = (e: React.MouseEvent) => {
-    setMobileOpen(false)
-    if (isHome) {
-      e.preventDefault()
-      scrollTo(0)
-    }
-  }
-
   return (
     <>
       <nav
@@ -95,7 +71,7 @@ export default function Navigation() {
           <div className="z-[101] flex items-center gap-2.5 sm:gap-3.5 min-w-0 shrink-0">
             <Link
               to="/"
-              onClick={handleLogoClick}
+              onClick={handleTopClick}
               className="flex items-center min-w-0 overflow-hidden"
             >
               <img
