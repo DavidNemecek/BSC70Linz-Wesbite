@@ -1,38 +1,20 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useTheme } from '@/context/ThemeContext'
 import { useLanguage } from '@/context/LanguageContext'
-import { useLenisScroll } from '@/context/LenisContext'
+import { useAnchorNavigation } from '@/hooks/useAnchorNavigation'
 import { clubInfo } from '@/data/clubInfo'
 
 export default function Footer() {
   const { theme } = useTheme()
   const { t } = useLanguage()
-  const location = useLocation()
-  const isHome = location.pathname === '/'
-  const { scrollTo } = useLenisScroll()
-
-  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    if (href.startsWith('/#')) {
-      e.preventDefault()
-      const id = href.replace('/#', '')
-      const el = document.getElementById(id)
-      if (el) scrollTo(el)
-    }
-  }
-
-  const handleLogoClick = (e: React.MouseEvent) => {
-    if (isHome) {
-      e.preventDefault()
-      scrollTo(0)
-    }
-  }
+  const { handleAnchorClick, handleTopClick } = useAnchorNavigation()
 
   return (
     <footer className="bg-card border-t border-theme">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10 py-12 lg:py-20">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
           <div>
-            <Link to="/" onClick={handleLogoClick} className="inline-flex items-center min-w-0 shrink-0 overflow-hidden">
+            <Link to="/" onClick={handleTopClick} className="inline-flex items-center min-w-0 shrink-0 overflow-hidden">
               <img
                 src={theme === 'dark' ? '/assets/bsc-logo-dark-themepng.png' : '/assets/bsc-logo-light.png'}
                 alt="BSC 70 Linz"
