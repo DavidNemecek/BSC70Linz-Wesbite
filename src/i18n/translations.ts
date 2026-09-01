@@ -131,7 +131,9 @@ export const translations = {
         },
         { label: 'Unterstützende Mitglieder', price: '€ 50,00', detail: null },
       ],
-      note: 'Für Turnier- und Meisterschaftsspieler wird zusätzlich die ÖBV Spielberechtigungsgebühr eingehoben.',
+      // Shown under the fee table and reprinted on the PDF form, so the
+      // annual-fee wording reaches both places from here.
+      note: 'Für Turnier- und Meisterschaftsspieler wird zusätzlich die ÖBV Spielberechtigungsgebühr eingehoben. Bei allen angeführten Beiträgen handelt es sich um Jahresbeiträge.',
       ctaTitle: 'Bereit durchzustarten?',
       ctaText: 'Melde dich zum Schnuppertraining an oder werde direkt Mitglied.',
       ctaButton: 'Zur Anmeldung',
@@ -569,7 +571,7 @@ export const translations = {
         },
         { label: 'Supporting members', price: '€ 50.00', detail: null },
       ],
-      note: 'Tournament and championship players are additionally charged the ÖBV playing eligibility fee.',
+      note: 'Tournament and championship players are additionally charged the ÖBV playing eligibility fee. All fees listed are annual fees.',
       ctaTitle: 'Ready to get started?',
       ctaText: 'Sign up for a trial training session or become a member right away.',
       ctaButton: 'Go to registration',

@@ -96,24 +96,23 @@ export default function Footer() {
 
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-[0.15em] text-dim mb-5">{t.footer.contactHeading}</h4>
-            {/* Office address plus the person who answers the phone. Board
-                roles are not repeated here — those are in the Impressum and on
-                the board section, and would only be a second place to sync. */}
+            {/* Reads as a contact card: who to ask for, then how to reach
+                them. Board roles are not repeated here — those are in the
+                Impressum and on the board section, and would only be a second
+                place to keep in sync. */}
+            <p className="text-sm text-dim mb-2">{clubInfo.contactPerson}</p>
             <a
               href={`mailto:${clubInfo.officeEmail}`}
               className="text-sm text-accent hover:text-primary transition-colors duration-200 block break-all"
             >
               {clubInfo.officeEmail}
             </a>
-            <p className="text-sm text-dim mt-3">
-              {clubInfo.contactPerson}<br />
-              <a
-                href={`tel:${clubInfo.phone.replace(/\s/g, '')}`}
-                className="text-secondary hover:text-primary transition-colors"
-              >
-                {clubInfo.phone}
-              </a>
-            </p>
+            <a
+              href={`tel:${clubInfo.phone.replace(/\s/g, '')}`}
+              className="text-sm text-secondary hover:text-primary transition-colors block mt-1"
+            >
+              {clubInfo.phone}
+            </a>
           </div>
         </div>
 
