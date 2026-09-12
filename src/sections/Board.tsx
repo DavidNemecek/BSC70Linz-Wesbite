@@ -17,21 +17,37 @@ export default function Board() {
           {t.board.title}
         </h2>
 
-        <div data-stagger className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div data-stagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {boardMembers.map((member, i) => (
             <div
               key={i}
               data-stagger-item
-              className="bg-card rounded-lg p-6 opacity-0 hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 border border-theme"
+              className="flex items-center gap-5 bg-card rounded-lg border border-theme p-5 opacity-0 hover:-translate-y-1 hover:border-[var(--border-hover)] hover:shadow-[0_8px_30px_rgba(14,143,185,0.1)] transition-all duration-300"
             >
-              <div className="flex items-start gap-4">
-                <div className="w-14 h-14 rounded-full bg-accent-glow flex items-center justify-center flex-shrink-0">
-                  <span className="text-accent font-semibold text-lg">{member.initials}</span>
-                </div>
-                <div className="min-w-0">
-                  <h3 className="text-base font-semibold text-primary tracking-tight">{member.name}</h3>
-                  <p className="text-sm text-muted mt-0.5">{t.boardRoles[member.roleKey]}</p>
-                </div>
+              {/* Photos are cut out with a transparent background, so the
+                  gradient behind them is the same one the initials sit on. */}
+              <div className="w-24 h-24 rounded-full overflow-hidden bg-accent-gradient ring-4 ring-[color:var(--accent-glow)] flex items-center justify-center flex-shrink-0">
+                {member.image ? (
+                  // alt is empty on purpose: the name is right next to it.
+                  <img
+                    src={member.image}
+                    alt=""
+                    width={96}
+                    height={96}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="font-display text-4xl tracking-[0.04em] text-white">{member.initials}</span>
+                )}
+              </div>
+
+              <div className="min-w-0">
+                <h3 className="text-lg font-semibold text-primary tracking-tight leading-snug">{member.name}</h3>
+                <p className="mt-1 text-xs font-medium uppercase tracking-[0.12em] text-accent">
+                  {t.boardRoles[member.roleKey]}
+                </p>
               </div>
             </div>
           ))}
