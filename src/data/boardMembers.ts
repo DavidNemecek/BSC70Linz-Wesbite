@@ -12,9 +12,9 @@ export type BoardRoleKey = keyof TranslationDict['boardRoles']
 // phone number in src/data/clubInfo.ts, which is what the site shows instead.
 //
 // Photos are optional; without one the card falls back to the initials.
-// They are cut-out head-and-shoulder shots: square 448×448 WebPs with a
-// transparent background, so the accent gradient of the avatar circle shows
-// through and they match the initials of members without a photo.
+// They are hand-cropped 3:4 portraits (head to chest), cut out to 480×640
+// WebPs with a transparent background, so the accent gradient of the photo
+// frame shows through and they match the initials of members without one.
 export const boardMembers: {
   name: string
   roleKey: BoardRoleKey
