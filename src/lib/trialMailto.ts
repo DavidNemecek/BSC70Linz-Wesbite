@@ -1,14 +1,31 @@
 import { clubInfo } from '@/data/clubInfo'
 
-// Schnuppertraining request — deliberately minimal (just name + date),
-// unlike the full Beitrittserklärung membership mailto.
 export function buildTrialMailto(): string {
-  const subject = 'Schnuppertraining – Anfrage'
+  const subject = 'Anfrage zum Schnuppertraining – [TODO: Vor- und Nachname]'
 
-  const body = `Ich möchte gerne unverbindlich zum Schnuppertraining vorbeikommen.
+  const body = `Hallo liebes Team des BSC 70 Linz,
 
-Name:
-Wunschtermin:
+ich möchte gerne an einem Schnuppertraining teilnehmen.
+
+Name: [TODO: Vor- und Nachname]
+
+Alter: [TODO: Alter]
+
+Wunschtermin: [TODO: Datum – siehe https://${clubInfo.website}/#training]
+
+Erfahrung im Badminton: [TODO: Keine / gelegentlich gespielt / bereits im Verein gespielt / sonstige Erfahrung]
+
+Ausrüstung: [TODO: Ich bringe einen eigenen Schläger mit / Ich benötige einen Leihschläger - Geeignete Hallenschuhe sind Voraussetzung]
+
+Telefonnummer (optional): [TODO: z. B. für Rückfragen oder bei unter 18-Jährigen die Nummer einer erziehungsberechtigten Person, falls während des Trainings jemand erreicht werden muss]
+
+Weitere Informationen, die ich vorab benötige:
+
+[TODO: Fragen ergänzen oder „keine“ eintragen]
+
+Sportliche Grüße
+
+[TODO: Vorname]
 `
 
   return `mailto:${clubInfo.officeEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
