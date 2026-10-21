@@ -54,10 +54,11 @@ export const translations = {
       directionsLink: 'Anfahrt anzeigen',
       tableHeaders: { day: 'Tag', time: 'Zeit', group: 'Gruppe', location: 'Ort' },
       schedule: [
-        { day: 'Dienstag', time: '17:00 – 19:00', group: 'Nachwuchstraining', location: 'AHS Solar City' },
+        { day: 'Dienstag', time: '17:00 – 19:00', group: 'Basic Training', location: 'AHS Solar City' },
         { day: 'Dienstag', time: '19:00 – 21:30', group: 'alle Mitglieder', location: 'AHS Solar City' },
         { day: 'Donnerstag', time: '18:30 – 21:00', group: 'alle Mitglieder', location: 'AHS Solar City' },
-        { day: 'Freitag', time: '18:00 – 19:30', group: 'Training für Anfänger', location: 'Europagym. Auhof' },
+        { day: 'Donnerstag', time: '19:00 – 20:30', group: 'Wettkampftraining', location: 'AHS Solar City' },
+        { day: 'Freitag', time: '18:00 – 19:30', group: 'Basic Training', location: 'Europagym. Auhof' },
         { day: 'Freitag', time: '18:00 – 20:00', group: 'Alle Mitglieder', location: 'Europagym. Auhof' },
       ],
       infoNotes: [
@@ -497,10 +498,11 @@ export const translations = {
       directionsLink: 'Get directions',
       tableHeaders: { day: 'Day', time: 'Time', group: 'Group', location: 'Location' },
       schedule: [
-        { day: 'Tuesday', time: '5:00 – 7:00 PM', group: 'Youth training', location: 'AHS Solar City' },
+        { day: 'Tuesday', time: '5:00 – 7:00 PM', group: 'Basic Training', location: 'AHS Solar City' },
         { day: 'Tuesday', time: '7:00 – 9:30 PM', group: 'all members', location: 'AHS Solar City' },
         { day: 'Thursday', time: '6:30 – 9:00 PM', group: 'all members', location: 'AHS Solar City' },
-        { day: 'Friday', time: '6:00 – 7:30 PM', group: 'Training for beginners', location: 'Europagym. Auhof' },
+        { day: 'Thursday', time: '7:00 – 8:30 PM', group: 'Competition training', location: 'AHS Solar City' },
+        { day: 'Friday', time: '6:00 – 7:30 PM', group: 'Basic Training', location: 'Europagym. Auhof' },
         { day: 'Friday', time: '6:00 – 8:00 PM', group: 'All members', location: 'Europagym. Auhof' },
       ],
       infoNotes: [
