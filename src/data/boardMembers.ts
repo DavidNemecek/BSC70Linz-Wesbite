@@ -22,9 +22,9 @@ export const boardMembers: {
   image?: string
 }[] = [
   { name: 'Christina Wu', roleKey: 'obfrau', initials: 'CW', image: '/assets/board-christina-wu.webp' },
-  { name: 'Reinhard Hechenberger', roleKey: 'obfrauStellvertreter', initials: 'RH' },
+  { name: 'Reinhard Hechenberger', roleKey: 'obfrauStellvertreter', initials: 'RH', image: '/assets/board-reinhard-hechenberger.webp' },
   { name: 'David Nemecek', roleKey: 'schriftfuehrer', initials: 'DN', image: '/assets/board-david-nemecek.webp' },
   { name: 'Andrea Binder', roleKey: 'schriftfuehrerinStellvertreterin', initials: 'AB', image: '/assets/board-andrea-binder.webp' },
-  { name: 'Roland Bauer', roleKey: 'finanzreferent', initials: 'RB' },
+  { name: 'Roland Bauer', roleKey: 'finanzreferent', initials: 'RB', image: '/assets/board-roland-bauer.webp' },
   { name: 'Johann Burgstaller', roleKey: 'finanzreferentStellvertreter', initials: 'JB', image: '/assets/board-johann-burgstaller.webp' },
 ]
