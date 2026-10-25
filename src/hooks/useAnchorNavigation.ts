@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { useLenisScroll } from '@/context/LenisContext'
+import { useLocation, useNavigate } from 'react-router'
+import { useLenisScroll } from '@/context/lenis-context'
 
 /**
  * Click handling for the in-page section links ("/#sponsoren") in the nav and

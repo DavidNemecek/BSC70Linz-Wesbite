@@ -1,9 +1,9 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { useRef, useEffect, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ArrowRight, ClipboardList, FileDown, Info, ExternalLink, CheckCircle2 } from 'lucide-react'
-import { useLanguage } from '@/context/LanguageContext'
+import { useLanguage } from '@/context/language-context'
 import { clubInfo } from '@/data/clubInfo'
 import { generateMembershipPdf } from '@/lib/generateMembershipPdf'
 import { FORM_ORIGIN, REGISTRATION_FORM_URL } from '@/data/registrationForm'
@@ -197,7 +197,7 @@ export default function Registration() {
           <div className="rounded-xl border border-theme overflow-hidden">
             <div className="flex items-center justify-between gap-4 px-4 sm:px-6 py-4 border-b border-theme">
               <span className="text-xs font-medium uppercase tracking-[0.05em] text-accent">{tableHeaders.membership}</span>
-              <span className="text-xs font-medium uppercase tracking-[0.05em] text-accent flex-shrink-0">{tableHeaders.fee}</span>
+              <span className="text-xs font-medium uppercase tracking-[0.05em] text-accent shrink-0">{tableHeaders.fee}</span>
             </div>
             {fees.map((fee, i) => (
               <div
@@ -205,7 +205,7 @@ export default function Registration() {
                 className={`flex items-center justify-between gap-4 px-4 sm:px-6 py-3.5 ${i % 2 === 0 ? 'bg-card' : ''}`}
               >
                 <span className="text-sm text-secondary">{fee.label}</span>
-                <span className="font-semibold text-primary whitespace-nowrap flex-shrink-0">{fee.price}</span>
+                <span className="font-semibold text-primary whitespace-nowrap shrink-0">{fee.price}</span>
               </div>
             ))}
           </div>

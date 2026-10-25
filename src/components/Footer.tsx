@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom'
-import { useTheme } from '@/context/ThemeContext'
-import { useLanguage } from '@/context/LanguageContext'
+import { Link } from 'react-router'
+import { useTheme } from '@/context/theme-context'
+import { useLanguage } from '@/context/language-context'
 import { useAnchorNavigation } from '@/hooks/useAnchorNavigation'
 import { clubInfo } from '@/data/clubInfo'
 

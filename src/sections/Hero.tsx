@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { gsap } from 'gsap'
-import { useLanguage } from '@/context/LanguageContext'
+import { useLanguage } from '@/context/language-context'
 
 export default function Hero() {
   const { t } = useLanguage()

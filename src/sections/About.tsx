@@ -1,5 +1,5 @@
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
-import { useLanguage } from '@/context/LanguageContext'
+import { useLanguage } from '@/context/language-context'
 
 export default function About() {
   const ref = useScrollAnimation()

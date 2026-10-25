@@ -1,6 +1,6 @@
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
-import { Link } from 'react-router-dom'
-import { useLanguage } from '@/context/LanguageContext'
+import { Link } from 'react-router'
+import { useLanguage } from '@/context/language-context'
 
 export default function Contact() {
   const ref = useScrollAnimation()

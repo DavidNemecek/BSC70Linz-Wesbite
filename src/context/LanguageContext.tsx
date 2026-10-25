@@ -1,12 +1,6 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { LanguageContext } from './language-context'
+import { useEffect, useState, type ReactNode } from 'react'
 import { translations, type Language } from '@/i18n/translations'
-
-interface LanguageContextValue {
-  language: Language
-  setLanguage: (lang: Language) => void
-  toggleLanguage: () => void
-  t: typeof translations['de']
-}
 
 const STORAGE_KEY = 'bsc70-lang'
 
@@ -44,13 +38,6 @@ function isBrowserTranslating(): boolean {
   if (html.classList.contains('translated-ltr') || html.classList.contains('translated-rtl')) return true
   return !!document.body?.querySelector('[_msttexthash]')
 }
-
-const LanguageContext = createContext<LanguageContextValue>({
-  language: 'de',
-  setLanguage: () => {},
-  toggleLanguage: () => {},
-  t: translations.de,
-})
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>(() => storedLanguage() ?? detectLanguage())
@@ -104,8 +91,4 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       {children}
     </LanguageContext.Provider>
   )
-}
-
-export function useLanguage() {
-  return useContext(LanguageContext)
 }

@@ -1,7 +1,7 @@
 import path from "path"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
-import { inspectAttr } from 'kimi-plugin-inspect-react'
+import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -11,13 +11,13 @@ export default defineConfig({
   // site root, and the SPA catch-all rewrite then serves index.html for
   // that broken asset URL instead of the real JS/CSS, leaving a blank page.
   base: '/',
-  plugins: [inspectAttr(), react()],
+  plugins: [react(), tailwindcss()],
   server: {
     port: 3000,
   },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(import.meta.dirname, "./src"),
     },
   },
 });
