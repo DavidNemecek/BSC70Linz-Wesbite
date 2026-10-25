@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter } from 'react-router'
 
 // Self-hosted webfonts, bundled and served from our own domain so no visitor
 // data reaches Google. These are the same files Google Fonts serves — the

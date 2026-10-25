@@ -1,6 +1,17 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
+@config "../tailwind.config.js";
+
+/* Preserve Tailwind 3 defaults while using the Tailwind 4 compiler. */
+@layer base {
+  *, ::before, ::after, ::backdrop, ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
+  button, [role="button"] {
+    cursor: pointer;
+  }
+}
 
 @layer base {
   :root {
@@ -74,89 +85,87 @@
   }
 }
 
-@layer utilities {
-  .bg-page {
-    background-color: var(--bg-page);
-  }
+@utility bg-page {
+  background-color: var(--bg-page);
+}
 
-  .bg-section {
-    background-color: var(--bg-section);
-  }
+@utility bg-section {
+  background-color: var(--bg-section);
+}
 
-  .bg-card {
-    background-color: var(--bg-card);
-  }
+@utility bg-card {
+  background-color: var(--bg-card);
+}
 
-  .bg-card-alt {
-    background-color: var(--bg-card-alt);
-  }
+@utility bg-card-alt {
+  background-color: var(--bg-card-alt);
+}
 
-  .bg-surface {
-    background-color: var(--bg-surface);
-  }
+@utility bg-surface {
+  background-color: var(--bg-surface);
+}
 
-  .bg-nav {
-    background-color: var(--nav-bg);
-  }
+@utility bg-nav {
+  background-color: var(--nav-bg);
+}
 
-  .bg-input-theme {
-    background-color: var(--input-bg);
-  }
+@utility bg-input-theme {
+  background-color: var(--input-bg);
+}
 
-  .text-primary {
-    color: var(--text-primary);
-  }
+@utility text-primary {
+  color: var(--text-primary);
+}
 
-  .text-secondary {
-    color: var(--text-secondary);
-  }
+@utility text-secondary {
+  color: var(--text-secondary);
+}
 
-  .text-muted {
-    color: var(--text-muted);
-  }
+@utility text-muted {
+  color: var(--text-muted);
+}
 
-  .text-dim {
-    color: var(--text-dim);
-  }
+@utility text-dim {
+  color: var(--text-dim);
+}
 
-  .border-theme {
-    border-color: var(--border-color);
-  }
+@utility border-theme {
+  border-color: var(--border-color);
+}
 
-  .border-primary {
-    border-color: var(--text-primary);
-  }
+@utility border-primary {
+  border-color: var(--text-primary);
+}
 
-  .bg-primary {
-    background-color: var(--text-primary);
-  }
+@utility bg-primary {
+  background-color: var(--text-primary);
+}
 
-  .text-accent {
-    color: var(--accent);
-  }
+@utility text-accent {
+  color: var(--accent);
+}
 
-  .bg-accent {
-    background-color: var(--accent);
-  }
+@utility bg-accent {
+  background-color: var(--accent);
+}
 
-  .border-accent {
-    border-color: var(--accent);
-  }
+@utility border-accent {
+  border-color: var(--accent);
+}
 
-  .bg-accent-glow {
-    background-color: var(--accent-glow);
-  }
+@utility bg-accent-glow {
+  background-color: var(--accent-glow);
+}
 
-  .bg-accent-gradient {
-    background: var(--accent-gradient);
-  }
+@utility bg-accent-gradient {
+  background: var(--accent-gradient);
+}
 
-  .text-gradient {
-    background: var(--accent-gradient);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
+@utility text-gradient {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 @layer utilities {

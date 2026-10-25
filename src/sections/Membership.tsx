@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { Info } from 'lucide-react'
-import { useLanguage } from '@/context/LanguageContext'
+import { useLanguage } from '@/context/language-context'
 import { buildTrialMailto } from '@/lib/trialMailto'
 
 export default function Membership() {
@@ -32,7 +32,7 @@ export default function Membership() {
         <div data-stagger className="mb-4 rounded-lg border border-theme overflow-hidden">
           <div className="flex items-center justify-between gap-4 px-4 sm:px-6 py-4 border-b border-theme">
             <span className="text-xs font-medium uppercase tracking-[0.05em] text-accent">{tableHeaders.membership}</span>
-            <span className="text-xs font-medium uppercase tracking-[0.05em] text-accent flex-shrink-0">{tableHeaders.fee}</span>
+            <span className="text-xs font-medium uppercase tracking-[0.05em] text-accent shrink-0">{tableHeaders.fee}</span>
           </div>
           {fees.map((fee, i) => {
             const isOpen = openFee === i
@@ -63,7 +63,7 @@ export default function Membership() {
                       </button>
                     )}
                   </span>
-                  <span className="text-base sm:text-lg font-semibold text-primary whitespace-nowrap flex-shrink-0">{fee.price}</span>
+                  <span className="text-base sm:text-lg font-semibold text-primary whitespace-nowrap shrink-0">{fee.price}</span>
                 </div>
                 {fee.detail && isOpen && (
                   <p
@@ -92,7 +92,7 @@ export default function Membership() {
                 {t.membership.ctaText}
               </p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
+            <div className="flex flex-col sm:flex-row gap-3 shrink-0">
               <a
                 href={trialMailtoHref}
                 className="inline-flex items-center justify-center bg-transparent border border-white/60 text-white font-semibold text-sm rounded-full px-8 py-3.5 hover:bg-white/10 transition-colors duration-200"

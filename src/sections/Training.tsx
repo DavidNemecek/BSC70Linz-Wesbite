@@ -1,11 +1,11 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
 import { Clock, Users, MapPin, ArrowRight } from 'lucide-react'
-import { useLanguage } from '@/context/LanguageContext'
+import { useLanguage } from '@/context/language-context'
 
 function ArrowBullet() {
   return (
-    <svg viewBox="0 0 24 24" className="w-4 h-4 flex-shrink-0">
+    <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0">
       <path d="M2 3 L16 12 L8 12 Z" fill="var(--accent-light)" />
       <path d="M2 21 L16 12 L8 12 Z" fill="var(--accent-dark)" />
     </svg>
@@ -51,11 +51,11 @@ export default function Training() {
                     <span>{row.day} · {row.time}</span>
                   </div>
                   <div className="flex items-start gap-2 mb-1.5">
-                    <Users className="w-4 h-4 text-muted mt-0.5 flex-shrink-0" />
+                    <Users className="w-4 h-4 text-muted mt-0.5 shrink-0" />
                     <span className="text-sm font-medium text-primary">{row.group}</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <MapPin className="w-4 h-4 text-muted mt-0.5 flex-shrink-0" />
+                    <MapPin className="w-4 h-4 text-muted mt-0.5 shrink-0" />
                     <span className="text-sm text-muted">{row.location}</span>
                   </div>
                 </div>

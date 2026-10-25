@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
 import { ArrowRight, Calendar } from 'lucide-react'
-import { useLanguage } from '@/context/LanguageContext'
+import { useLanguage } from '@/context/language-context'
 
 export default function NewsPreview() {
   const ref = useScrollAnimation()
@@ -22,7 +22,7 @@ export default function NewsPreview() {
           </div>
           <Link
             to="/news"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-accent hover:gap-3 transition-all duration-200 flex-shrink-0"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-accent hover:gap-3 transition-all duration-200 shrink-0"
           >
             {t.newsPreview.viewAll}
             <ArrowRight className="w-4 h-4" />

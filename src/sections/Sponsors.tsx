@@ -1,5 +1,5 @@
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
-import { useLanguage } from '@/context/LanguageContext'
+import { useLanguage } from '@/context/language-context'
 
 // `label` distinguishes tiles that share a brand mark. VICTOR runs both sites
 // as one company — victor-austria.at's own imprint names VICTOR Europe GmbH —

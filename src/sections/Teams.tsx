@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ExternalLink } from 'lucide-react'
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
-import { useLanguage } from '@/context/LanguageContext'
+import { useLanguage } from '@/context/language-context'
 
 // Served by api/teams.ts, which fetches the background task's JSON on our
 // behalf. Deliberately a same-origin path: hitting the upstream repository
@@ -69,11 +69,11 @@ export default function Teams() {
               className="bg-card rounded-lg border border-theme p-6 sm:p-8 lg:p-10 animate-pulse"
             >
               <div className="h-5 w-28 rounded-full bg-card-alt mb-4" />
-              <div className="h-8 w-40 rounded bg-card-alt mb-2" />
-              <div className="h-4 w-32 rounded bg-card-alt mb-6" />
+              <div className="h-8 w-40 rounded-sm bg-card-alt mb-2" />
+              <div className="h-4 w-32 rounded-sm bg-card-alt mb-6" />
               <div className="border-t border-theme pt-6 flex gap-8 sm:gap-12">
-                <div className="h-10 w-12 rounded bg-card-alt" />
-                <div className="h-10 w-12 rounded bg-card-alt" />
+                <div className="h-10 w-12 rounded-sm bg-card-alt" />
+                <div className="h-10 w-12 rounded-sm bg-card-alt" />
               </div>
             </div>
           ))}
@@ -115,7 +115,7 @@ export default function Teams() {
 
               <div className="mt-6">
                 <span className="inline-flex items-center gap-2 bg-accent-gradient text-white text-xs font-semibold rounded-full px-4 py-2">
-                  <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
+                  <ExternalLink className="w-3.5 h-3.5 shrink-0" />
                   {t.teams.externalLinkHint}
                 </span>
               </div>

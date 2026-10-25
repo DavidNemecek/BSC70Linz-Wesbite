@@ -1,8 +1,8 @@
 import { useEffect, useState, type CSSProperties } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router'
 import { Sun, Moon, Languages } from 'lucide-react'
-import { useTheme } from '@/context/ThemeContext'
-import { useLanguage } from '@/context/LanguageContext'
+import { useTheme } from '@/context/theme-context'
+import { useLanguage } from '@/context/language-context'
 import { useAnchorNavigation } from '@/hooks/useAnchorNavigation'
 
 export default function Navigation() {

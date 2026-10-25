@@ -1,10 +1,10 @@
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router'
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ArrowRight, MapPin, Navigation as NavigationIcon } from 'lucide-react'
 // import { PlayCircle } from 'lucide-react' // re-add when the "Video zur Anfahrt" section below is reactivated
-import { useLanguage } from '@/context/LanguageContext'
+import { useLanguage } from '@/context/language-context'
 import { hallDirections, type HallId } from '@/data/hallDirections'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -64,7 +64,7 @@ export default function Anfahrt() {
 
         <div data-animate className="bg-card rounded-xl border border-theme p-6 sm:p-8 opacity-0 mb-8">
           <div className="flex items-center gap-3 mb-3">
-            <MapPin className="w-5 h-5 text-accent flex-shrink-0" />
+            <MapPin className="w-5 h-5 text-accent shrink-0" />
             <h2 className="text-lg font-semibold text-primary">{t.anfahrt.addressHeading}</h2>
           </div>
           <p className="text-sm text-secondary mb-6">{location.address}</p>

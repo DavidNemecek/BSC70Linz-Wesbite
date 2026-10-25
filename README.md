@@ -1,73 +1,42 @@
-# React + TypeScript + Vite
+# BSC 70 Linz Website
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Zweisprachige Vereinswebsite mit React, TypeScript und Vite. Tailwind CSS
+liefert das Styling; GSAP und Lenis steuern die Animationen. Die Anmeldung
+kann ein PDF mit jsPDF erzeugen.
 
-Currently, two official plugins are available:
+## Entwicklung und Prüfung
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Node.js **24 LTS, mindestens 24.22.1**, verwenden (siehe `engines` in `package.json`).
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```sh
+nvm install # optional, liest .nvmrc
+npm ci
+npm run dev
+npm run lint
+npm run build
+npm run audit
+npm run audit:production
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+`npm ci` installiert die im Lockfile geprüften Versionen. Der Build prüft
+Frontend, Vite-Konfiguration und die Edge-Handler in `api/` mit TypeScript.
+`npm run audit` berücksichtigt auch die Entwicklungswerkzeuge;
+`audit:production` prüft die Produktionsabhängigkeiten.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Veröffentlichung
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Vercel baut `development` für <https://dev.bsc70linz.at> und `main` für
+<https://www.bsc70linz.at>. Die Website wird aus `dist/` ausgeliefert.
+`api/teams.ts`, `api/robots.ts` und `api/sitemap.ts` sind JavaScript
+Edge-Funktionen. Die Anwendung verwendet weder PHP noch React Server Components.
+`assets/uploads/*.php` sind archivierte Fehlermeldungen der alten Website und
+werden nicht in den aktuellen Build übernommen.
+
+## Abhängigkeiten und Sicherheit
+
+Den Prüfstand und begründete Versionsausnahmen dokumentiert
+[die Sicherheitsprüfung vom 25. Oktober 2026](security/dependencies-2026-10-25.md).
+Bei Updates sowohl `package.json` als auch `package-lock.json` aktualisieren,
+danach Installation, Lint, Build, beide Audits und Browserfunktionen prüfen.
+Major-Upgrades zusätzlich gegen die jeweiligen Migrationshinweise prüfen.

@@ -1,11 +1,11 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ArrowRight } from 'lucide-react'
 import { boardMembers } from '@/data/boardMembers'
 import { clubInfo } from '@/data/clubInfo'
-import { useLanguage } from '@/context/LanguageContext'
+import { useLanguage } from '@/context/language-context'
 
 gsap.registerPlugin(ScrollTrigger)
 

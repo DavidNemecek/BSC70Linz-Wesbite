@@ -102,6 +102,7 @@ Kurz, praxisnah, und auf saubere Software-Engineering-Standards ausgerichtet.
 ## Git/Review-Qualität
 - Änderungen sollen reviewbar sein: klare Diff-Struktur, keine massenhaften Format-Umbrüche.
 - Keine `git commit`/Branch-Aktionen, außer ausdrücklich gewünscht.
+- **Dauerhafte Freigabe für Sicherheitsupdates (Owner, 25.10.2026):** Sicherheitsänderungen committen und auf `development` veröffentlichen. Nach erfolgreicher CI/CD- und unabhängiger Live-Abnahme auf Dev dieselben Sicherheitsänderungen nach `main`/Produktion übernehmen und dort erneut prüfen. Dafür ist keine erneute Freigabe nötig. Bei fehlgeschlagenen Prüfungen erst korrigieren; fachfremde Änderungen nicht automatisch mitveröffentlichen.
 
 ## Kommunikation im Output
 - Antworte kurz und konkret: **Was wurde geändert**, **wo** (Dateipfade), **wie testen**.

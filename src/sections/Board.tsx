@@ -1,6 +1,6 @@
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { boardMembers } from '@/data/boardMembers';
-import { useLanguage } from '@/context/LanguageContext';
+import { useLanguage } from '@/context/language-context';
 
 export default function Board() {
   const ref = useScrollAnimation();
@@ -26,7 +26,7 @@ export default function Board() {
             >
               {/* Photos are cut out with a transparent background, so the
                   gradient behind them is the same one the initials sit on. */}
-              <div className="w-28 sm:w-36 aspect-[3/4] rounded-lg overflow-hidden bg-accent-gradient flex items-center justify-center flex-shrink-0">
+              <div className="w-28 sm:w-36 aspect-[3/4] rounded-lg overflow-hidden bg-accent-gradient flex items-center justify-center shrink-0">
                 {member.image ? (
                   // alt is empty on purpose: the name is right next to it.
                   <img
