@@ -8,6 +8,7 @@
     "build": "node --version && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "start": "node server/coolify.mjs",
     "audit": "npm audit --audit-level=low",
     "audit:production": "npm audit --omit=dev --audit-level=low"
   },
