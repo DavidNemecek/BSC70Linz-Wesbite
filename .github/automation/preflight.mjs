@@ -1,5 +1,5 @@
-import { mkdir, writeFile } from 'node:fs/promises';
-import { preflight as aiPreflight } from './ai.mjs';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { preflight as aiPreflight, researchPackages } from './ai.mjs';
 import { preflight as vercelPreflight, getProductionDeployment, verifyRuntime } from './vercel.mjs';
 
 const result = { startedAt: new Date().toISOString(), pass: false, checks: [] };
@@ -24,6 +24,12 @@ const outcomes = await Promise.allSettled([(async () => {
   const research = await aiPreflight();
   result.checks.push({ name: 'live-ai-web-search', pass: research.pass === true, research });
   if (!research.pass) throw Error('AI live search preflight did not pass');
+})(), (async () => {
+  const lock = JSON.parse(await readFile(new URL('../../package-lock.json', import.meta.url), 'utf8'));
+  const packages = ['react', 'vite'].map(name => ({ name, version: lock.packages[`node_modules/${name}`].version }));
+  const research = await researchPackages({ packages, baseSHA: process.env.GITHUB_SHA, headSHA: process.env.GITHUB_SHA });
+  result.checks.push({ name: 'exact-version-research', pass: research.pass === true, research });
+  if (!research.pass) throw Error('Exact-version supply-chain research did not pass');
 })()]);
 result.pass = outcomes.every(outcome => outcome.status === 'fulfilled');
 // Adapter errors are deliberately generic; never serialize request/response objects.
