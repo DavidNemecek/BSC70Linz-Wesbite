@@ -61,6 +61,7 @@ export const VERIFIED_SCANNER_EVIDENCE = Object.freeze([Object.freeze({
 })]);
 export const VERIFIED_APPLICATION_CONTEXT = Object.freeze({
   applicationType: 'vite-react-spa', bundler: 'vite', framework: 'react', usesNext: false, usesVitest: false,
+  usesReactServerComponents: false, usesServerFunctions: false,
 });
 
 function config(options) {
@@ -440,9 +441,10 @@ function verifiedScannerEvidence(value, targets) {
 
 function verifiedApplicationContext(value) {
   if (value === undefined) return null;
-  if (!object(value) || Object.keys(value).some(key => !['applicationType', 'bundler', 'framework', 'usesNext', 'usesVitest'].includes(key)) ||
+  if (!object(value) || Object.keys(value).some(key => !['applicationType', 'bundler', 'framework', 'usesNext', 'usesVitest', 'usesReactServerComponents', 'usesServerFunctions'].includes(key)) ||
       value.applicationType !== 'vite-react-spa' || value.bundler !== 'vite' || value.framework !== 'react' ||
-      typeof value.usesNext !== 'boolean' || typeof value.usesVitest !== 'boolean') throw fail('INVALID_APPLICATION_CONTEXT');
+      typeof value.usesNext !== 'boolean' || typeof value.usesVitest !== 'boolean' ||
+      typeof value.usesReactServerComponents !== 'boolean' || typeof value.usesServerFunctions !== 'boolean') throw fail('INVALID_APPLICATION_CONTEXT');
   return {...value};
 }
 
@@ -465,6 +467,8 @@ function contextualizeCompatibilityFindings(findings, context) {
     const frameworks = [
       {absent: !context.usesNext, name:/next(?:\.js)?/i},
       {absent: !context.usesVitest, name:/vitest/i},
+      {absent: !context.usesReactServerComponents, name:/react\s+server\s+components?|server\s+components?/i},
+      {absent: !context.usesServerFunctions, name:/server\s+functions?/i},
     ].filter(({name}) => name.test(text));
     // Mentioning more than one framework leaves the dependency relationship
     // ambiguous, even when one of them is absent from this application.
@@ -474,6 +478,7 @@ function contextualizeCompatibilityFindings(findings, context) {
       new RegExp(`\\b(?:only|exclusive(?:ly)?|specific(?:ally)?)\\s+(?:when\\s+)?(?:using\\s+|running\\s+|with\\s+)?(?:${name.source})\\b`, 'i'),
       new RegExp(`\\b(?:requires?|depends\\s+on|limited\\s+to|confined\\s+to)\\s+(?:using\\s+|running\\s+|with\\s+)?(?:${name.source})\\b`, 'i'),
       new RegExp(`\\b(?:when|if)\\s+(?:using\\s+|running\\s+|with\\s+)?(?:${name.source})\\b`, 'i'),
+      new RegExp(`\\b(?:denial\\s+of\\s+service|vulnerabilit(?:y|ies))\\s+in\\s+(?:${name.source})\\b`, 'i'),
     ].some(pattern => pattern.test(text)));
     return relations.length === 1 ? {...finding, severity:'info'} : finding;
   });

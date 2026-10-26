@@ -263,7 +263,7 @@ test('verified scanner evidence rejects forged identity and missing model reprod
 test('conditional absent-framework compatibility is informational while applicable defects stay negative',async t=>{
   const conditional={severity:'medium',message:'Conditional Next.js issue #100666 applies only when Next.js is used',evidence:[source]};
   const absent=await fixture(t,res=>json(res,response({packages:[{name:'react',version:'19.3.1',pass:true,findings:[conditional],evidence:[source],scannerFindings:[]}]},[search(['react 19.3.1 security'],[source])] )));
-  const context={applicationType:'vite-react-spa',bundler:'vite',framework:'react',usesNext:false,usesVitest:false};
+  const context={applicationType:'vite-react-spa',bundler:'vite',framework:'react',usesNext:false,usesVitest:false,usesReactServerComponents:false,usesServerFunctions:false};
   const info=await researchPackages(researchArgs([{name:'react',version:'19.3.1'}]),{...absent.options,applicationContext:context});
   assert.equal(info.pass,true);
   assert.equal(info.packages[0].findings[0].severity,'info');
@@ -296,6 +296,20 @@ test('conditional absent-framework compatibility is informational while applicab
   const broadResult=await researchPackages(researchArgs([{name:'react',version:'19.3.1'}]),{...broad.options,applicationContext:context});
   assert.equal(broadResult.pass,false);
   assert.equal(broadResult.packages[0].findings[0].severity,'medium');
+  const server=await fixture(t,res=>json(res,response({packages:[{name:'react',version:'19.3.1',pass:true,findings:[{severity:'medium',message:'Denial of Service in Server Functions advisory remains an evidence gap; this is not a finding that this Vite React SPA is vulnerable',evidence:[source]}],evidence:[source],scannerFindings:[]}]},[search(['react 19.3.1 security'],[source])] )));
+  const serverResult=await researchPackages(researchArgs([{name:'react',version:'19.3.1'}]),{...server.options,applicationContext:context});
+  assert.equal(serverResult.pass,true);
+  assert.equal(serverResult.packages[0].findings[0].severity,'info');
+  for (const message of [
+    'The issue is limited to Next.js and Vitest.',
+    'Only when using Next.js; Vitest is also affected.',
+    'Only when using Vitest; Next.js is also affected.',
+  ]) {
+    const mixed=await fixture(t,res=>json(res,response({packages:[{name:'react',version:'19.3.1',pass:false,findings:[{severity:'medium',message,evidence:[source]}],evidence:[source],scannerFindings:[]}]},[search(['react 19.3.1 security'],[source])] )));
+    const mixedResult=await researchPackages(researchArgs([{name:'react',version:'19.3.1'}]),{...mixed.options,applicationContext:context});
+    assert.equal(mixedResult.pass,false);
+    assert.equal(mixedResult.packages[0].findings[0].severity,'medium');
+  }
 });
 
 test('incomplete scanner evidence and omitted fields fail the strict research schema',async t=>{

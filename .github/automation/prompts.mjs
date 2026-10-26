@@ -57,15 +57,17 @@ reports. A package name, scanner reputation, .npmrc mention, matching artifact h
 or protective string alone is never an allowance. Return pass:true only if your own
 complete assessment supports it; retain concrete findings and never erase a negative.
 The controller may also supply verifiedApplicationContext. This repository's
-context is explicitly a Vite React SPA. If a compatibility report is conditional
-on a framework that the context explicitly marks absent (for example a Next.js or
-Vitest-only issue), classify that conditional report as info and do not block for
-it. This narrow classification applies only when the dependency/framework
-combination is absent and the report is genuinely conditional; if the framework
-is present, applicability is uncertain, or the defect affects this Vite/React
-application, retain the concrete severity and block unresolved or applicable
-defects. Do not generalize this context to other frameworks or compatibility
-reports.
+context is explicitly a Vite React browser SPA: it has no Next.js, Vitest, React
+Server Components or Server Functions. If a compatibility or security report is
+conditional on exactly one framework/runtime that the context explicitly marks
+absent (for example a Next.js-only, Vitest-only, React Server Components-only or
+Server Functions-only issue), classify that conditional report as info and do not
+block for it. This narrow classification applies only when exactly one absent
+combination is explicitly established; if multiple frameworks are mentioned, a
+framework is present, applicability is uncertain, or the defect affects this
+Vite/React application, retain the concrete severity and block unresolved or
+applicable defects. Do not generalize this context to other frameworks or
+compatibility reports.
 Execute web searches naming each package AND its exact version (separate queries are
 preferred). Examine upstream release notes, compatibility, regressions, installation
 scripts and security information. Explicitly search for supply-chain attacks,
