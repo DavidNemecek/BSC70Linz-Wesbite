@@ -50,7 +50,7 @@ async function fixture(t,handler) {
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   t.after(()=>new Promise(resolve=>{server.close(resolve);server.closeAllConnections();}));
   return {requests,options:{baseURL:`http://127.0.0.1:${server.address().port}/v1`,apiKey:KEY,model:MODEL,
-    timeoutMs:2000,maxRetries:0,allowLoopbackForTests:true}};
+    timeoutMs:2000,maxRetries:0,allowLoopbackForTests:true,registryFetch:async()=>new Response(null,{status:404})}};
 }
 const code = expected => error => {
   assert.equal(error.code,expected);
@@ -258,6 +258,25 @@ test('canonical GitHub citations require a bounded independently confirmed perma
   }
   const f=await fixture(t,res=>json(res,response(data,[search(['foo 1.2.3 security'],['https://evil.example/releases/tag/v1.2.3'])])));
   await assert.rejects(researchPackages(researchArgs(packages),{...f.options,evidenceFetch:()=>assert.fail('external host fetched')}),code('PACKAGE_SEARCH_PROOF_MISSING'));
+});
+
+test('unopened exact registry metadata requires independent bounded identity-checked retrieval',async t=>{
+  const packages=[{name:'foo',version:'1.2.3'}], url='https://registry.npmjs.org/foo/1.2.3';
+  const data={packages:[{...packages[0],...pass,evidence:[url]}]};
+  for (const [body,allowed] of [[JSON.stringify(packages[0]),true],[JSON.stringify({name:'bar',version:'1.2.3'}),false],['invalid',false],['x'.repeat(512*1024+1),false]]) {
+    const f=await fixture(t,res=>json(res,response(data,[search(['foo 1.2.3 supply chain'])])));
+    const options={...f.options,registryFetch:async (address,init)=>{
+      assert.equal(address,url);assert.equal(init.redirect,'error');assert.equal(init.headers,undefined);
+      return new Response(body);
+    }};
+    if (allowed) {
+      const result=await researchPackages(researchArgs(packages),options);
+      assert.equal(result.provenance[0].registryRetrievals[0].url,url);
+      assert.match(result.provenance[0].registryRetrievals[0].sha256,/^[a-f0-9]{64}$/);
+    } else await assert.rejects(researchPackages(researchArgs(packages),options),code('PACKAGE_SEARCH_PROOF_MISSING'));
+  }
+  const f=await fixture(t,res=>json(res,response(data,[search(['latest security'])])));
+  await assert.rejects(researchPackages(researchArgs(packages),{...f.options,registryFetch:()=>assert.fail('no exact search')}),code('PACKAGE_SEARCH_PROOF_MISSING'));
 });
 
 test('exact-version research chunks all packages and checks executed multiqueries',async t=>{

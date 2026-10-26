@@ -329,6 +329,22 @@ async function githubRedirect(source, cited, fetcher) {
   } catch { return false; }
 }
 
+async function retrieveRegistryMetadata(url,target,fetcher) {
+  try {
+    const response=await fetcher(url,{redirect:'error',signal:AbortSignal.timeout(10000)});
+    if (!response.ok || !response.body) { await response.body?.cancel(); return null; }
+    const chunks=[]; let bytes=0;
+    for await (const chunk of response.body) {
+      bytes+=chunk.length;
+      if (bytes>512*1024) throw Error('Registry metadata exceeds limit');
+      chunks.push(Buffer.from(chunk));
+    }
+    const body=Buffer.concat(chunks), data=JSON.parse(body.toString('utf8'));
+    return data.name===target.name && data.version===target.version ?
+      {url,name:target.name,version:target.version,sha256:hash(body)} : null;
+  } catch { return null; }
+}
+
 function exactVersion(version) {
   if (typeof version!=='string' || version.length>200) return false;
   const match=/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/.exec(version);
@@ -355,6 +371,7 @@ export async function researchPackages({packages,baseSHA,headSHA}, options = {})
     const response = await callAI({instructions:RESEARCH,input:{baseSHA,headSHA,packages:chunk},schema,search:true},options);
     provenance.push(response.provenance);
     response.provenance.confirmedRedirects = [];
+    response.provenance.registryRetrievals = [];
     let redirectBudget = 8;
     if (response.data.packages.length !== chunk.length || new Set(response.data.packages.map(p=>`${p.name}@${p.version}`)).size !== chunk.length ||
         response.data.packages.some(p=>!chunk.some(t=>t.name===p.name && t.version===p.version))) throw fail('PARTIAL_RESEARCH');
@@ -363,6 +380,10 @@ export async function researchPackages({packages,baseSHA,headSHA}, options = {})
       const sources = new Set(evidence.flatMap(s=>s.sources));
       const opened = response.provenance.openedURLs.filter(url=>exactRegistryURL(url,target));
       const result = response.data.packages.find(p=>p.name===target.name && p.version===target.version);
+      if (sources.size) for (const cited of result.evidence) if (!sources.has(cited) && !opened.includes(cited) && exactRegistryURL(cited,target)) {
+        const retrieved=await retrieveRegistryMetadata(cited,target,options.registryFetch ?? fetch);
+        if (retrieved) { opened.push(cited); response.provenance.registryRetrievals.push(retrieved); }
+      }
       for (const cited of result.evidence) if (!sources.has(cited) && !opened.includes(cited)) {
         for (const source of sources) {
           if (!githubRedirectCandidate(source,cited)) continue;
