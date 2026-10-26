@@ -25,6 +25,7 @@ function check(name, pass, detail = {}) {
   if (!pass) {
     result.errors.push({ check: name, ...detail });
     console.error(`FAIL ${name}: ${detail.message ?? ''}`);
+    if (detail.events?.length) console.error(JSON.stringify({ check: name, events: detail.events.slice(0, 20) }));
   }
   return pass;
 }

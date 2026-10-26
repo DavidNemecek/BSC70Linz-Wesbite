@@ -18,7 +18,8 @@ const outcomes = await Promise.allSettled([(async () => {
   if (!response.ok) throw Error(`Ruleset visibility probe failed (${response.status})`);
   const ruleset = await response.json();
   result.checks.push({ name: 'ruleset-visibility', pass: true, bypassVisible: Array.isArray(ruleset.bypass_actors),
-    bypassCount: Array.isArray(ruleset.bypass_actors) ? ruleset.bypass_actors.length : null });
+    bypassCount: Array.isArray(ruleset.bypass_actors) ? ruleset.bypass_actors.length : null,
+    currentUserCanBypass: ruleset.current_user_can_bypass ?? null });
 })(), (async () => {
   const research = await aiPreflight();
   result.checks.push({ name: 'live-ai-web-search', pass: research.pass === true, research });
