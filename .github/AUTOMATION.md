@@ -58,6 +58,8 @@ Repository-Secrets:
 Übernahmen. Jeder andere Wert deaktiviert sie. Der manuelle Modus `preflight`
 bleibt zur Diagnose verfügbar. Secrets werden ausschließlich dem
 vertrauenswürdigen Controller bzw. separaten Review-Jobs bereitgestellt.
+Der am 26. Oktober 2026 angelegte Vercel-Token läuft nach einem Jahr ab und muss
+vorher ersetzt werden. Ein abgelaufener Token blockiert weitere Übernahmen.
 
 GitHub Actions benötigt die Repository-Einstellung **Allow GitHub Actions to
 create and approve pull requests** zum Erstellen eigener PRs. Die Automatisierung

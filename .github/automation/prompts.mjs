@@ -17,8 +17,12 @@ Do not claim search execution based on your own text.`;
 export const RESEARCH = `Research EVERY supplied npm package at its EXACT target version.
 Execute web searches naming each package AND its exact version (separate queries are
 preferred). Examine upstream release notes, compatibility, regressions, installation
-scripts and security information. Return exactly one package entry per input pair,
-with evidence URLs from the searches actually executed. Missing, ambiguous or partial
+scripts and security information. Explicitly search for supply-chain attacks,
+malicious releases, maintainer/account compromise and CVEs for each exact target.
+Return exactly one package entry per input pair. Copy evidence URLs verbatim from
+the returned search sources, without inventing canonical or redirected URLs.
+Every entry must cite sources from a query naming its package and exact version.
+Missing, ambiguous or partial
 research must fail. Do not infer that 100 packages are safe from a broad search.
 Advisory claims are leads only: the controller independently fetches advisory sources;
 your assessment cannot certify absence of vulnerabilities or replace those checks.

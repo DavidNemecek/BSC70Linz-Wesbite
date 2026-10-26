@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 concurrency:
   group: deployment-comparison-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 permissions:
   contents: read
 jobs:
