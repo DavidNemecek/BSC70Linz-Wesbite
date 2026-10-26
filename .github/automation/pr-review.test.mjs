@@ -71,6 +71,19 @@ test('fork PR receives an independent stateless analysis and commit-bound COMMEN
   assert.ok(hasPassingReview([{ ...previous(), ...review }], expected()));
 });
 
+test('trusted run emits a v3 marker and host-authored evidence record after the review ID exists', async t => {
+  const dir = await mkdtemp(join(tmpdir(), 'pr-review-evidence-'));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const evidencePath = join(dir, 'review-evidence.json');
+  const f = fixture();
+  assert.equal((await f.run({ provenance: { runID: 42, controlSHA: 'c'.repeat(40), workflowRef: `${repository}/.github/workflows/pr-review.yml@refs/heads/main`,
+    event: 'workflow_dispatch', actor: 'github-actions[bot]', evidencePath } })).outcome, 'pass');
+  const record = JSON.parse(await readFile(evidencePath, 'utf8'));
+  assert.deepEqual({ reviewID: record.reviewID, runID: record.runID, controlSHA: record.controlSHA, verdict: record.verdict },
+    { reviewID: 1, runID: 42, controlSHA: 'c'.repeat(40), verdict: 'pass' });
+  assert.match(f.writes().find(item => item.path.endsWith('/reviews')).body.body, /bsc70-ai-review:v3 .* run=42 /);
+});
+
 test('labels, branch names and PR author claims cannot enable merging or bypass AI', async () => {
   const f = fixture();
   f.pr.labels = [{ name: 'automated-dependencies' }, { name: 'security' }, { name: 'auto-merge' }];
@@ -91,13 +104,12 @@ test('PR instructions and diffs remain untrusted input, never AI configuration',
   assert.equal(f.calls[0].input.diff, diff);
 });
 
-test('authenticated previous review deduplicates the exact base/head and repairs status', async () => {
+test('previous PASS or failure comments never deduplicate; every run performs fresh AI', async () => {
   for (const pass of [true, false]) {
     const f = fixture({ reviews: [previous(pass)] });
-    assert.equal((await f.run()).outcome, 'deduplicated');
-    assert.equal(f.calls.length, 0);
-    assert.equal(f.writes().length, 1);
-    assert.equal(f.writes()[0].body.state, pass ? 'success' : 'failure');
+    assert.equal((await f.run()).outcome, pass ? 'pass' : 'pass');
+    assert.equal(f.calls.length, 1);
+    assert.equal(f.writes().filter(item => item.path.endsWith('/reviews')).length, 1);
   }
 });
 
@@ -142,19 +154,20 @@ test('same-head retargets invalidate prior reviews for changed base SHA or same-
   }
 });
 
-test('non-main PRs sharing a head never publish the main context, including errors and cached passes', async () => {
+test('non-main PRs sharing a head never publish the main context, including fresh reruns', async () => {
   for (const mode of ['pass', 'cached', 'error']) {
     const f = fixture({ reviews: mode === 'cached' ? [{ ...previous(), body: marker(true, { baseRef: 'updates' }) }] : [],
       ai: mode === 'error' ? () => { throw Error('provider failed'); } : undefined });
     f.pr.base.ref = 'updates';
     const result = await f.run();
-    assert.equal(result.outcome, { pass: 'pass', cached: 'deduplicated', error: 'error' }[mode]);
+    assert.equal(result.outcome, { pass: 'pass', cached: 'pass', error: 'error' }[mode]);
+    if (mode === 'cached') assert.equal(f.calls.length, 1);
     assert.ok(f.writes().filter(item => item.path.startsWith('/statuses/')).every(item => item.body.context === OTHER_CONTEXT));
     assert.ok(!f.requests.some(item => item.path.startsWith('/pulls?')));
   }
 });
 
-test('every open main PR sharing a head requires its own exact PASS record', async () => {
+test('every open main PR sharing a head requires each sibling’s verified artifact', async () => {
   const sibling = { ...pull(), number: 8 };
   const siblingReviews = [];
   const f = fixture({ intercept: (path, request, pr) => {
@@ -172,15 +185,14 @@ test('every open main PR sharing a head requires its own exact PASS record', asy
   assert.equal(f.writes().at(-1).body.state, 'pending');
   assert.equal((await f.run({ number: 8 })).outcome, 'pass');
   assert.equal(f.calls.length, 2); // Each PR actually reviewed; neither borrows another PR's marker.
-  assert.equal(f.writes().at(-1).body.state, 'success');
-  assert.equal(hasPassingReview(siblingReviews, expected({ number: 8 })), true);
+  assert.equal(f.writes().at(-1).body.state, 'pending'); // no completed trusted artifact in this fixture
   sibling.base.sha = otherSHA;
-  assert.equal((await f.run()).outcome, 'deduplicated');
+  assert.equal((await f.run()).outcome, 'pass');
   assert.equal(f.writes().at(-1).body.state, 'pending');
   sibling.base.ref = 'updates';
   // The API's base=main filter excludes non-main siblings.
   sibling.head.sha = otherSHA;
-  assert.equal((await f.run()).outcome, 'deduplicated');
+  assert.equal((await f.run()).outcome, 'pass');
   assert.equal(f.writes().at(-1).body.state, 'success');
 });
 
@@ -228,18 +240,12 @@ test('forged markers, stale heads/bases and human reviews cannot deduplicate', a
   }
 });
 
-test('dedupe reviews are paginated with a hard cap; incomplete history fails closed', async () => {
+test('review history is not a PASS cache; each invocation runs AI', async () => {
   const untrusted = { ...previous(), user: { login: 'user', type: 'User' } };
-  const f = fixture({ intercept: path => {
-    if (path === '/pulls/7/reviews?per_page=100&page=1') return Array(100).fill(untrusted);
-    if (path === '/pulls/7/reviews?per_page=100&page=2') return [previous()];
-  } });
-  assert.equal((await f.run()).outcome, 'deduplicated');
-  const capped = fixture({ reviews: Array(100).fill(untrusted) });
-  assert.equal((await capped.run()).outcome, 'error');
-  assert.equal(capped.calls.length, 0);
-  assert.equal(capped.requests.filter(item => item.path.includes('/reviews?')).length, LIMITS.reviewPages);
-  assert.equal(capped.writes().at(-1).body.state, 'error');
+  const f = fixture({ reviews: Array(100).fill(untrusted) });
+  assert.equal((await f.run()).outcome, 'pass');
+  assert.equal(f.calls.length, 1);
+  assert.equal(f.requests.filter(item => item.path.includes('/reviews?')).length, 0);
 });
 
 test('closed PRs and obsolete synchronize events never receive a verdict', async () => {
@@ -451,25 +457,14 @@ test('title/body-only edited events skip API and AI; base edits retain the trust
   await writeFile(path, JSON.stringify(event));
   await assert.rejects(main(env)); // A base edit reaches token validation instead of skipping.
 
-  const f = fixture({ reviews: [previous()] });
-  t.mock.method(globalThis, 'fetch', async (url, options) => {
-    assert.ok(url.startsWith(`https://api.github.com/repos/${repository}`));
-    const route = url.slice(`https://api.github.com/repos/${repository}`.length);
-    const result = await f.api(route, { method: options.method,
-      ...(options.body ? { body: JSON.parse(options.body) } : {}) });
-    return new Response(JSON.stringify(result));
-  });
-  assert.equal((await main({ ...env, GITHUB_TOKEN: 'trusted-fixture-token' })).outcome, 'deduplicated');
-  assert.equal(f.writes().at(-1).body.state, 'success');
-  assert.equal(f.calls.length, 0);
 });
 
-test('a metadata edit deduplicates unchanged code without spending AI again', async () => {
+test('a metadata edit reruns the independent AI review', async () => {
   const f = fixture({ reviews: [previous()] });
   f.pr.title = 'A new title';
   f.pr.body = 'A new description';
-  assert.equal((await f.run()).outcome, 'deduplicated');
-  assert.equal(f.calls.length, 0);
+  assert.equal((await f.run()).outcome, 'pass');
+  assert.equal(f.calls.length, 1);
 });
 
 test('privileged workflow is pinned to main, installs nothing and grants no merge/Actions/content writes', async () => {
@@ -497,15 +492,18 @@ test('secretless CI runs root validation, all automation tests and separately in
   assert.match(workflow, /^  push:/m);
   assert.match(workflow, /^  pull_request:/m);
   assert.ok(!/pull_request_target|secrets\.|: write\s*$/m.test(workflow));
-  for (const command of ['node --test .github/automation/*.test.mjs', 'npm ci --prefix .github/qa --ignore-scripts',
-    'node --test .github/qa/support.test.mjs', 'npm ci --ignore-scripts --no-fund --no-audit',
-    'npm run lint', 'npm run build', 'npm audit --audit-level=low --ignore-scripts',
-    'npm audit --omit=dev --audit-level=low --ignore-scripts']) assert.ok(workflow.includes(command), command);
+  for (const command of ['node --test .github/automation/*.test.mjs', 'npm ci --prefix .github/qa --ignore-scripts --no-fund --no-audit',
+    'node --test .github/qa/support.test.mjs']) assert.ok(workflow.includes(command), command);
+  if (workflow.includes('\n  application:')) {
+    for (const command of ['npm ci --ignore-scripts --no-fund --no-audit', 'npm run lint', 'npm run build',
+      'npm audit --audit-level=low --ignore-scripts', 'npm audit --omit=dev --audit-level=low --ignore-scripts']) assert.ok(workflow.includes(command), command);
+  }
   for (const name of ['pr-review.yml', 'automation-checks.yml']) {
     const text = await readFile(new URL(`../workflows/${name}`, import.meta.url), 'utf8');
     const uses = [...text.matchAll(/^\s+uses: (\S+)/gm)].map(match => match[1]);
     assert.ok(uses.length >= 2);
     assert.ok(uses.every(value => ['actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1',
-      'actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1'].includes(value)));
+      'actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1',
+      'actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9'].includes(value)));
   }
 });

@@ -1,6 +1,9 @@
 import { readFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { reviewPullRequest } from './ai.mjs';
+import { downloadReviewArtifact, createReviewEvidence, reviewMarker, verifiedReviewRecord, writeReviewEvidence } from './review-evidence.mjs';
+
+export { createReviewEvidence, parseReviewMarker, reviewMarker, verifiedReviewRecord, verifyReviewRecord, workflowRef, writeReviewEvidence } from './review-evidence.mjs';
 
 export const CONTEXT = 'security/ai-review';
 export const OTHER_CONTEXT = 'security/ai-review-other';
@@ -15,7 +18,7 @@ const bot = user => user?.login === 'github-actions[bot]' && user.type === 'Bot'
  * fetchImpl is a trusted test seam, never configured from repository/PR content. */
 export function githubClient({ repository, token, fetchImpl = fetch }) {
   if (!REPO.test(repository) || typeof token !== 'string' || !token || /[\r\n]/.test(token)) throw fail();
-  return async (path, { method = 'GET', body, diff = false } = {}) => {
+  const client = async (path, { method = 'GET', body, diff = false } = {}) => {
     if ((path !== '' && !/^\/(?!\/)/.test(path)) || !['GET', 'POST'].includes(method)) throw fail();
     const response = await fetchImpl(`https://api.github.com/repos/${repository}${path}`, {
       method, redirect: 'error', signal: AbortSignal.timeout(30_000),
@@ -40,6 +43,8 @@ export function githubClient({ repository, token, fetchImpl = fetch }) {
       return diff ? text : JSON.parse(text);
     } finally { await reader.cancel().catch(() => {}); }
   };
+  client.downloadArtifact = artifactID => downloadReviewArtifact({ repository, artifactID, token, fetchImpl });
+  return client;
 }
 
 function identity(pr, repository, number) {
@@ -49,25 +54,14 @@ function identity(pr, repository, number) {
   return { repository, number, baseRef: pr.base.ref, headSHA: pr.head.sha, baseSHA: pr.base.sha };
 }
 
-export function reviewMarker({ repository, number, baseRef, baseSHA, headSHA }, pass) {
-  if (!REPO.test(repository) || !Number.isSafeInteger(number) || number < 1 ||
-      typeof baseRef !== 'string' || !baseRef || baseRef.length > 255 || /[\x00-\x20\x7f]/.test(baseRef) ||
-      !SHA.test(baseSHA) || !SHA.test(headSHA) || typeof pass !== 'boolean') throw fail();
-  // v2 intentionally invalidates every pre-policy v1 cached verdict.
-  return `<!-- bsc70-ai-review:v2 repo=${repository} pr=${number} ref=${encodeURIComponent(baseRef)} base=${baseSHA} head=${headSHA} verdict=${pass ? 'pass' : 'fail'} -->`;
-}
-
 function recordedReview(review, ids) {
   return bot(review?.user) && review.commit_id === ids.headSHA && review.state === 'COMMENTED' &&
     typeof review.body === 'string' && [true, false].some(pass => review.body.startsWith(reviewMarker(ids, pass) + '\n'));
 }
 
-/** Controller contract: pass the complete chronological, authenticated GitHub
- * GET /pulls/{number}/reviews history and freshly read exact PR identity
- * {repository, number, baseRef, baseSHA, headSHA}. A bare commit status is never
- * sufficient. The newest matching v2 record wins (including a later failure).
- * This authenticates the GitHub Actions bot author, not workflow provenance:
- * callers must separately authenticate the trusted pr-review workflow/run. */
+/** Legacy display predicate retained only for migration/tests. It authenticates
+ * neither workflow provenance nor artifacts and must never gate siblings or
+ * controller promotion; use async verifiedReviewRecord for acceptance. */
 export function hasPassingReview(reviews, ids) {
   reviewMarker(ids, true); // Reject an incomplete/invalid expected identity.
   if (!Array.isArray(reviews)) return false;
@@ -163,8 +157,8 @@ function validateVerdict(result, baseSHA, headSHA, secrets) {
 // Escape model prose into plain, non-linking Markdown. Mentions, HTML, images,
 // tracking links, forged automation markers and Actions commands stay inert.
 const prose = text => text.replace(/[&<>@!\[\]()`*_\\#|]/g, char => `&#${char.charCodeAt(0)};`).replace(/https?:\/\//gi, 'https&#58;//');
-function reviewBody(result, ids, pass, complete) {
-  const lines = [reviewMarker(ids, pass), `Independent AI review of commit ${ids.headSHA} against ${ids.baseSHA} (${prose(ids.baseRef)}), PR #${ids.number}.`,
+function reviewBody(result, ids, pass, complete, runID) {
+  const lines = [reviewMarker(ids, pass, runID), `Independent AI review of commit ${ids.headSHA} against ${ids.baseSHA} (${prose(ids.baseRef)}), PR #${ids.number}.`,
     `Assessment: ${pass ? 'PASS' : 'BLOCKED'}. Advisory only; this workflow never enables auto-merge or merges PRs.`];
   if (!complete) lines.push('Review coverage is incomplete (binary or unavailable patch); manual review is required.');
   let remaining = 40_000;
@@ -178,10 +172,14 @@ function reviewBody(result, ids, pass, complete) {
 
 /** api/ai are trusted dependency injection for tests. There is deliberately no
  * merge API, label policy, checkout, subprocess, tool execution or code repair. */
-export async function runReview({ repository, number, eventHeadSHA, api, ai = reviewPullRequest, secrets = [] }) {
+export async function runReview({ repository, number, eventHeadSHA, api, ai = reviewPullRequest, secrets = [], provenance }) {
   if (!REPO.test(repository) || !Number.isSafeInteger(number) || number < 1 ||
       (eventHeadSHA !== undefined && !SHA.test(eventHeadSHA))) throw fail();
-  let headSHA = eventHeadSHA, baseSHA, baseRef, ids;
+  if (provenance !== undefined && (!provenance || !Number.isSafeInteger(provenance.runID) || provenance.runID < 1 ||
+      !SHA.test(provenance.controlSHA) || !['pull_request_target', 'workflow_dispatch'].includes(provenance.event) ||
+      provenance.workflowRef !== `${repository}/.github/workflows/pr-review.yml@refs/heads/main` ||
+      typeof provenance.actor !== 'string' || !provenance.actor || typeof provenance.evidencePath !== 'string')) throw fail();
+  let headSHA = eventHeadSHA, baseSHA, baseRef, ids, freshRecord;
   const status = async (state, description) => {
     // Route using live metadata even on failures: a PR retargeted away from main
     // must not overwrite the main context shared with another PR at this SHA.
@@ -206,7 +204,11 @@ export async function runReview({ repository, number, eventHeadSHA, api, ai = re
           if (!Number.isSafeInteger(expected.number) || expected.number < 1 || pull.state !== 'open' || expected.baseRef !== 'main') throw fail();
           if (matches.has(expected.number)) throw fail();
           matches.add(expected.number);
-          if (expected.baseSHA !== baseSHA || !hasPassingReview(await readReviews(api, expected.number), expected)) {
+          const trusted = expected.number === number
+            ? freshRecord?.verdict === 'pass' && freshRecord.reviewID > 0
+            : (await verifiedReviewRecord({ api, reviews: await readReviews(api, expected.number), ids: expected, controlSHA: provenance?.controlSHA ?? baseSHA,
+              downloadArtifact: api.downloadArtifact ?? (async () => null), currentRunID: provenance?.runID }))?.verdict === 'pass';
+          if (expected.baseSHA !== baseSHA || !trusted) {
             state = 'pending'; description = 'Every open main PR sharing this head needs an exact independent PASS review.';
           }
         }
@@ -230,12 +232,6 @@ export async function runReview({ repository, number, eventHeadSHA, api, ai = re
     ({ headSHA, baseSHA, baseRef } = ids);
     if (pr.state !== 'open' || (eventHeadSHA && headSHA !== eventHeadSHA)) return { outcome: 'stale', headSHA };
 
-    const previous = (await readReviews(api, number)).findLast(review => recordedReview(review, ids));
-    if (previous) {
-      await current();
-      await status(previous.body.startsWith(reviewMarker(ids, true) + '\n') ? 'success' : 'failure', 'Independent AI review already recorded for this exact PR/base ref/base/head.');
-      return { outcome: 'deduplicated', headSHA };
-    }
     await current();
     await status('pending', 'Independent AI review is running; no merge is authorized.');
     if (!Number.isSafeInteger(pr.changed_files) || pr.changed_files < 1 || pr.changed_files > LIMITS.files) throw fail();
@@ -251,9 +247,18 @@ export async function runReview({ repository, number, eventHeadSHA, api, ai = re
     const result = await ai({ baseSHA, headSHA, diff: evidence.diff, context: evidence.context }, { model: 'gpt-6.1-sol' });
     const pass = validateVerdict(result, baseSHA, headSHA, secrets) && evidence.complete;
     await current(); // Never publish a verdict for a superseded candidate.
-    await api(`/pulls/${number}/reviews`, { method: 'POST', body: {
-      commit_id: headSHA, event: 'COMMENT', body: reviewBody(result, ids, pass, evidence.complete),
-    } });
+    const body = reviewBody(result, ids, pass, evidence.complete, provenance?.runID);
+    const posted = await api(`/pulls/${number}/reviews`, { method: 'POST', body: { commit_id: headSHA, event: 'COMMENT', body } });
+    if (!Number.isSafeInteger(posted?.id) || posted.id < 1) throw fail();
+    if (provenance) {
+      freshRecord = createReviewEvidence({ ids, verdict: pass, reviewID: posted.id, runID: provenance.runID, controlSHA: provenance.controlSHA,
+        event: provenance.event, actor: provenance.actor, reviewBody: body });
+      await writeReviewEvidence(provenance.evidencePath, freshRecord);
+    } else {
+      // In-memory result is sufficient for this invocation's own aggregate;
+      // sibling/controller acceptance always goes through the async verifier.
+      freshRecord = { verdict: pass ? 'pass' : 'fail', reviewID: posted.id, runID: undefined };
+    }
     await current(); // A commit can arrive while the review is being published.
     await status(pass ? 'success' : 'failure', pass ? 'Independent AI assessment passed; ordinary PRs require human merge.' : 'Independent AI assessment blocked; manual review is required.');
     return { outcome: pass ? 'pass' : 'blocked', headSHA };
@@ -287,9 +292,13 @@ export async function main(env = process.env) {
   if (!/^[1-9]\d{0,9}$/.test(String(value))) throw fail();
   if (env.GITHUB_EVENT_NAME === 'pull_request_target' && !SHA.test(event.pull_request?.head?.sha)) throw fail();
   const number = Number(value);
+  if (!/^[1-9]\d*$/.test(String(env.GITHUB_RUN_ID)) || !SHA.test(env.GITHUB_SHA) ||
+      typeof env.GITHUB_ACTOR !== 'string' || !env.GITHUB_ACTOR || typeof env.REVIEW_EVIDENCE_PATH !== 'string') throw fail();
   const api = githubClient({ repository, token: env.GITHUB_TOKEN });
   const result = await runReview({ repository, number, api,
     ...(env.GITHUB_EVENT_NAME === 'pull_request_target' ? { eventHeadSHA: event.pull_request?.head?.sha } : {}),
+    provenance: { runID: Number(env.GITHUB_RUN_ID), controlSHA: env.GITHUB_SHA, workflowRef: env.GITHUB_WORKFLOW_REF,
+      event: env.GITHUB_EVENT_NAME, actor: env.GITHUB_ACTOR, evidencePath: env.REVIEW_EVIDENCE_PATH },
     secrets: [env.GITHUB_TOKEN, env.AI_API_KEY, env.AI_BASE_URL],
   });
   if (['error', 'blocked'].includes(result.outcome)) process.exitCode = 1;
