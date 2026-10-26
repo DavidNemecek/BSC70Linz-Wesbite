@@ -278,6 +278,20 @@ test('conditional absent-framework compatibility is informational while applicab
   const retained=await researchPackages(researchArgs([{name:'react',version:'19.3.1'}]),{...applicable.options,applicationContext:context});
   assert.equal(retained.pass,false);
   assert.equal(retained.packages[0].findings[0].severity,'medium');
+
+  for (const message of [
+    'Next.js issue requires investigation; applicability to this application is uncertain',
+    'The React SPA loses user data. Next.js is only another affected consumer.',
+  ]) {
+    const uncertain=await fixture(t,res=>json(res,response({packages:[{name:'react',version:'19.3.1',pass:false,findings:[{severity:'medium',message,evidence:[source]}],evidence:[source],scannerFindings:[]}]},[search(['react 19.3.1 security'],[source])] )));
+    const result=await researchPackages(researchArgs([{name:'react',version:'19.3.1'}]),{...uncertain.options,applicationContext:context});
+    assert.equal(result.pass,false);
+    assert.equal(result.packages[0].findings[0].severity,'medium');
+  }
+  const presentNext=await fixture(t,res=>json(res,response({packages:[{name:'react',version:'19.3.1',pass:false,findings:[{severity:'medium',message:'Next.js-only issue; Vitest is unrelated',evidence:[source]}],evidence:[source],scannerFindings:[]}]},[search(['react 19.3.1 security'],[source])] )));
+  const presentNextResult=await researchPackages(researchArgs([{name:'react',version:'19.3.1'}]),{...presentNext.options,applicationContext:{...context,usesNext:true}});
+  assert.equal(presentNextResult.pass,false);
+  assert.equal(presentNextResult.packages[0].findings[0].severity,'medium');
 });
 
 test('incomplete scanner evidence and omitted fields fail the strict research schema',async t=>{

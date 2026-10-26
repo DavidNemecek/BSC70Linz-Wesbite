@@ -437,14 +437,21 @@ function contextualizeCompatibilityFindings(findings, context) {
   if (!context) return findings;
   return findings.map(finding => {
     if (['high', 'critical', 'info'].includes(finding.severity)) return finding;
-    const text = `${finding.message} ${finding.evidence.join(' ')}`;
-    const conditional = /\b(?:conditional|only|requires?|specific(?:ally)?\s+to|when\s+(?:used|running)|if\s+(?:using|with)|exclusive(?:ly)?)\b/i.test(text);
-    const explicitlyApplicable = /\b(?:affects?\s+(?:all|this|vite|react)|applies?\s+to\s+(?:all|this|vite|react)|regardless|even\s+without|including\s+vite|also\s+affects)\b/i.test(text);
-    const frameworks = [
-      !context.usesNext && /\bnext(?:\.js)?\b/i.test(text),
-      !context.usesVitest && /\bvitest\b/i.test(text),
-    ];
-    return conditional && !explicitlyApplicable && frameworks.some(Boolean) ? {...finding, severity:'info'} : finding;
+    // Applicability comes only from the finding's prose. URLs and arbitrary
+    // evidence strings are citations, not a trustworthy statement that a
+    // framework is a prerequisite. Require an explicit relation to exactly one
+    // absent framework; loose words such as "only" or "requires" are not enough.
+    const text = String(finding.message ?? '');
+    const relations = [
+      {absent: !context.usesNext, name:/next(?:\.js)?/i},
+      {absent: !context.usesVitest, name:/vitest/i},
+    ].filter(({absent, name}) => absent && name.test(text) && [
+      new RegExp(`\\b(?:${name.source})\\s*(?:only|specific(?:ally)?|exclusive(?:ly)?)\\b`, 'i'),
+      new RegExp(`\\b(?:only|exclusive(?:ly)?|specific(?:ally)?)\\s+(?:when\\s+)?(?:using\\s+|running\\s+|with\\s+)?(?:${name.source})\\b`, 'i'),
+      new RegExp(`\\b(?:requires?|depends\\s+on|limited\\s+to|confined\\s+to)\\s+(?:using\\s+|running\\s+|with\\s+)?(?:${name.source})\\b`, 'i'),
+      new RegExp(`\\b(?:when|if)\\s+(?:using\\s+|running\\s+|with\\s+)?(?:${name.source})\\b`, 'i'),
+    ].some(pattern => pattern.test(text)));
+    return relations.length === 1 ? {...finding, severity:'info'} : finding;
   });
 }
 
