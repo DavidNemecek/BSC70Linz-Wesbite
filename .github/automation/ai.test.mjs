@@ -237,6 +237,29 @@ test('completed exact registry opens supplement real searches, without replacing
   await assert.rejects(researchPackages(researchArgs(packages),f.options),code('PACKAGE_SEARCH_PROOF_MISSING'));
 });
 
+test('canonical GitHub citations require a bounded independently confirmed permanent redirect',async t=>{
+  const packages=[{name:'foo',version:'1.2.3'}];
+  const from='https://github.com/old/foo/releases/tag/v1.2.3';
+  const to='https://github.com/new/foo/releases/tag/v1.2.3';
+  const data={packages:[{...packages[0],...pass,evidence:[to]}]};
+  for (const [status,location,allowed] of [[301,to,true],[308,to,true],[302,to,false],[200,to,false],[301,'https://evil.example/',false]]) {
+    const f=await fixture(t,res=>json(res,response(data,[search(['foo 1.2.3 security'],[from])])));
+    let calls=0;
+    const options={...f.options,evidenceFetch:async (url,init)=>{
+      calls++; assert.equal(url,from); assert.equal(init.redirect,'manual');
+      assert.equal(init.method,'HEAD'); assert.equal(init.headers,undefined);
+      return new Response(null,{status,headers:{location}});
+    }};
+    if (allowed) {
+      const result=await researchPackages(researchArgs(packages),options);
+      assert.deepEqual(result.provenance[0].confirmedRedirects,[{from,to}]);
+    } else await assert.rejects(researchPackages(researchArgs(packages),options),code('PACKAGE_SEARCH_PROOF_MISSING'));
+    assert.equal(calls,1);
+  }
+  const f=await fixture(t,res=>json(res,response(data,[search(['foo 1.2.3 security'],['https://evil.example/releases/tag/v1.2.3'])])));
+  await assert.rejects(researchPackages(researchArgs(packages),{...f.options,evidenceFetch:()=>assert.fail('external host fetched')}),code('PACKAGE_SEARCH_PROOF_MISSING'));
+});
+
 test('exact-version research chunks all packages and checks executed multiqueries',async t=>{
   const packages=[{name:'@scope/pkg',version:'1.2.3'},{name:'foo',version:'2.4.1'},
     {name:'bar',version:'3.0.0'},{name:'baz',version:'4.0.0'},{name:'qux',version:'5.0.0'}];

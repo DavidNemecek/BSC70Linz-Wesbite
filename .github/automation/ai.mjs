@@ -311,6 +311,24 @@ function exactRegistryURL(value,{name,version}) {
   } catch { return false; }
 }
 
+// Search providers can retain the previous owner of a renamed GitHub repo.
+// Accept its canonical URL only after GitHub itself confirms the exact redirect.
+function githubRedirectCandidate(source,cited) {
+  try {
+    const from = new URL(source), to = new URL(cited);
+    if ([from,to].some(u=>u.protocol!=='https:' || u.hostname!=='github.com' || u.port || u.search || u.hash || u.username || u.password)) return false;
+    const a=from.pathname.split('/'), b=to.pathname.split('/');
+    return a.length>=5 && a.slice(3).join('/')===b.slice(3).join('/') && a.slice(1,3).join('/')!==b.slice(1,3).join('/');
+  } catch { return false; }
+}
+async function githubRedirect(source, cited, fetcher) {
+  try {
+    const response=await fetcher(source,{method:'HEAD',redirect:'manual',signal:AbortSignal.timeout(10000)});
+    await response.body?.cancel();
+    return [301,308].includes(response.status) && new URL(response.headers.get('location'),source).href===cited;
+  } catch { return false; }
+}
+
 function exactVersion(version) {
   if (typeof version!=='string' || version.length>200) return false;
   const match=/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/.exec(version);
@@ -336,6 +354,8 @@ export async function researchPackages({packages,baseSHA,headSHA}, options = {})
     const chunk = targets.slice(start,start+CHUNK_SIZE);
     const response = await callAI({instructions:RESEARCH,input:{baseSHA,headSHA,packages:chunk},schema,search:true},options);
     provenance.push(response.provenance);
+    response.provenance.confirmedRedirects = [];
+    let redirectBudget = 8;
     if (response.data.packages.length !== chunk.length || new Set(response.data.packages.map(p=>`${p.name}@${p.version}`)).size !== chunk.length ||
         response.data.packages.some(p=>!chunk.some(t=>t.name===p.name && t.version===p.version))) throw fail('PARTIAL_RESEARCH');
     for (const target of chunk) {
@@ -343,6 +363,18 @@ export async function researchPackages({packages,baseSHA,headSHA}, options = {})
       const sources = new Set(evidence.flatMap(s=>s.sources));
       const opened = response.provenance.openedURLs.filter(url=>exactRegistryURL(url,target));
       const result = response.data.packages.find(p=>p.name===target.name && p.version===target.version);
+      for (const cited of result.evidence) if (!sources.has(cited) && !opened.includes(cited)) {
+        for (const source of sources) {
+          if (!githubRedirectCandidate(source,cited)) continue;
+          if (redirectBudget<=0) break;
+          redirectBudget--;
+          if (await githubRedirect(source,cited,options.evidenceFetch ?? fetch)) {
+            sources.add(cited);
+            response.provenance.confirmedRedirects.push({from:source,to:cited});
+            break;
+          }
+        }
+      }
       if (!sources.size || result.evidence.some(url=>!sources.has(sourceURL(url,v=>v)) && !opened.includes(sourceURL(url,v=>v)))) {
         const error = fail('PACKAGE_SEARCH_PROOF_MISSING');
         // Adapter-redacted public research metadata only; no request, provider
