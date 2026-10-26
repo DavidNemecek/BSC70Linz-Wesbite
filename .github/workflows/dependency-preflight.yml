@@ -10,6 +10,8 @@ on:
       - .github/automation/maintenance.mjs
       - .github/automation/toolchain-security.mjs
       - .github/automation/toolchain.mjs
+      - .github/automation/controller.mjs
+      - .github/automation/controller.test.mjs
       - .github/workflows/dependency-preflight.yml
       - .nvmrc
   workflow_dispatch:
