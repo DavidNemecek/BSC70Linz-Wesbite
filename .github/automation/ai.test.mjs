@@ -215,9 +215,9 @@ const scannerURL='https://pkgradar.com/package?ecosystem=npm&full=1&spec=vite%40
 const protectiveURL='https://github.com/vitejs/vite/blob/v8.3.5/packages/vite/src/node/server/index.ts';
 const scannerReport={scannerURL,scannerStatus:'Review',scannerFinding:'Credential file access: matched ".npmrc"',
   severity:'low',matchedToken:'.npmrc',artifactSHA256:'7f22c2a78d15bac5ad755c5f413806048db453604fa0c293f6a0613890dc7c17',upstreamURL:protectiveURL,upstreamVersion:'8.3.5',
-  protectiveToken:'.npmrc',protectiveCode:"fs: { deny: ['.npmrc'] }",classification:'protective-denylist',
+  protectiveToken:'.npmrc',protectiveCode:"fs: { deny: ['.env', '.env.*', '*.{crt,pem,key,p12,pfx,cer,der}', '.npmrc', '.yarnrc.yml', '**/.git/**'] }",classification:'protective-denylist',
   credentialReadEvidence:'absent',exfiltrationEvidence:'absent',
-  rationale:'Exact artifact and surrounding token uses reviewed: enforced file-serving denylist; no credential read or sink found.'};
+  rationale:'The exact artifact hash matches the lock and tarball. The exact upstream server defaults enforce .npmrc in fs.deny before file serving; surrounding source review found no credential read or exfiltration sink.'};
 const scannerPackage={name:'vite',version:'8.3.5',...pass,evidence:[scannerURL,protectiveURL],scannerFindings:[scannerReport]};
 const scannerSearch=()=>search(['vite 8.3.5 credential supply chain security'],[scannerURL,protectiveURL]);
 const verifiedScannerEvidence=[{name:'vite',version:'8.3.5',...scannerReport}];
@@ -495,7 +495,7 @@ test('correction cannot remove original findings or promote any original negativ
   const packages=[{name:'foo',version:'1.2.3'}];
   const finding={severity:'medium',message:'Reported regression remains unresolved',
     evidence:['https://unopened.example/regression'],path:'package.json'};
-  for (const [initialPass,severity,expected] of [[false,'medium',false],[true,'high',false],[true,'medium',true]]) {
+  for (const [initialPass,severity,expected] of [[false,'medium',false],[true,'high',false],[true,'medium',false]]) {
     const originalFinding={...finding,severity};
     const original={packages:[{...packages[0],pass:initialPass,findings:[originalFinding,originalFinding],scannerFindings:[],evidence:[source,'https://unopened.example/canonical']}]};
     const correction={packages:{package0:{...packages[0],...pass,scannerFindings:[],evidence:[source]}}};
