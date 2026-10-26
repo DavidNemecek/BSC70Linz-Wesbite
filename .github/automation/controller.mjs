@@ -20,7 +20,7 @@ import {
   validatePackageUpgrade, validatePromotionVerdict, timestamp, packageNameFromPath, publicationEligibility,
 } from './policy.mjs';
 import { deriveCveProofs, discoverDependencyUpdates, exactTargets, necessaryCveFix } from './discovery.mjs';
-import { hasPassingReview } from './pr-review.mjs';
+import { verifiedReviewRecord, downloadReviewArtifact } from './review-evidence.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 export const CHECK_NAMES = Object.freeze([...new Set([...REQUIRED_CHECKS, 'research', 'review'])]);
@@ -32,6 +32,7 @@ const sourcePath = path => /^src\/(?:[\w-]+\/)*[\w.-]+\.(?:[cm]?[jt]sx?|css)$/.t
   !/(?:test|spec|qa|deploy|access|auth|permission|security|config|agent)/i.test(path);
 const bot = user => user?.login === 'github-actions[bot]' && user.type === 'Bot';
 const claimPattern = /^<!-- dependency-controller:v1 base=([a-f0-9]{40}) head=([a-f0-9]{40}) control=([a-f0-9]{40}) run=([1-9]\d*) -->\n/;
+const resumeClaimPattern = /^<!-- dependency-controller-resume:v1 control=([a-f0-9]{40}) run=([1-9]\d*) predecessor=([1-9]\d*) -->$/gm;
 
 /** Authenticate the GitHub API redirect before downloading credential-free bytes.
  * ZIP bounds/path/CRC validation remain in the trusted artifacts reader.
@@ -128,6 +129,51 @@ function completeSite(site, requireFunctional = true) {
   });
 }
 
+function parsedPDF(site, lang) {
+  const pdfs = site?.pdfs?.filter(item => item.lang === lang), pdf = pdfs?.[0], completion = site?.completion?.pdfs?.[lang];
+  return completion?.retrieved === true && completion.parsed === true &&
+    pdfs?.length === 1 && typeof pdf?.text === 'string' && typeof pdf.file === 'string' && Number.isSafeInteger(pdf.bytes) && pdf.bytes > 0;
+}
+
+function runtimeSignals(site) {
+  const signals = new Set();
+  let origin;
+  try { origin = new URL(site.url).origin; } catch { return signals; }
+  function firstParty(value) {
+    try {
+      const url = new URL(value);
+      return url.protocol === 'https:' && !url.username && !url.password && url.origin === origin ? url.pathname : null;
+    } catch { return null; }
+  }
+  for (const event of site.runtime ?? []) {
+    if (typeof event.phase !== 'string' || !/^(?:360|768|1280)-(?:de|en)-(?:light|dark)\/(?:functional|visual)$/.test(event.phase)) continue;
+    if (event.type === 'http' && event.status === 404 &&
+      ['script', 'stylesheet', 'image', 'font', 'media'].includes(event.resourceType) && firstParty(event.frameURL)) {
+      const path = firstParty(event.url);
+      if (path) signals.add(`runtime:${event.phase}:http:404:${path}`);
+    }
+    if (event.type !== 'pageerror' || typeof event.message !== 'string' || !event.message ||
+      /(?:\b(?:timeout|timed out|abort(?:ed|error)?|cancelled|canceled|networkerror)\b|ERR_(?:CONNECTION|NETWORK|TIMED_OUT|ABORTED)|failed to fetch|load failed)/i.test(event.message)) continue;
+    // page.url() is only the containing document, and cannot establish the
+    // throwing script's origin. Recheck the observer's exact first stack frame.
+    const frame = typeof event.stack === 'string' ? event.stack.split('\n')[1] : '';
+    const source = frame?.match(/^\s+at (?:[^()\r\n]* \()?(https?:\/\/[^\s()]+):(\d+):(\d+)\)?$/);
+    const path = source && firstParty(source[1]);
+    if (!path || event.scriptURL !== new URL(source[1]).href || event.line !== Number(source[2]) || event.column !== Number(source[3]) ||
+      event.frameURL != null && !firstParty(event.frameURL)) continue;
+    // Replace only actual origin URLs, preserving pathname, message, exception
+    // type and throwing location. Different routes/status/signatures cannot
+    // confirm each other, and query nonces cannot manufacture a new regression.
+    const signature = event.message.replace(/https?:\/\/[^\s()]+/g, value => {
+      try { const url = new URL(value); return url.origin === origin ? url.pathname : value; } catch { return value; }
+    });
+    const kind = event.stack.split('\n')[0].split(':')[0];
+    if (!/^(?:Error|TypeError|ReferenceError|RangeError|SyntaxError|URIError|EvalError|AggregateError)$/.test(kind)) continue;
+    signals.add(`runtime:${event.phase}:pageerror:${path}:${event.line}:${event.column}:${kind}:${signature}`);
+  }
+  return signals;
+}
+
 /** Concrete application assertions, not transport/timeouts/browser startup.
  * A functional comparison only proves regression when the candidate completed
  * its functional checks; null from a timed-out probe is infrastructure evidence.
@@ -136,8 +182,11 @@ export function regressionSignals(qa) {
   const signals = new Set();
   for (const check of qa?.checks ?? []) {
     if (check.pass !== false) continue;
-    if (/(?:semantic comparison|content comparison)$/.test(check.name)) signals.add(check.name);
-    if (/functional comparison$/.test(check.name) && qa.candidate?.variants?.every(variant => variant.functional)) signals.add(check.name);
+    if (/semantic comparison$/.test(check.name)) signals.add(check.name);
+    const pdf = /^PDF (de|en) content comparison$/.exec(check.name);
+    if (pdf && parsedPDF(qa.baseline, pdf[1]) && parsedPDF(qa.candidate, pdf[1])) signals.add(check.name);
+    if (/functional comparison$/.test(check.name) && qa.candidate?.variants?.length === VARIANTS.length &&
+      qa.candidate.variants.every(variant => variant.functional)) signals.add(check.name);
   }
   for (const error of qa?.errors ?? []) {
     const message = error.message ?? '';
@@ -145,6 +194,10 @@ export function regressionSignals(qa) {
     if (/^candidate API /.test(error.check) && /^(?:teams must be JSON|Invalid teams schema\/count|Missing teams update date|Invalid team|Invalid robots|robots sitemap must use response host|Invalid sitemap|sitemap routes\/response host mismatch)$/.test(message)) signals.add(`${error.check}:${message}`);
     if (/^candidate .* functional$/.test(error.check) && /^(?:Toggle or persisted state failed|SPA navigation failed|Anchor .* did not reach|Missing fee controls|Fee disclosure|Drawer did not close|Short drawer did not close|Real teams UI differs|PDF text\/content missing|Downloaded artifact is not a complete PDF)/.test(message))
       signals.add(`${error.check}:${message}`);
+  }
+  if (Array.isArray(qa?.baseline?.runtime)) {
+    const baselineRuntime = runtimeSignals(qa.baseline);
+    for (const signal of runtimeSignals(qa?.candidate)) if (!baselineRuntime.has(signal)) signals.add(signal);
   }
   return [...signals].sort();
 }
@@ -158,6 +211,7 @@ export function verifyCapture(capture) {
   const qa = artifactJSON(capture, 'qa/result.json');
   requireSafe(capture.pass === true && qa.schema === 1 && qa.pass === true && qa.captureOnly === true && completeSite(qa.baseline), 'baseline-capture-incomplete');
   requireSafe(qa.baseline.pdfs?.length === 2 && Object.keys(qa.artifacts ?? {}).length >= 99, 'baseline-artifacts-incomplete');
+  requireSafe(['de', 'en'].every(lang => parsedPDF(qa.baseline, lang)), 'baseline-pdfs-incomplete');
   for (const path of ['teams-fixture.json', ...qa.baseline.pdfs.map(pdf => pdf.file), ...qa.baseline.variants.flatMap(variant => variant.routes.map(route => route.screenshot))])
     checkedArtifact(capture, path, qa.artifacts);
   return qa;
@@ -173,6 +227,8 @@ export async function reviewBrowserImages({ capture, comparison, baseSHA, headSH
   requireSafe(qa.schema === 1 && qa.captureOnly === false, 'candidate-comparison-malformed');
   requireSafe(qa.baselineManifestSha256 === digest(capture.files.get('qa/result.json')), 'baseline-manifest-substituted');
   requireSafe(isDeepStrictEqual(qa.baseline, baseline.baseline) && isDeepStrictEqual(qa.metadata, baseline.metadata), 'baseline-or-harness-substituted');
+  for (const pdf of qa.candidate?.pdfs ?? []) if (parsedPDF(qa.candidate, pdf.lang))
+    requireSafe(checkedArtifact(comparison, pdf.file, qa.artifacts).length === pdf.bytes, 'candidate-pdf-artifact-incomplete');
   if (!completeSite(qa.candidate, false)) return { pass: false, confirmedRegression: false, reviews: [], qa,
     incompleteCaptures: true, regressionSignals: regressionSignals(qa) };
   const reviews = [];
@@ -200,7 +256,9 @@ export async function reviewBrowserImages({ capture, comparison, baseSHA, headSH
   }
   await flush();
   const visualPass = reviews.length > 0 && reviews.every(review => review.pass === true);
-  const comparisonFailure = qa.checks?.some(check => check.pass === false && /(?:pixels|semantic comparison|functional comparison|content comparison)$/.test(check.name));
+  const signals = regressionSignals(qa);
+  const comparisonFailure = qa.checks?.some(check => check.pass === false &&
+    (/(?:pixels|semantic comparison)$/.test(check.name) || signals.includes(check.name)));
   // A transport error, fatal harness error, missing screenshot or vague model
   // refusal never authorizes rollback. Require both completed comparison and an
   // independent concrete high/critical visual finding.
@@ -223,7 +281,8 @@ export async function trustedToolchain() {
 export function createController({ gh = github, worker = dispatchWorker, ai = aiAdapter,
   vercel = vercelAdapter, dep = dependencies, env = process.env, now = Date.now,
   toolchain = trustedToolchain, evidenceDir = resolve(ROOT, 'evidence'), persist,
-  nonce = randomUUID, sleep = delay, loadArtifact = id => downloadControllerArtifact(id, { env, repository: gh.repository }) } = {}) {
+  nonce = randomUUID, sleep = delay, loadArtifact = id => downloadControllerArtifact(id, { env, repository: gh.repository }),
+  loadReviewArtifact = id => downloadReviewArtifact({ repository: gh.repository, artifactID: id, token: env.GH_TOKEN || env.GITHUB_TOKEN }) } = {}) {
   const state = { schemaVersion: 1, runId: String(env.GITHUB_RUN_ID), controlSHA: env.GITHUB_SHA,
     stage: 'starting', outcome: 'running', createdAt: new Date(now()).toISOString() };
   let sequence = 0;
@@ -266,31 +325,82 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
       if (batch.length < 100) break;
       requireSafe(page < 10, 'resume-pr-list-incomplete');
     }
-    const claims = pulls.filter(pr => bot(pr.user) && pr.head?.repo?.full_name === gh.repository &&
+    const roots = pulls.filter(pr => bot(pr.user) && pr.head?.repo?.full_name === gh.repository &&
       (pr.head.ref === 'updates' || /^automation\/dependencies-/.test(pr.head.ref)))
       .map(pr => ({ pr, match: claimPattern.exec(pr.body ?? '') })).filter(({ pr, match }) => match &&
-        (match[2] === updatesSHA || pr.merge_commit_sha === mainSHA) && pr.head.sha === match[2])
-      .sort((a, b) => Number(b.match[4]) - Number(a.match[4]));
+        (match[2] === updatesSHA || pr.merge_commit_sha === mainSHA) && pr.head.sha === match[2]);
+    const claims = roots.map(({ pr, match }) => {
+      const [, baseSHA, headSHA, controlSHA, runId] = match;
+      const chain = [{ controlSHA, runId }];
+      requireSafe(Number.isSafeInteger(Number(runId)), 'resume-run-id-invalid');
+      for (const [, controlSHA, runId, predecessor] of pr.body.matchAll(resumeClaimPattern)) {
+        requireSafe(Number.isSafeInteger(Number(runId)) && predecessor === chain.at(-1).runId && BigInt(runId) > BigInt(predecessor), 'resume-predecessor-chain-invalid');
+        chain.push({ controlSHA, runId, predecessor });
+      }
+      requireSafe(chain.length <= 100, 'resume-predecessor-chain-too-long');
+      return { pr, baseSHA, headSHA, chain };
+    }).sort((a, b) => Number(b.chain.at(-1).runId) - Number(a.chain.at(-1).runId));
     if (!claims.length) return null;
-    const { pr, match } = claims[0], [, baseSHA, headSHA, controlSHA, runId] = match;
-    const run = await gh.repoApi(`/actions/runs/${runId}`);
-    requireSafe(run.id === Number(runId) && run.path === '.github/workflows/dependency-updates.yml' &&
-      ['schedule', 'workflow_dispatch'].includes(run.event) && run.head_branch === 'main' && run.head_sha === controlSHA &&
-      run.repository?.full_name === gh.repository && run.head_repository?.full_name === gh.repository && run.run_attempt === 1 &&
-      run.status === 'completed', 'resume-controller-run-untrusted');
-    const listed = await gh.repoApi(`/actions/runs/${runId}/artifacts?per_page=100`);
-    const matches = listed.artifacts?.filter(artifact => artifact.name === `dependency-controller-${runId}` && artifact.expired === false);
-    requireSafe(matches?.length === 1 && matches[0].workflow_run?.id === run.id && matches[0].workflow_run.head_sha === controlSHA &&
-      matches[0].workflow_run.head_branch === 'main', 'resume-controller-artifact-untrusted');
-    const files = await loadArtifact(matches[0].id);
-    const checkpoints = [...files.keys()].filter(path => /^\d{3}-(?:checkpoint|blocked|merged)\.json$/.test(path)).sort();
-    requireSafe(checkpoints.length > 0, 'resume-checkpoint-missing');
-    const prior = JSON.parse(files.get(checkpoints.at(-1)).toString('utf8'));
-    requireSafe(prior.schemaVersion === 1 && prior.runId === runId && prior.controlSHA === controlSHA && prior.baseSHA === baseSHA &&
-      prior.headSHA === headSHA && Number.isSafeInteger(prior.baseline?.runId) && Number.isSafeInteger(prior.baseline?.artifactId), 'resume-checkpoint-identity-mismatch');
-    if (prior.outcome === 'promoted' || prior.outcome === 'recovered' || prior.recoveryComplete === true) return null;
-    await save('authenticated-resume', { ownerPR: pr.number, runId, baseSHA, headSHA });
-    return prior;
+    const { pr, baseSHA, headSHA, chain } = claims[0];
+    const missingResumeRuns = [];
+    for (let index = chain.length - 1; index >= 0; index--) {
+      const { controlSHA, runId } = chain[index];
+      const run = await gh.repoApi(`/actions/runs/${runId}`);
+      requireSafe(run.id === Number(runId) && run.path === '.github/workflows/dependency-updates.yml' &&
+        ['schedule', 'workflow_dispatch'].includes(run.event) && run.head_branch === 'main' && run.head_sha === controlSHA &&
+        run.repository?.full_name === gh.repository && run.head_repository?.full_name === gh.repository && run.run_attempt === 1 &&
+        run.status === 'completed', 'resume-controller-run-untrusted');
+      const listed = await gh.repoApi(`/actions/runs/${runId}/artifacts?per_page=100`);
+      requireSafe(Array.isArray(listed.artifacts) && listed.artifacts.length < 100, 'resume-controller-artifact-list-invalid');
+      const matches = listed.artifacts.filter(artifact => artifact.name === `dependency-controller-${runId}` && artifact.expired === false);
+      // A resumed attempt may lose its upload. Its append-only predecessor link
+      // leaves the original usable pointer intact. Never skip malformed evidence
+      // or a newer durable checkpoint, including a completed recovery/release.
+      if (!matches.length && index > 0) { missingResumeRuns.push(runId); continue; }
+      requireSafe(matches?.length === 1 && matches[0].workflow_run?.id === run.id && matches[0].workflow_run.head_sha === controlSHA &&
+        matches[0].workflow_run.head_branch === 'main', 'resume-controller-artifact-untrusted');
+      const files = await loadArtifact(matches[0].id);
+      const checkpoints = [...files.keys()].filter(path => /^\d{3}-(?:checkpoint|blocked|merged)\.json$/.test(path)).sort();
+      requireSafe(checkpoints.length > 0, 'resume-checkpoint-missing');
+      const prior = JSON.parse(files.get(checkpoints.at(-1)).toString('utf8'));
+      requireSafe(prior.schemaVersion === 1 && prior.runId === runId && prior.controlSHA === controlSHA && prior.baseSHA === baseSHA &&
+        prior.headSHA === headSHA && Number.isSafeInteger(prior.baseline?.runId) && Number.isSafeInteger(prior.baseline?.artifactId), 'resume-checkpoint-identity-mismatch');
+      if (index > 0) requireSafe(isDeepStrictEqual(prior.recoveryChain, chain.slice(0, index + 1)), 'resume-checkpoint-chain-mismatch');
+      if (missingResumeRuns.length) {
+        requireSafe(updatesSHA === headSHA, 'resume-fallback-updates-changed');
+        const promotion = prior.pr && pulls.find(item => item.number === prior.pr);
+        requireSafe(promotion && bot(promotion.user) && promotion.merged === true && promotion.head?.sha === headSHA &&
+          promotion.head.repo?.full_name === gh.repository && promotion.base?.ref === 'main' &&
+          (!prior.mergedSHA || prior.mergedSHA === promotion.merge_commit_sha), 'resume-fallback-promotion-changed');
+        const mergedSHA = promotion.merge_commit_sha;
+        const restores = pulls.filter(item => (item.body ?? '').startsWith(`<!-- dependency-restore:v1 failed=${mergedSHA} original=${baseSHA} -->\n`));
+        requireSafe(restores.every(item => item.number === prior.restorePR), 'resume-newer-recovery-actions-uncheckpointed');
+        if (prior.restorePR) {
+          const restore = restores.find(item => item.number === prior.restorePR);
+          requireSafe(restore && bot(restore.user) && restore.head?.ref === prior.restoreBranch && restore.head.sha === prior.restoreHeadSHA &&
+            restore.head.repo?.full_name === gh.repository && restore.base?.ref === 'main' &&
+            (restore.merged ? restore.merge_commit_sha === mainSHA : restore.state === 'open' && mainSHA === mergedSHA), 'resume-fallback-restore-changed');
+        } else requireSafe(mainSHA === mergedSHA, 'resume-fallback-main-changed');
+      }
+      if (prior.outcome === 'promoted' || prior.outcome === 'recovered' || prior.recoveryComplete === true) return null;
+      await save('authenticated-resume', { ownerPR: pr.number, runId, baseSHA, headSHA, missingResumeRuns });
+      return { ...prior, recoveryChain: chain, missingResumeRuns };
+    }
+  }
+
+  async function claimResume() {
+    requireSafe(state.ownerPR && Array.isArray(state.recoveryChain), 'resume-owner-chain-missing');
+    const pr = await gh.repoApi(`/pulls/${state.ownerPR}`), root = claimPattern.exec(pr.body ?? '');
+    requireSafe(bot(pr.user) && root && root[1] === state.baseSHA && root[2] === state.headSHA &&
+      pr.head?.sha === state.headSHA && pr.head.repo?.full_name === gh.repository, 'resume-owner-pr-changed');
+    const actual = [{ controlSHA: root[3], runId: root[4] }, ...[...pr.body.matchAll(resumeClaimPattern)].map(([, controlSHA, runId, predecessor]) => ({ controlSHA, runId, predecessor }))];
+    requireSafe(isDeepStrictEqual(actual, state.recoveryChain), 'resume-owner-chain-changed');
+    const predecessor = actual.at(-1).runId;
+    requireSafe(/^[1-9]\d*$/.test(state.runId) && BigInt(state.runId) > BigInt(predecessor), 'resume-run-order-invalid');
+    const entry = { controlSHA: state.controlSHA, runId: state.runId, predecessor };
+    const marker = `<!-- dependency-controller-resume:v1 control=${entry.controlSHA} run=${entry.runId} predecessor=${entry.predecessor} -->`;
+    await gh.repoApi(`/pulls/${state.ownerPR}`, { method: 'PATCH', body: { body: `${pr.body}\n\n${marker}\n` } });
+    state.recoveryChain.push(entry);
   }
   async function savedCapture(prior) {
     const { baseline } = prior;
@@ -486,10 +596,11 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
     // GITHUB_TOKEN-originated updates/PRs do not trigger push or PR workflows.
     // Dispatch only installed, trusted workflow names. The candidate cannot
     // change either workflow under validateCandidateDiff.
-    await gh.repoApi('/actions/workflows/automation-checks.yml/dispatches', { method: 'POST', body: { ref: headBranch } });
+    const inputs = { pr_number: String(number), head_sha: headSHA };
+    await gh.repoApi('/actions/workflows/automation-checks.yml/dispatches', { method: 'POST', body: { ref: headBranch, inputs } });
+    await gh.repoApi('/actions/workflows/application-checks.yml/dispatches', { method: 'POST', body: { ref: 'main', inputs } });
     await gh.repoApi('/actions/workflows/pr-review.yml/dispatches', { method: 'POST', body: { ref: 'main', inputs: { pr_number: String(number) } } });
     const contexts = gh.REQUIRED_SECURITY_CHECKS ?? CHECK_CONTEXTS;
-    const since = now() - 60000;
     const dispatchedReviews = new Set([number]);
     async function reviewHistory(prNumber) {
       const reviews = [];
@@ -516,7 +627,10 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
       requireSafe(pulls.some(pr => pr.number === number) && new Set(pulls.map(pr => pr.number)).size === pulls.length, 'shared-head-target-pr-missing');
       for (const pull of pulls) {
         requireSafe(Number.isSafeInteger(pull.number) && pull.number > 0 && pull.base?.ref === 'main' && pull.base.sha === baseSHA, 'shared-head-pr-base-changed');
-        if (!hasPassingReview(await reviewHistory(pull.number), { repository: gh.repository, number: pull.number, baseRef: 'main', baseSHA, headSHA })) {
+        const record = await verifiedReviewRecord({ api: gh.repoApi, reviews: await reviewHistory(pull.number),
+          ids: { repository: gh.repository, number: pull.number, baseRef: 'main', baseSHA, headSHA },
+          controlSHA: baseSHA, downloadArtifact: loadReviewArtifact });
+        if (record?.verdict !== 'pass') {
           if (!dispatchedReviews.has(pull.number)) {
             await gh.repoApi('/actions/workflows/pr-review.yml/dispatches', { method: 'POST', body: { ref: 'main', inputs: { pr_number: String(pull.number) } } });
             dispatchedReviews.add(pull.number);
@@ -524,12 +638,7 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
           return false;
         }
       }
-      const runs = await gh.repoApi('/actions/workflows/pr-review.yml/runs?event=workflow_dispatch&per_page=100');
-      const trusted = runs.workflow_runs?.find(run => run.path === '.github/workflows/pr-review.yml' && run.event === 'workflow_dispatch' &&
-        run.head_branch === 'main' && run.head_sha === baseSHA && run.run_attempt === 1 && run.status === 'completed' && run.conclusion === 'success' &&
-        run.repository?.full_name === gh.repository && run.head_repository?.full_name === gh.repository &&
-        run.actor?.login === (env.AUTOMATION_WORKER_ACTOR || 'github-actions[bot]') && Date.parse(run.created_at) >= since);
-      return Boolean(trusted);
+      return true;
     }
     for (let poll = 0; poll < 210; poll++) {
       await current(baseSHA);
@@ -654,9 +763,18 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
         requireSafe((await gh.file('.nvmrc', previous.baseSHA)).trim() === runtime.nodeVersion, 'recovery-runtime-changed');
         const identity = { runId: state.runId, controlSHA: env.GITHUB_SHA || await gh.ref('main') };
         Object.assign(state, previous, identity, { outcome: 'running', mergedSHA });
-        if (state.ownerPR) await gh.repoApi(`/pulls/${state.ownerPR}`, { method: 'PATCH', body: { body: claimBody('Resuming authenticated production reconciliation.') } });
-        await checkpoint('resume-production-reconciliation');
         const capture = await savedCapture(previous);
+        if (previous.missingResumeRuns?.length) {
+          const deployed = await vercel.getProductionDeployment();
+          const restored = previous.restorePR && await gh.repoApi(`/pulls/${previous.restorePR}`);
+          const original = deployed.id === previous.production.id && deployed.sha === previous.baseSHA;
+          requireSafe(deployed.projectId === configuration.projectId && deployed.branch === 'main' &&
+            (deployed.sha === mergedSHA || restored?.merged && deployed.sha === restored.merge_commit_sha ||
+              original && (previous.rollbackRequested || previous.rollbackVerified)), 'resume-fallback-production-contradiction');
+          await vercel.verifyAlias({ hostname: configuration.productionHostname, sha: deployed.sha, deploymentId: deployed.id });
+        }
+        await claimResume();
+        await checkpoint('resume-production-reconciliation');
         if (previous.rollbackRequested && !previous.rollbackVerified) {
           const currentProduction = await vercel.getProductionDeployment();
           if (currentProduction.id === previous.production.id && currentProduction.sha === previous.baseSHA) state.rollbackVerified = true;
