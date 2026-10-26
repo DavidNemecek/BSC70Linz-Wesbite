@@ -1,0 +1,62 @@
+name: Researched dependency updates
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        options: [preflight, scan]
+        default: preflight
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: researched-dependency-production-release
+  cancel-in-progress: false
+jobs:
+  controller:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (vars.DEPENDENCY_AUTOMATION_ENABLED == 'true' ||
+       (github.event_name == 'workflow_dispatch' && inputs.mode == 'preflight'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      actions: write
+      statuses: write
+      checks: read
+    steps:
+      - name: Checkout trusted main controller
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up trusted runtime
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - name: Test controller policy before using credentials
+        run: node --test .github/automation/*.test.mjs
+      - name: Research, validate and promote eligible dependency updates
+        env:
+          CONTROLLER_MODE: ${{ inputs.mode || 'scan' }}
+          GITHUB_TOKEN: ${{ github.token }}
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          AI_BASE_URL: ${{ secrets.AI_BASE_URL }}
+          AI_MODEL: gpt-6.1-sol
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          AUTOMATION_WORKER_REF: main
+          AUTOMATION_WORKER_ACTOR: github-actions[bot]
+        run: node .github/automation/controller.mjs "$CONTROLLER_MODE"
+      - name: Preserve authenticated release evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dependency-controller-${{ github.run_id }}
+          path: evidence/
+          if-no-files-found: warn
+          retention-days: 90

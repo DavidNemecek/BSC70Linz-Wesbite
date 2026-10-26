@@ -1,0 +1,120 @@
+name: Dependency worker
+run-name: Dependency worker ${{ inputs.request }}
+on:
+  workflow_dispatch:
+    inputs:
+      phase:
+        type: choice
+        options: [inspect, resolve, validate, browser, capture]
+        required: true
+      request:
+        type: string
+        required: true
+      base_sha:
+        type: string
+        required: true
+      head_sha:
+        type: string
+        required: true
+      baseline_run:
+        type: string
+        default: ''
+      baseline_url:
+        type: string
+        default: ''
+      candidate_url:
+        type: string
+        default: ''
+      urgent:
+        type: boolean
+        default: false
+permissions:
+  contents: read
+  actions: read
+jobs:
+  worker:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.bsc70-browsers
+    steps:
+      - name: Checkout trusted harness
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up trusted dependency runtime
+        if: inputs.phase != 'browser' && inputs.phase != 'capture'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          # Bootstrap and isolation smoke use only the trusted-main pin.
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - name: Set up pinned independent browser runtime
+        if: inputs.phase == 'browser' || inputs.phase == 'capture'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .github/qa/.nvmrc
+          package-manager-cache: false
+      - name: Checkout candidate without credentials
+        if: inputs.phase != 'browser' && inputs.phase != 'capture'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.head_sha }}
+          path: candidate
+          persist-credentials: false
+      - name: Install pinned browser harness
+        if: inputs.phase == 'browser' || inputs.phase == 'capture'
+        run: |
+          npm ci --prefix .github/qa --ignore-scripts --no-fund --no-audit
+          .github/qa/node_modules/.bin/playwright install --with-deps chromium
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+      - name: Download previously captured production baseline
+        if: inputs.phase == 'browser' && inputs.baseline_run != ''
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.baseline_run }}
+          pattern: dependency-worker-*
+          path: previous-evidence
+          merge-multiple: true
+      - name: Pull reviewed immutable dependency sandbox base
+        if: inputs.phase != 'browser' && inputs.phase != 'capture'
+        run: docker pull docker.io/library/ubuntu@sha256:a2d43bffc46670d7108bb3c0468c67c5557c4c92e83e1e34cbff1322ad1b94dc
+      - name: Verify hostile dependency container isolation (secretless)
+        if: inputs.phase != 'browser' && inputs.phase != 'capture'
+        run: |
+          node --test .github/automation/dependency-sandbox.test.mjs
+          node .github/automation/sandbox-integration.mjs
+      - name: Select exact candidate Node from regular file data
+        if: inputs.phase != 'browser' && inputs.phase != 'capture'
+        id: candidate_node
+        run: node .github/automation/worker.mjs select-node
+      - name: Set up authorized candidate dependency runtime
+        if: inputs.phase != 'browser' && inputs.phase != 'capture'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ steps.candidate_node.outputs.node_version }}
+          package-manager-cache: false
+      - name: Run isolated checks
+        env:
+          CANDIDATE_NODE_VERSION: ${{ steps.candidate_node.outputs.node_version }}
+          WORKER_PHASE: ${{ inputs.phase }}
+          WORKER_REQUEST: ${{ inputs.request }}
+          BASE_SHA: ${{ inputs.base_sha }}
+          HEAD_SHA: ${{ inputs.head_sha }}
+          BASELINE_URL: ${{ inputs.baseline_url }}
+          CANDIDATE_URL: ${{ inputs.candidate_url }}
+          BASELINE_RUN: ${{ inputs.baseline_run }}
+          BASELINE_DIR: previous-evidence/qa
+          URGENT_FIX: ${{ inputs.urgent }}
+          EVIDENCE_DIR: evidence
+        run: node .github/automation/worker.mjs
+      - name: Preserve bound results and screenshots
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dependency-worker-${{ inputs.request }}
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 30

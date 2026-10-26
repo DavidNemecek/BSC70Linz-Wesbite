@@ -1,0 +1,63 @@
+name: Automation checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Optional exact open PR number (dispatch on its head branch)
+        type: string
+        default: ''
+      head_sha:
+        description: Exact PR head SHA, required together with pr_number
+        type: string
+        default: ''
+
+# Candidate code runs here without secrets or a write-capable token. The security
+# update controller uses its separate worker for authenticated candidate validation.
+permissions:
+  contents: read
+
+jobs:
+  automation:
+    name: Automation tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Bind explicit bot dispatch to exact PR and branch head
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          HEAD_SHA: ${{ inputs.head_sha }}
+        run: |
+          node --input-type=module <<'NODE'
+          const { PR_NUMBER: number, HEAD_SHA: head, GITHUB_SHA: runHead, GITHUB_REPOSITORY: repo } = process.env;
+          if (!number && !head) process.exit(0); // Legacy branch-only test dispatch; application checks require a separate main dispatch.
+          if (!/^[1-9]\d{0,8}$/.test(number) || !/^[a-f0-9]{40}$/.test(head) || head !== runHead) throw Error('Dispatch must run on exact PR head branch');
+          const response = await fetch(`https://api.github.com/repos/${repo}/pulls/${number}`, {
+            redirect: 'error', headers: { authorization: `Bearer ${process.env.GITHUB_TOKEN}`, accept: 'application/vnd.github+json' },
+          });
+          if (!response.ok) throw Error('PR lookup failed');
+          const pr = await response.json();
+          if (pr.state !== 'open' || pr.head?.sha !== head || pr.head?.repo?.full_name !== repo) throw Error('PR/head changed');
+          NODE
+      - name: Checkout candidate without credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - name: Test trusted automation policy and adapters
+        run: node --test .github/automation/*.test.mjs
+      - name: Install independent QA support dependencies
+        run: npm ci --prefix .github/qa --ignore-scripts --no-fund --no-audit
+      - name: Test independent QA support
+        run: node --test .github/qa/support.test.mjs
+      - name: Prove dependency isolation with a hostile fixture
+        run: |
+          docker pull docker.io/library/ubuntu@sha256:a2d43bffc46670d7108bb3c0468c67c5557c4c92e83e1e34cbff1322ad1b94dc
+          node .github/automation/sandbox-integration.mjs

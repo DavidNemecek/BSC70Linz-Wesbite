@@ -1,0 +1,92 @@
+name: Deployment comparison acceptance
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    paths:
+      - .github/qa/**
+      - .github/automation/controller.mjs
+      - .github/automation/ai.mjs
+      - .github/automation/prompts.mjs
+      - .github/automation/browser-acceptance.mjs
+      - .github/workflows/deployment-comparison.yml
+  workflow_dispatch:
+concurrency:
+  group: deployment-comparison-${{ github.ref }}
+  cancel-in-progress: false
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.bsc70-browsers
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          path: trusted
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          path: candidate
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: candidate/.github/qa/.nvmrc
+          package-manager-cache: false
+      - name: Install isolated browser harness
+        run: |
+          npm ci --prefix candidate/.github/qa --ignore-scripts --no-fund --no-audit
+          candidate/.github/qa/node_modules/.bin/playwright install --with-deps chromium
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+      - name: Capture production before any promotion
+        run: node candidate/.github/qa/browser.mjs --baseline-url https://www.bsc70linz.at --capture-only --output acceptance/baseline
+      - name: Compare updates to saved production
+        run: node candidate/.github/qa/browser.mjs --baseline-dir acceptance/baseline --candidate-url https://updates.dev.bsc70linz.at --output acceptance/comparison
+      - name: Record deployment identities
+        run: node trusted/.github/automation/acceptance-identity.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: deployment-browser-acceptance
+          path: acceptance/
+          if-no-files-found: error
+          retention-days: 30
+  vision:
+    needs: browser
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          path: trusted
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: trusted/.github/qa/.nvmrc
+          package-manager-cache: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: deployment-browser-acceptance
+          path: trusted/acceptance
+      - name: Fresh independent image review
+        env:
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          AI_BASE_URL: ${{ secrets.AI_BASE_URL }}
+          AI_MODEL: gpt-6.1-sol
+        working-directory: trusted
+        run: node .github/automation/browser-acceptance.mjs
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: deployment-vision-acceptance
+          path: trusted/acceptance-vision.json
+          if-no-files-found: warn
+          retention-days: 30

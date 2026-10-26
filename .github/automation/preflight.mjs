@@ -1,0 +1,70 @@
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
+import { callAI, preflight as aiPreflight, researchPackages, VERIFIED_SCANNER_EVIDENCE, VERIFIED_APPLICATION_CONTEXT } from './ai.mjs';
+import { preflight as vercelPreflight, getProductionDeployment, verifyRuntime } from './vercel.mjs';
+import { loadNpmSemver } from './dependencies.mjs';
+import { TRUSTED_BASE_PATHS, usedToolchainTargets, fetchOfficialSecurityMetadata } from './maintenance.mjs';
+
+const result = { startedAt: new Date().toISOString(), pass: false, checks: [] };
+await mkdir('evidence', { recursive: true });
+// The module itself is always loaded from the trusted base checkout.  Candidate
+// files are inspected as inert data from a separately checked-out directory;
+// never import candidate automation or execute candidate package scripts here.
+const candidateRoot = process.env.CANDIDATE_ROOT ? pathToFileURL(process.env.CANDIDATE_ROOT.endsWith('/') ?
+  process.env.CANDIDATE_ROOT : `${process.env.CANDIDATE_ROOT}/`) : new URL('../../', import.meta.url);
+const candidateFile = path => new URL(path, candidateRoot);
+const candidateSHA = process.env.CANDIDATE_SHA ?? process.env.GITHUB_SHA;
+const outcomes = await Promise.allSettled([(async () => {
+  await vercelPreflight();
+  const production = await getProductionDeployment();
+  const runtime = await verifyRuntime({ deploymentId: production.id });
+  result.checks.push({ name: 'vercel', pass: true, production, runtime });
+})(), (async () => {
+  if (!process.env.GITHUB_TOKEN) return;
+  const response = await fetch('https://api.github.com/repos/DavidNemecek/BSC70Linz-Wesbite/rulesets/25886164', {
+    redirect: 'error', signal: AbortSignal.timeout(30000),
+    headers: { authorization: `Bearer ${process.env.GITHUB_TOKEN}`, accept: 'application/vnd.github+json' },
+  });
+  if (!response.ok) throw Error(`Ruleset visibility probe failed (${response.status})`);
+  const ruleset = await response.json();
+  result.checks.push({ name: 'ruleset-visibility', pass: true, bypassVisible: Array.isArray(ruleset.bypass_actors),
+    bypassCount: Array.isArray(ruleset.bypass_actors) ? ruleset.bypass_actors.length : null,
+    currentUserCanBypass: ruleset.current_user_can_bypass ?? null });
+})(), (async () => {
+  const workflows = (await readdir(candidateFile('.github/workflows/'))).filter(name=>/\.ya?ml$/.test(name));
+  const paths = [...TRUSTED_BASE_PATHS, ...workflows.map(name=>`.github/workflows/${name}`)];
+  const files = new Map(await Promise.all(paths.map(async path=>[path,await readFile(candidateFile(path),'utf8')])));
+  const targets = usedToolchainTargets(files);
+  const proofs = await fetchOfficialSecurityMetadata({ targets, semver: loadNpmSemver(), token: process.env.GITHUB_TOKEN });
+  result.checks.push({ name: 'primary-toolchain-advisories', pass: true, targets, proofs });
+})(), (async () => {
+  const response = await callAI({ instructions: 'Protocol echo only. Return the exact supplied sentinel; this is not a security or release approval.',
+    input: { sentinel: 'citation-schema-ok' }, strictFormat: true,
+    schema: { type: 'object', additionalProperties: false, required: ['sentinel'],
+      properties: { sentinel: { type: 'string', enum: ['citation-schema-ok'] } } } });
+  const pass = response.data.sentinel === 'citation-schema-ok';
+  result.checks.push({ name: 'ai-citation-schema-protocol', pass, provenance: response.provenance });
+  if (!pass) throw Error('AI strict citation-schema protocol did not pass');
+})(), (async () => {
+  const research = await aiPreflight();
+  result.checks.push({ name: 'live-ai-web-search', pass: research.pass === true, research });
+  if (!research.pass) throw Error('AI live search preflight did not pass');
+})(), (async () => {
+  const lock = JSON.parse(await readFile(candidateFile('package-lock.json'), 'utf8'));
+  const packages = ['react', 'vite'].map(name => ({ name, version: lock.packages[`node_modules/${name}`].version }));
+  const research = await researchPackages({ packages, baseSHA: candidateSHA, headSHA: candidateSHA }, {
+    verifiedScannerEvidence: VERIFIED_SCANNER_EVIDENCE, applicationContext: VERIFIED_APPLICATION_CONTEXT,
+  });
+  result.checks.push({ name: 'exact-version-research', pass: research.pass === true, research });
+  if (!research.pass) throw Error('Exact-version supply-chain research did not pass');
+})()]);
+result.pass = outcomes.every(outcome => outcome.status === 'fulfilled');
+// Adapter errors are deliberately generic; never serialize request/response objects.
+result.errors = outcomes.flatMap(outcome => outcome.status === 'rejected' ? [outcome.reason.message] : []);
+result.researchDiagnostics = outcomes.flatMap(outcome => outcome.status === 'rejected' &&
+  outcome.reason.code === 'PACKAGE_SEARCH_PROOF_MISSING' ? [outcome.reason.researchDiagnostic] : []);
+result.completedAt = new Date().toISOString();
+await writeFile('evidence/preflight.json', JSON.stringify(result, null, 2));
+console.log(JSON.stringify({ pass: result.pass, checks: result.checks.map(({name,pass}) => ({name,pass})),
+  rulesetVisibility: result.checks.find(check => check.name === 'ruleset-visibility'), errors: result.errors }));
+if (!result.pass) process.exitCode = 1;
