@@ -14,7 +14,7 @@ on:
       - .nvmrc
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 jobs:
   preflight:
     runs-on: ubuntu-24.04

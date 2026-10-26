@@ -45,6 +45,24 @@ const scannerRecord = {type:'object',additionalProperties:false,
   required:Object.keys(scannerProperties),properties:scannerProperties};
 const scannerFindings = {type:'array',maxItems:30,items:scannerRecord};
 
+// Independently reviewed, exact-release evidence used by trusted callers. Keep
+// this in the adapter so the controller and diagnostic preflight cannot drift
+// into different scanner or application-context contracts.
+export const VERIFIED_SCANNER_EVIDENCE = Object.freeze([Object.freeze({
+  name: 'vite', version: '8.3.5',
+  scannerURL: 'https://pkgradar.com/package?ecosystem=npm&full=1&spec=vite%408.3.5',
+  scannerStatus: 'Review', scannerFinding: 'Credential file access: matched ".npmrc"', severity: 'low',
+  matchedToken: '.npmrc', artifactSHA256: '7f22c2a78d15bac5ad755c5f413806048db453604fa0c293f6a0613890dc7c17',
+  upstreamURL: 'https://github.com/vitejs/vite/blob/v8.3.5/packages/vite/src/node/server/index.ts',
+  upstreamVersion: '8.3.5', protectiveToken: '.npmrc',
+  protectiveCode: "fs: { deny: ['.env', '.env.*', '*.{crt,pem,key,p12,pfx,cer,der}', '.npmrc', '.yarnrc.yml', '**/.git/**'] }",
+  classification: 'protective-denylist', credentialReadEvidence: 'absent', exfiltrationEvidence: 'absent',
+  rationale: 'The exact artifact hash matches the lock and tarball. The exact upstream server defaults enforce .npmrc in fs.deny before file serving; surrounding source review found no credential read or exfiltration sink.',
+})]);
+export const VERIFIED_APPLICATION_CONTEXT = Object.freeze({
+  applicationType: 'vite-react-spa', bundler: 'vite', framework: 'react', usesNext: false, usesVitest: false,
+});
+
 function config(options) {
   const raw = options.baseURL ?? process.env.AI_BASE_URL;
   const apiKey = options.apiKey ?? process.env.AI_API_KEY;
@@ -442,12 +460,16 @@ function contextualizeCompatibilityFindings(findings, context) {
     // framework is a prerequisite. Require an explicit relation to exactly one
     // absent framework; loose words such as "only" or "requires" are not enough.
     const text = String(finding.message ?? '');
-    const explicitlyApplicable = /\b(?:not|never)\s+(?:strictly\s+)?(?:limited|confined|restricted)\s+to\b|\b(?:also\s+affects?|affects?\s+(?:all|this|vite|react)|applies?\s+to\s+(?:all|this|vite|react)|regardless|even\s+without|including\s+vite)\b/i.test(text);
+    const explicitlyApplicable = /\b(?:not|never)\s+(?:strictly\s+)?(?:limited|confined|restricted)\s+to\b|\b(?:also\s+affect(?:s|ed)?|affect(?:s|ed)?\s+(?:all|this|vite|react)|appl(?:y|ies)\s+to\s+(?:all|this|vite|react)|regardless|even\s+without|including\s+vite)\b/i.test(text);
     if (explicitlyApplicable) return finding;
-    const relations = [
+    const frameworks = [
       {absent: !context.usesNext, name:/next(?:\.js)?/i},
       {absent: !context.usesVitest, name:/vitest/i},
-    ].filter(({absent, name}) => absent && name.test(text) && [
+    ].filter(({name}) => name.test(text));
+    // Mentioning more than one framework leaves the dependency relationship
+    // ambiguous, even when one of them is absent from this application.
+    if (frameworks.length !== 1 || !frameworks[0].absent) return finding;
+    const relations = frameworks.filter(({name}) => [
       new RegExp(`\\b(?:${name.source})\\s*(?:only|specific(?:ally)?|exclusive(?:ly)?)\\b`, 'i'),
       new RegExp(`\\b(?:only|exclusive(?:ly)?|specific(?:ally)?)\\s+(?:when\\s+)?(?:using\\s+|running\\s+|with\\s+)?(?:${name.source})\\b`, 'i'),
       new RegExp(`\\b(?:requires?|depends\\s+on|limited\\s+to|confined\\s+to)\\s+(?:using\\s+|running\\s+|with\\s+)?(?:${name.source})\\b`, 'i'),

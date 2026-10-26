@@ -349,10 +349,12 @@ function harness(options = {}) {
       base: { ref: 'main', sha: refs.main, repo: { full_name: 'owner/repo' } } };
   }
   let reviews = 0, validations = 0, researchCalls = 0;
+  const researchOptions = [];
   const ai = {
     preflight: async () => ({ pass: !options.preflightFailure }),
-    researchPackages: async input => {
+    researchPackages: async (input, researchOptionsArg) => {
       researchCalls++; calls.push(`research:${input.packages.map(p => `${p.name}@${p.version}`).join(',')}`);
+      researchOptions.push(researchOptionsArg);
       if (options.researchFailure) throw Error('synthetic research transport failure');
       if (options.transitiveResearchFailure && input.packages.some(p => p.name === 'helper')) throw Error('Transitive research failed');
       return { ...input, pass: true, timestamp: options.staleResearch ? new Date(now - 25 * 3600000).toISOString() : iso, packages: input.packages };
@@ -520,7 +522,7 @@ function harness(options = {}) {
     remote.set(artifactId, new Map(evidence.filter(item => item.runId === id).map(item => [item.name, Buffer.from(JSON.stringify(item.value))])));
   }
   const controller = newController();
-  return { controller, newController, uploadEvidence, calls, primaryCalls, proofInputs, workerInputs, reviewInputs, refs, commits, evidence, issues, statuses, ai, worker, gh, prs, remote, workflowRuns, remoteArtifacts,
+  return { controller, newController, uploadEvidence, calls, primaryCalls, proofInputs, workerInputs, reviewInputs, researchOptions, refs, commits, evidence, issues, statuses, ai, worker, gh, prs, remote, workflowRuns, remoteArtifacts,
     setNow: time => { clockNow = time; },
     get researchCalls() { return researchCalls; } };
 }
@@ -627,6 +629,11 @@ test('happy path researches before resolution, reviews before execution and prom
   assert(h.statuses.filter(s => s.success).every(s => CHECK_CONTEXTS.includes(s.context)));
   assert.equal(new Set(h.statuses.filter(s => s.success).map(s => s.context)).size, CHECK_CONTEXTS.length);
   assert.equal(h.calls.filter(call => call === 'worker:capture').length, 1);
+  assert.equal(h.researchOptions.length > 0, true);
+  assert.deepEqual(h.researchOptions[0].applicationContext, {
+    applicationType: 'vite-react-spa', bundler: 'vite', framework: 'react', usesNext: false, usesVitest: false,
+  });
+  assert.deepEqual(h.researchOptions[0].verifiedScannerEvidence, []);
 });
 
 test('no updates produces a harmless summary and never publishes', async () => {

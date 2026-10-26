@@ -511,7 +511,13 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
     requireSafe(packages.length <= 2000, 'research-target-limit');
     const results = [];
     for (let offset = 0; offset < packages.length; offset += 100) {
-      const result = await ai.researchPackages({ packages: packages.slice(offset, offset + 100), baseSHA, headSHA });
+      const chunk = packages.slice(offset, offset + 100);
+      const verifiedEvidence = (aiAdapter.VERIFIED_SCANNER_EVIDENCE ?? []).filter(record =>
+        chunk.some(target => target.name === record.name && target.version === record.version));
+      const result = await ai.researchPackages({ packages: chunk, baseSHA, headSHA }, {
+        verifiedScannerEvidence: verifiedEvidence,
+        applicationContext: aiAdapter.VERIFIED_APPLICATION_CONTEXT,
+      });
       await save('research', result);
       requireSafe(result.pass === true && result.baseSHA === baseSHA && result.headSHA === headSHA, 'live-package-research-blocked');
       requireSafe(Number.isFinite(timestamp(result.timestamp)) && timestamp(result.timestamp) <= now() && now() - timestamp(result.timestamp) <= 86400000, 'live-package-research-stale');
