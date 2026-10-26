@@ -330,6 +330,7 @@ function queryCoversTarget(query, target) {
 /** Fail-closed verifier for AI output and adapter-derived search provenance. */
 export function validateResearchResults(results, targets) {
   const errors = [];
+  const unresolved = /\b(?:unresolved|uncertain|unknown|unclear|incomplete|contradict(?:ory|ion)|conflict(?:ing)?|missing|pending|not\s+(?:established|assessed|verified|available|reconciled|proven)|unassessed|ambiguous|insufficient|cannot\s+(?:confirm|determine|establish)|unable\s+to|requires\s+(?:investigation|further|review)|blocked|not\s+proven|yet\s+to\s+be|not\s+been|unverified|unsubstantiated)\b/i;
   if (!Array.isArray(targets) || !targets.length || !Array.isArray(results)) return result(['research targets/results are missing']);
   const expected = new Map(targets.map(target => [researchTargetKey(target), target]));
   const seen = new Set();
@@ -358,7 +359,9 @@ export function validateResearchResults(results, targets) {
           (target.kind === 'action' && !Array.isArray(advisory.aliases)) ||
           (target.kind === 'node' && !/^(?:24\.x|(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*))$/.test(firstFixed))) errors.push(`unproven security advisory: ${key}`);
     }
-    if (!Array.isArray(item.findings) || item.pass !== true || item.findings.some(finding => ['high', 'critical'].includes(finding?.severity))) errors.push(`research did not pass: ${key}`);
+    if (!Array.isArray(item.findings) || item.pass !== true || item.findings.some(finding =>
+      ['high', 'critical'].includes(finding?.severity) ||
+      (['medium', 'low'].includes(finding?.severity) && unresolved.test(finding?.message ?? '')))) errors.push(`research did not pass: ${key}`);
   }
   for (const key of expected.keys()) if (!seen.has(key)) errors.push(`missing research target: ${key}`);
   return result(errors);
