@@ -37,6 +37,21 @@ Edge-Funktionen. Die Anwendung verwendet weder PHP noch React Server Components.
 `assets/uploads/*.php` sind archivierte Fehlermeldungen der alten Website und
 werden nicht in den aktuellen Build übernommen.
 
+### Coolify
+
+Coolify verwendet das versionierte `Dockerfile` und den Node-Server unter
+`server/coolify.mjs`. Die Anwendung lauscht intern auf Port `8080`; der
+Container stellt zusätzlich `/health`, `/api/teams`, `/robots.txt` und
+`/sitemap.xml` bereit und verwendet für unbekannte, routenartige Pfade den
+Vite-SPA-Fallback. In Coolify sind daher Build-Strategie **Dockerfile**,
+Dockerfile-Pfad `/Dockerfile`, Port `8080` und ein HTTP-Healthcheck auf
+`/health` zu setzen. `PUBLIC_ORIGIN` muss auf die tatsächlich verwendete
+öffentliche Domain zeigen.
+
+Vercel bleibt bis zur erfolgreichen Coolify-Abnahme als manueller DNS-Fallback
+bestehen. Die DNS-Umschaltung erfolgt erst nach Container-, API-, PDF- und
+Browserprüfung.
+
 ## Abhängigkeiten und Sicherheit
 
 Den Prüfstand und begründete Versionsausnahmen dokumentiert
