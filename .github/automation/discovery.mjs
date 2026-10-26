@@ -42,7 +42,7 @@ export function necessaryCveFix({ name, fromVersion, advisories, semver, now }) 
  * Resolve the returned manifest in a secretless lock-only worker, then inspect
  * EVERY resulting lock entry with preflightLockUpdate before validation.
  */
-export function discoverDependencyUpdates({ manifest, lock, metadata, advisories = {}, now = Date.now(), ...toolchain }) {
+export function discoverDependencyUpdates({ manifest, lock, metadata, advisories = {}, securityOnly = false, now = Date.now(), ...toolchain }) {
   const next = structuredClone(manifest), selections = [];
   for (const section of ['dependencies', 'devDependencies']) {
     for (const name of Object.keys(manifest[section] ?? {}).sort()) {
@@ -52,6 +52,7 @@ export function discoverDependencyUpdates({ manifest, lock, metadata, advisories
       const packument = metadata[name];
       let version = chooseEligibleStable(packument, { currentVersion, now, ...toolchain });
       const fix = necessaryCveFix({ name, fromVersion: currentVersion, advisories, semver: toolchain.semver, now });
+      if (securityOnly && !fix) continue;
       if (fix) {
         const release = packument?.versions?.[fix.version];
         const age = publicationEligibility(packument?.time?.[fix.version], now);

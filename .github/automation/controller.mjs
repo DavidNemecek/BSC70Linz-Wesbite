@@ -11,7 +11,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 import { setTimeout as delay } from 'node:timers/promises';
 import * as github from './github.mjs';
-import { worker as dispatchWorker } from './artifacts.mjs';
+import { worker as dispatchWorker, readArtifactZip } from './artifacts.mjs';
 import * as aiAdapter from './ai.mjs';
 import * as vercelAdapter from './vercel.mjs';
 import * as dependencies from './dependencies.mjs';
@@ -20,6 +20,7 @@ import {
   validatePackageUpgrade, validatePromotionVerdict, timestamp, packageNameFromPath, publicationEligibility,
 } from './policy.mjs';
 import { deriveCveProofs, discoverDependencyUpdates, exactTargets, necessaryCveFix } from './discovery.mjs';
+import { hasPassingReview } from './pr-review.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 export const CHECK_NAMES = Object.freeze([...new Set([...REQUIRED_CHECKS, 'research', 'review'])]);
@@ -29,6 +30,29 @@ const VARIANTS = [360, 768, 1280].flatMap(width => ['de', 'en'].flatMap(lang => 
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 const sourcePath = path => /^src\/(?:[\w-]+\/)*[\w.-]+\.(?:[cm]?[jt]sx?|css)$/.test(path) &&
   !/(?:test|spec|qa|deploy|access|auth|permission|security|config|agent)/i.test(path);
+const bot = user => user?.login === 'github-actions[bot]' && user.type === 'Bot';
+const claimPattern = /^<!-- dependency-controller:v1 base=([a-f0-9]{40}) head=([a-f0-9]{40}) control=([a-f0-9]{40}) run=([1-9]\d*) -->\n/;
+
+/** Authenticate the GitHub API redirect before downloading credential-free bytes.
+ * ZIP bounds/path/CRC validation remain in the trusted artifacts reader.
+ */
+export async function downloadControllerArtifact(id, { env = process.env, repository = github.repository, fetchImpl = fetch } = {}) {
+  requireSafe(Number.isSafeInteger(id) && id > 0 && /^[\w.-]+\/[\w.-]+$/.test(repository), 'invalid-resume-artifact');
+  const response = await fetchImpl(`https://api.github.com/repos/${repository}/actions/artifacts/${id}/zip`, {
+    headers: { authorization: `Bearer ${env.GH_TOKEN || env.GITHUB_TOKEN}`, accept: 'application/vnd.github+json' },
+    redirect: 'manual', signal: AbortSignal.timeout(30000),
+  });
+  requireSafe([301, 302, 303, 307].includes(response.status), 'resume-artifact-download-denied');
+  const url = new URL(response.headers.get('location'));
+  requireSafe(url.protocol === 'https:' && !url.username && !url.password && !url.port &&
+    ['.blob.core.windows.net', '.actions.githubusercontent.com'].some(suffix => url.hostname.endsWith(suffix)), 'resume-artifact-storage-rejected');
+  const stored = await fetchImpl(url.href, { redirect: 'error', credentials: 'omit', signal: AbortSignal.timeout(60000) });
+  const length = stored.headers.get('content-length');
+  requireSafe(stored.ok && stored.body && (length === null || /^\d+$/.test(length) && Number(length) <= 512000000), 'resume-artifact-response-rejected');
+  const chunks = []; let size = 0;
+  for await (const chunk of stored.body) { size += chunk.length; requireSafe(size <= 512000000, 'resume-artifact-too-large'); chunks.push(chunk); }
+  return readArtifactZip(Buffer.concat(chunks));
+}
 
 export class Blocked extends Error {
   constructor(code) { super(code); this.name = 'Blocked'; }
@@ -45,10 +69,32 @@ export function validateMainProtection(protection, requiredContexts = CHECK_CONT
   const checks = protection?.required_status_checks;
   const contexts = new Set([...(checks?.contexts ?? []), ...(checks?.checks ?? []).map(check => check.context)]);
   const bypass = protection?.required_pull_request_reviews?.bypass_pull_request_allowances;
-  return checks?.strict === true && protection.enforce_admins?.enabled === true &&
+  const callerCannotBypass = protection?.current_user_can_bypass === 'never' ||
+    protection?.current_user_can_bypass === undefined && protection?.enforce_admins?.enabled === true;
+  return checks?.strict === true && callerCannotBypass &&
     protection.allow_force_pushes?.enabled === false && protection.allow_deletions?.enabled === false &&
     Array.isArray(requiredContexts) && requiredContexts.length > 0 && requiredContexts.every(context => contexts.has(context)) &&
     (!bypass || ['users', 'teams', 'apps'].every(key => Array.isArray(bypass[key]) && bypass[key].length === 0));
+}
+
+function registryEvidence(metadata, locks, targets = []) {
+  const versions = new Map();
+  for (const lock of locks) for (const [path, entry] of Object.entries(lock.packages)) {
+    if (!path) continue;
+    const name = packageNameFromPath(path);
+    if (!versions.has(name)) versions.set(name, new Set());
+    versions.get(name).add(entry.version);
+  }
+  for (const { name, version } of targets) {
+    if (!versions.has(name)) versions.set(name, new Set());
+    versions.get(name).add(version);
+  }
+  return Object.fromEntries(Object.entries(metadata).map(([name, packument]) => {
+    const selected = [...(versions.get(name) ?? [])];
+    return [name, { name, fetchedPackumentSHA256: digest(JSON.stringify(packument)),
+      time: Object.fromEntries(selected.map(version => [version, packument.time[version]])),
+      versions: Object.fromEntries(selected.map(version => [version, packument.versions[version]])) }];
+  }));
 }
 
 /** A baseline with vulnerabilities is useful research, never a clean gate. */
@@ -63,7 +109,7 @@ export function auditEvidence(worker, lock, { baseline = false } = {}) {
 
 export function artifactJSON(worker, path) {
   const bytes = worker?.files?.get(path);
-  requireSafe(Buffer.isBuffer(bytes) && bytes.length <= 20_000_000, 'missing-worker-json');
+  requireSafe(Buffer.isBuffer(bytes) && bytes.length <= 30_000_000, 'missing-worker-json');
   try { return JSON.parse(bytes.toString('utf8')); } catch { throw new Blocked('invalid-worker-json'); }
 }
 
@@ -96,7 +142,8 @@ export function regressionSignals(qa) {
   for (const error of qa?.errors ?? []) {
     const message = error.message ?? '';
     if (/^candidate API /.test(error.check) && /^HTTP (?:4(?!08|29)\d\d|500)$/.test(message)) signals.add(`${error.check}:${message}`);
-    if (/^candidate .* functional$/.test(error.check) && /^(?:Toggle or persisted state failed|SPA navigation failed|Anchor .* did not reach|Fee disclosure|Drawer did not close|Short drawer did not close|Real teams UI differs|PDF text\/content missing|Downloaded artifact is not a complete PDF)/.test(message))
+    if (/^candidate API /.test(error.check) && /^(?:teams must be JSON|Invalid teams schema\/count|Missing teams update date|Invalid team|Invalid robots|robots sitemap must use response host|Invalid sitemap|sitemap routes\/response host mismatch)$/.test(message)) signals.add(`${error.check}:${message}`);
+    if (/^candidate .* functional$/.test(error.check) && /^(?:Toggle or persisted state failed|SPA navigation failed|Anchor .* did not reach|Missing fee controls|Fee disclosure|Drawer did not close|Short drawer did not close|Real teams UI differs|PDF text\/content missing|Downloaded artifact is not a complete PDF)/.test(message))
       signals.add(`${error.check}:${message}`);
   }
   return [...signals].sort();
@@ -133,7 +180,8 @@ export async function reviewBrowserImages({ capture, comparison, baseSHA, headSH
   async function flush() {
     if (!images.length) return;
     reviews.push(await ai.reviewVisualEvidence({ baseSHA, headSHA, deploymentId,
-      summary: JSON.stringify({ imageOrder: labels, checks: qa.checks, errors: qa.errors }), images }));
+      summary: JSON.stringify({ imageOrder: labels, checks: (qa.checks ?? []).map(({ name, pass }) => ({ name, pass })),
+        errors: (qa.errors ?? []).map(({ check, message }) => ({ check, message })) }), images }));
     images = []; labels = []; bytes = 0;
   }
   for (const variant of baseline.baseline.variants) {
@@ -175,8 +223,9 @@ export async function trustedToolchain() {
 export function createController({ gh = github, worker = dispatchWorker, ai = aiAdapter,
   vercel = vercelAdapter, dep = dependencies, env = process.env, now = Date.now,
   toolchain = trustedToolchain, evidenceDir = resolve(ROOT, 'evidence'), persist,
-  nonce = randomUUID, sleep = delay } = {}) {
-  const state = { schemaVersion: 1, stage: 'starting', outcome: 'running', createdAt: new Date(now()).toISOString() };
+  nonce = randomUUID, sleep = delay, loadArtifact = id => downloadControllerArtifact(id, { env, repository: gh.repository }) } = {}) {
+  const state = { schemaVersion: 1, runId: String(env.GITHUB_RUN_ID), controlSHA: env.GITHUB_SHA,
+    stage: 'starting', outcome: 'running', createdAt: new Date(now()).toISOString() };
   let sequence = 0;
   const trees = new Map();
   const secrets = ['GH_TOKEN', 'GITHUB_TOKEN', 'AI_API_KEY', 'AI_BASE_URL', 'VERCEL_TOKEN'].map(key => env[key]).filter(Boolean);
@@ -195,13 +244,79 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
     await writeFile(resolve(evidenceDir, file), text, { flag: 'wx' });
   }
   async function checkpoint(stage) { state.stage = stage; await save('checkpoint', state); }
+  function claimBody(note = '') {
+    requireSafe(/^[1-9]\d*$/.test(state.runId) && /^[a-f0-9]{40}$/.test(state.controlSHA), 'controller-run-identity-required');
+    return `<!-- dependency-controller:v1 base=${state.baseSHA} head=${state.headSHA} control=${state.controlSHA} run=${state.runId} -->\n${note}\n\nAuthenticated evidence: https://github.com/${gh.repository}/actions/runs/${state.runId}`;
+  }
+  async function ownedPR(head, title, note) {
+    const pr = await gh.openPR({ base: 'main', head, title, body: claimBody(note) });
+    const fresh = await gh.repoApi(`/pulls/${pr.number}`);
+    requireSafe(bot(fresh.user) && fresh.head?.ref === head && fresh.head.sha === state.headSHA &&
+      fresh.head.repo?.full_name === gh.repository, 'automation-pr-ownership-required');
+    await gh.repoApi(`/pulls/${pr.number}`, { method: 'PATCH', body: { title, body: claimBody(note) } });
+    return pr;
+  }
+  async function previousOwnedState() {
+    const updatesSHA = await gh.ref('updates'), mainSHA = await gh.ref('main');
+    const pulls = [];
+    for (let page = 1; page <= 10; page++) {
+      const batch = await gh.repoApi(`/pulls?state=all&base=main&per_page=100&page=${page}`);
+      requireSafe(Array.isArray(batch) && batch.length <= 100, 'resume-pr-list-invalid');
+      pulls.push(...batch);
+      if (batch.length < 100) break;
+      requireSafe(page < 10, 'resume-pr-list-incomplete');
+    }
+    const claims = pulls.filter(pr => bot(pr.user) && pr.head?.repo?.full_name === gh.repository &&
+      (pr.head.ref === 'updates' || /^automation\/dependencies-/.test(pr.head.ref)))
+      .map(pr => ({ pr, match: claimPattern.exec(pr.body ?? '') })).filter(({ pr, match }) => match &&
+        (match[2] === updatesSHA || pr.merge_commit_sha === mainSHA) && pr.head.sha === match[2])
+      .sort((a, b) => Number(b.match[4]) - Number(a.match[4]));
+    if (!claims.length) return null;
+    const { pr, match } = claims[0], [, baseSHA, headSHA, controlSHA, runId] = match;
+    const run = await gh.repoApi(`/actions/runs/${runId}`);
+    requireSafe(run.id === Number(runId) && run.path === '.github/workflows/dependency-updates.yml' &&
+      ['schedule', 'workflow_dispatch'].includes(run.event) && run.head_branch === 'main' && run.head_sha === controlSHA &&
+      run.repository?.full_name === gh.repository && run.head_repository?.full_name === gh.repository && run.run_attempt === 1 &&
+      run.status === 'completed', 'resume-controller-run-untrusted');
+    const listed = await gh.repoApi(`/actions/runs/${runId}/artifacts?per_page=100`);
+    const matches = listed.artifacts?.filter(artifact => artifact.name === `dependency-controller-${runId}` && artifact.expired === false);
+    requireSafe(matches?.length === 1 && matches[0].workflow_run?.id === run.id && matches[0].workflow_run.head_sha === controlSHA &&
+      matches[0].workflow_run.head_branch === 'main', 'resume-controller-artifact-untrusted');
+    const files = await loadArtifact(matches[0].id);
+    const checkpoints = [...files.keys()].filter(path => /^\d{3}-(?:checkpoint|blocked|merged)\.json$/.test(path)).sort();
+    requireSafe(checkpoints.length > 0, 'resume-checkpoint-missing');
+    const prior = JSON.parse(files.get(checkpoints.at(-1)).toString('utf8'));
+    requireSafe(prior.schemaVersion === 1 && prior.runId === runId && prior.controlSHA === controlSHA && prior.baseSHA === baseSHA &&
+      prior.headSHA === headSHA && Number.isSafeInteger(prior.baseline?.runId) && Number.isSafeInteger(prior.baseline?.artifactId), 'resume-checkpoint-identity-mismatch');
+    if (prior.outcome === 'promoted' || prior.outcome === 'recovered' || prior.recoveryComplete === true) return null;
+    await save('authenticated-resume', { ownerPR: pr.number, runId, baseSHA, headSHA });
+    return prior;
+  }
+  async function savedCapture(prior) {
+    const { baseline } = prior;
+    const run = await gh.repoApi(`/actions/runs/${baseline.runId}`);
+    requireSafe(run.path === '.github/workflows/dependency-worker.yml' && run.event === 'workflow_dispatch' &&
+      run.head_sha === baseline.controlSHA && run.head_branch === 'main' && run.run_attempt === 1 && run.conclusion === 'success' &&
+      run.repository?.full_name === gh.repository && run.head_repository?.full_name === gh.repository &&
+      run.actor?.login === (env.AUTOMATION_WORKER_ACTOR || 'github-actions[bot]'), 'resume-baseline-run-untrusted');
+    const { artifacts } = await gh.repoApi(`/actions/runs/${baseline.runId}/artifacts?per_page=100`);
+    const artifact = artifacts?.find(item => item.id === baseline.artifactId && item.name === `dependency-worker-${baseline.request}` &&
+      item.expired === false && item.workflow_run?.id === run.id && item.workflow_run.head_sha === run.head_sha);
+    requireSafe(artifact && run.display_title === `Dependency worker ${baseline.request}`, 'resume-baseline-artifact-untrusted');
+    const files = await loadArtifact(artifact.id), envelope = artifactJSON({ files }, 'worker.json');
+    requireSafe(envelope.phase === 'capture' && envelope.request === baseline.request && envelope.baseSHA === prior.baseSHA &&
+      envelope.headSHA === prior.baseSHA && digest(files.get('qa/result.json')) === baseline.manifestSHA256, 'resume-baseline-identity-mismatch');
+    const capture = { ...envelope, runId: baseline.runId, artifactId: baseline.artifactId, files };
+    verifyCapture(capture);
+    return capture;
+  }
   async function protection() {
     // The GitHub adapter may normalize effective repository rulesets and bind
     // required ordinary-PR checks to the GitHub Actions integration. Promotion
     // checks below remain mandatory internally, without imposing them on every
     // unrelated PR in the repository.
-    const protection = typeof gh.assertProtection === 'function' ? await gh.assertProtection('main') : await gh.repoApi('/branches/main/protection');
-    requireSafe(validateMainProtection(protection, gh.REQUIRED_SECURITY_CHECKS ?? CHECK_CONTEXTS), 'main-strict-protection-required');
+    if (typeof gh.assertProtection === 'function') { await gh.assertProtection('main'); return; }
+    requireSafe(validateMainProtection(await gh.repoApi('/branches/main/protection'), gh.REQUIRED_SECURITY_CHECKS ?? CHECK_CONTEXTS), 'main-strict-protection-required');
   }
   async function current(baseSHA, updatesSHA) {
     requireSafe(await gh.ref('main') === baseSHA, 'main-advanced-restart-required');
@@ -275,7 +390,7 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
     const readiness = await ai.preflight();
     await save('ai-preflight', readiness);
     requireSafe(readiness.pass === true, 'ai-websearch-preflight-blocked');
-    Object.assign(state, { baseSHA, updatesSHA, production, configuration });
+    Object.assign(state, { baseSHA, updatesSHA, production, configuration, controlSHA: env.GITHUB_SHA || baseSHA });
     await current(baseSHA, updatesSHA);
     return { runtime, baseSHA, updatesSHA, configuration, production };
   }
@@ -326,7 +441,7 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
       const proofs = deriveCveProofs({ baseLock: base.lock, headLock: head.lock, metadata, advisories, now: now(), semver: runtime.semver });
       const policy = dep.preflightLockUpdate({ baseLock: base.lock, headLock: head.lock, metadata, advisories, proofs, now: now(), ...runtime });
       const policyAt = new Date(now()).toISOString();
-      await save('lock-policy', { policy, metadata, proofs });
+      await save('lock-policy', { policy, metadata: registryEvidence(metadata, [base.lock, head.lock]), proofs });
       requireOK(policy, 'whole-lock-policy-blocked');
       const researched = await research(exactTargets(changes), baseSHA, headSHA);
       const osv = await dep.queryOsvLockfile(head.lock);
@@ -374,6 +489,48 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
     await gh.repoApi('/actions/workflows/automation-checks.yml/dispatches', { method: 'POST', body: { ref: headBranch } });
     await gh.repoApi('/actions/workflows/pr-review.yml/dispatches', { method: 'POST', body: { ref: 'main', inputs: { pr_number: String(number) } } });
     const contexts = gh.REQUIRED_SECURITY_CHECKS ?? CHECK_CONTEXTS;
+    const since = now() - 60000;
+    const dispatchedReviews = new Set([number]);
+    async function reviewHistory(prNumber) {
+      const reviews = [];
+      for (let page = 1; page <= 20; page++) {
+        const batch = await gh.repoApi(`/pulls/${prNumber}/reviews?per_page=100&page=${page}`);
+        requireSafe(Array.isArray(batch) && batch.length <= 100, 'review-history-invalid');
+        reviews.push(...batch);
+        if (batch.length < 100) return reviews;
+      }
+      throw new Blocked('review-history-incomplete');
+    }
+    async function exactReview() {
+      const fresh = await gh.repoApi(`/pulls/${number}`);
+      requireSafe(fresh.state === 'open' && fresh.base?.ref === 'main' && fresh.base.sha === baseSHA &&
+        fresh.head?.ref === headBranch && fresh.head.sha === headSHA, 'review-target-pr-changed');
+      const pulls = [];
+      for (let page = 1; page <= 20; page++) {
+        const batch = await gh.repoApi(`/pulls?state=open&base=main&per_page=100&page=${page}`);
+        requireSafe(Array.isArray(batch) && batch.length <= 100, 'shared-head-pr-inventory-invalid');
+        pulls.push(...batch.filter(pr => pr.state === 'open' && pr.head?.sha === headSHA));
+        if (batch.length < 100) break;
+        requireSafe(page < 20, 'shared-head-pr-inventory-incomplete');
+      }
+      requireSafe(pulls.some(pr => pr.number === number) && new Set(pulls.map(pr => pr.number)).size === pulls.length, 'shared-head-target-pr-missing');
+      for (const pull of pulls) {
+        requireSafe(Number.isSafeInteger(pull.number) && pull.number > 0 && pull.base?.ref === 'main' && pull.base.sha === baseSHA, 'shared-head-pr-base-changed');
+        if (!hasPassingReview(await reviewHistory(pull.number), { repository: gh.repository, number: pull.number, baseRef: 'main', baseSHA, headSHA })) {
+          if (!dispatchedReviews.has(pull.number)) {
+            await gh.repoApi('/actions/workflows/pr-review.yml/dispatches', { method: 'POST', body: { ref: 'main', inputs: { pr_number: String(pull.number) } } });
+            dispatchedReviews.add(pull.number);
+          }
+          return false;
+        }
+      }
+      const runs = await gh.repoApi('/actions/workflows/pr-review.yml/runs?event=workflow_dispatch&per_page=100');
+      const trusted = runs.workflow_runs?.find(run => run.path === '.github/workflows/pr-review.yml' && run.event === 'workflow_dispatch' &&
+        run.head_branch === 'main' && run.head_sha === baseSHA && run.run_attempt === 1 && run.status === 'completed' && run.conclusion === 'success' &&
+        run.repository?.full_name === gh.repository && run.head_repository?.full_name === gh.repository &&
+        run.actor?.login === (env.AUTOMATION_WORKER_ACTOR || 'github-actions[bot]') && Date.parse(run.created_at) >= since);
+      return Boolean(trusted);
+    }
     for (let poll = 0; poll < 210; poll++) {
       await current(baseSHA);
       requireSafe(await gh.ref(headBranch) === headSHA, 'checked-pr-head-changed');
@@ -388,11 +545,55 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
         return { context, pass: check?.status === 'completed' && check.conclusion === 'success' || status?.state === 'success',
           failed: check?.status === 'completed' && !['success', 'neutral', 'skipped'].includes(check.conclusion) || ['failure', 'error'].includes(status?.state) };
       });
-      if (observations.every(item => item.pass)) { await save('required-pr-checks', { headSHA, observations }); return; }
+      if (observations.every(item => item.pass) && await exactReview()) { await save('required-pr-checks', { headSHA, number, baseSHA, observations, exactReview: true }); return; }
       requireSafe(!observations.some(item => item.failed), 'required-pr-check-failed');
       if (poll < 209) await sleep(10000);
     }
     throw new Blocked('required-pr-checks-timeout');
+  }
+  async function reconcileRestore({ capture, production, configuration, failedMergeSHA }) {
+    const mainSHA = await gh.ref('main');
+    if (!state.restorePR) {
+      requireSafe(mainSHA === failedMergeSHA, 'main-advanced-before-protected-restore');
+      const original = await gh.repoApi(`/git/commits/${state.baseSHA}`);
+      const restore = await gh.repoApi('/git/commits', { method: 'POST', body: { message: 'revert: dependency update after confirmed production regression', tree: original.tree.sha, parents: [failedMergeSHA] } });
+      state.restoreBranch = `automation/restore-${nonce()}`; state.restoreHeadSHA = restore.sha;
+      await gh.createBranch(state.restoreBranch, restore.sha);
+      const pr = await gh.openPR({ base: 'main', head: state.restoreBranch, title: 'revert: restore production after confirmed dependency regression',
+        body: `<!-- dependency-restore:v1 failed=${failedMergeSHA} original=${state.baseSHA} -->\nRestore the exact previously captured production tree. Vercel instant rollback was independently verified. Required CI and independent PR review must pass before protected merge.` });
+      state.restorePR = pr.number;
+      await checkpoint('protected-restore-pr');
+    }
+    let pr = await gh.repoApi(`/pulls/${state.restorePR}`);
+    requireSafe(bot(pr.user) && pr.head?.ref === state.restoreBranch && pr.head.sha === state.restoreHeadSHA &&
+      pr.head.repo?.full_name === gh.repository, 'restore-pr-identity-changed');
+    if (!pr.merged) {
+      requireSafe(pr.state === 'open' && pr.base?.sha === failedMergeSHA && await gh.ref('main') === failedMergeSHA, 'main-advanced-before-protected-restore');
+      await requiredPRChecks({ baseSHA: failedMergeSHA, headSHA: state.restoreHeadSHA, number: pr.number, headBranch: state.restoreBranch });
+      await protection();
+      state.restoreSHA = await gh.mergePR(pr.number, state.restoreHeadSHA, failedMergeSHA);
+      await checkpoint('restore-merged');
+    } else {
+      state.restoreSHA = pr.merge_commit_sha;
+      requireSafe(await gh.ref('main') === state.restoreSHA, 'main-advanced-after-protected-restore');
+    }
+    const deployed = await vercel.waitForDeployment({ sha: state.restoreSHA, branch: 'main', production: true });
+    requireSafe(deployed.sha === state.restoreSHA && deployed.projectId === configuration.projectId, 'restore-deployment-identity-mismatch');
+    await vercel.verifyAlias({ hostname: configuration.productionHostname, sha: state.restoreSHA, deploymentId: deployed.id });
+    await vercel.verifyRuntime({ deploymentId: deployed.id });
+    const browser = await dispatched('browser', state.baseSHA, state.restoreSHA, { baselineRun: String(capture.runId),
+      baselineURL: `https://${configuration.productionHostname}`, candidateURL: `https://${configuration.productionHostname}` });
+    const review = await reviewBrowserImages({ capture, comparison: browser, baseSHA: state.baseSHA, headSHA: state.restoreSHA, deploymentId: deployed.id, ai });
+    await save('restore-production-verification', review);
+    await vercel.verifyAlias({ hostname: configuration.productionHostname, sha: state.restoreSHA, deploymentId: deployed.id });
+    requireSafe(review.pass === true && await gh.ref('main') === state.restoreSHA, 'restore-production-verification-blocked');
+    state.recoveryComplete = true;
+    await checkpoint('recovery-complete');
+    try {
+      await gh.ensureLabels();
+      await gh.issue('Dependency regression recovered', `Instant rollback and protected restore PR #${state.restorePR} completed. Main ${state.restoreSHA} and its public production deployment passed the original saved baseline and independent screenshot review.`, 'dependency-production-regression');
+    } catch { await save('recovery-issue-report-failed', { restoreSHA: state.restoreSHA }); }
+    return { deployed, review };
   }
   async function verifyProduction({ baseSHA, headSHA, mergedSHA, capture, production, configuration }) {
     state.mergedSHA = mergedSHA;
@@ -420,18 +621,18 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
     }
     await save('production-browser-review', visual);
     if (visual.confirmedRegression) {
+      state.rollbackRequested = true; state.failedMergeSHA = mergedSHA;
       await checkpoint('confirmed-production-regression');
       const rollback = await vercel.rollback({ failedDeploymentId: deployed.id, previousDeploymentId: production.id, expectedFailedSHA: mergedSHA });
       await save('vercel-rollback', rollback);
-      await gh.ensureLabels();
-      await gh.issue('Dependency automation: confirmed production regression',
-        `Deployment ${deployed.id} (${mergedSHA}) failed saved-baseline browser and independent vision review. Vercel rollback was verified. Git restore is attempted only while main still equals the failed merge.`, 'dependency-production-regression');
-      if (await gh.ref('main') === mergedSHA) {
-        const original = await gh.repoApi(`/git/commits/${baseSHA}`);
-        const restore = await gh.repoApi('/git/commits', { method: 'POST', body: { message: 'revert: dependency update after confirmed production regression', tree: original.tree.sha, parents: [mergedSHA] } });
-        await gh.fastForward('main', mergedSHA, restore.sha);
-        state.restoreSHA = restore.sha;
-      }
+      state.rollbackVerified = true; state.failedMergeSHA = mergedSHA;
+      await checkpoint('instant-rollback-verified');
+      try {
+        await gh.ensureLabels();
+        await gh.issue('Dependency automation: confirmed production regression',
+          `Deployment ${deployed.id} (${mergedSHA}) failed independently confirmed saved-baseline checks. Vercel rollback was verified. Reconciliation uses a separately checked and reviewed restore PR while main remains unchanged.`, 'dependency-production-regression');
+      } catch { await save('rollback-issue-report-failed', { mergedSHA }); }
+      await reconcileRestore({ capture, production, configuration, failedMergeSHA: mergedSHA });
       throw new Blocked('confirmed-regression-rolled-back');
     }
     requireSafe(visual.pass === true, 'postproduction-check-blocked-without-confirmed-regression');
@@ -440,12 +641,51 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
     return { deployed, visual };
   }
   async function scan() {
+    const previous = await previousOwnedState();
+    if (previous?.pr || previous?.restorePR || previous?.rollbackVerified || previous?.rollbackRequested) {
+      const pr = previous.pr ? await gh.repoApi(`/pulls/${previous.pr}`) : null;
+      const mergedSHA = previous.mergedSHA || (pr?.merged && pr.head?.sha === previous.headSHA ? pr.merge_commit_sha : null);
+      if (previous.restorePR || previous.rollbackVerified || mergedSHA && await gh.ref('main') === mergedSHA) {
+        const runtime = await toolchain(); await protection();
+        const configuration = await vercel.preflight();
+        requireSafe(configuration.projectId === previous.configuration?.projectId &&
+          configuration.productionHostname === previous.configuration.productionHostname && configuration.updatesHostname === previous.configuration.updatesHostname,
+        'recovery-configuration-changed');
+        requireSafe((await gh.file('.nvmrc', previous.baseSHA)).trim() === runtime.nodeVersion, 'recovery-runtime-changed');
+        const identity = { runId: state.runId, controlSHA: env.GITHUB_SHA || await gh.ref('main') };
+        Object.assign(state, previous, identity, { outcome: 'running', mergedSHA });
+        if (state.ownerPR) await gh.repoApi(`/pulls/${state.ownerPR}`, { method: 'PATCH', body: { body: claimBody('Resuming authenticated production reconciliation.') } });
+        await checkpoint('resume-production-reconciliation');
+        const capture = await savedCapture(previous);
+        if (previous.rollbackRequested && !previous.rollbackVerified) {
+          const currentProduction = await vercel.getProductionDeployment();
+          if (currentProduction.id === previous.production.id && currentProduction.sha === previous.baseSHA) state.rollbackVerified = true;
+        }
+        if (state.rollbackVerified || previous.restorePR) {
+          await reconcileRestore({ capture, production: previous.production, configuration, failedMergeSHA: previous.failedMergeSHA || mergedSHA });
+          state.outcome = 'recovered'; await checkpoint('complete');
+          return { ...state, summary: 'Protected production recovery resumed and independently verified.' };
+        }
+        const verified = await verifyProduction({ baseSHA: previous.baseSHA, headSHA: previous.headSHA, mergedSHA,
+          capture, production: previous.production, configuration });
+        state.outcome = 'promoted'; state.productionDeploymentId = verified.deployed.id; await checkpoint('complete');
+        return { ...state, summary: 'Interrupted production verification resumed against its original saved baseline.' };
+      }
+    }
     const context = await preflight();
     const { baseSHA, updatesSHA, runtime, configuration, production } = context;
-    // Unpublished/resumable work is never reset or merged implicitly. A later
-    // scan blocks for reconciliation if updates contains work absent from main.
     const ancestry = await gh.repoApi(`/compare/${updatesSHA}...${baseSHA}`);
-    requireSafe(['ahead', 'identical'].includes(ancestry.status), 'updates-has-unpromoted-or-unrelated-work');
+    const ownedRestart = !['ahead', 'identical'].includes(ancestry.status);
+    requireSafe(!ownedRestart || previous?.headSHA === updatesSHA, 'updates-has-unpromoted-or-unrelated-work');
+    // Preserve both histories while restarting ONLY authenticated owned work
+    // from the current main TREE. New main work is included byte for byte; no
+    // force update or content carried from an unowned candidate is permitted.
+    let startSHA = baseSHA;
+    if (ownedRestart) {
+      const commit = await gh.repoApi(`/git/commits/${baseSHA}`);
+      startSHA = (await gh.repoApi('/git/commits', { method: 'POST', body: { message: 'chore: revalidate owned dependency work from current main', tree: commit.tree.sha, parents: [baseSHA, updatesSHA] } })).sha;
+      state.resumedFromRun = previous.runId;
+    }
     const base = await snapshot(baseSHA);
     requireOK(dep.validateManifestLock(base.manifest, base.lock, runtime.semver), 'baseline-manifest-lock-mismatch');
     const inspection = await dispatched('inspect', baseSHA, baseSHA);
@@ -459,11 +699,12 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
     });
     const names = [...new Set([...Object.keys(base.manifest.dependencies ?? {}), ...Object.keys(base.manifest.devDependencies ?? {}), ...necessaryFixes.map(fix => fix.name)])];
     const metadata = await dep.fetchRegistryMetadata(names);
-    const discovery = discoverDependencyUpdates({ ...base, metadata, advisories, now: now(), ...runtime });
-    await save('discovery', { selections: discovery.selections, metadata, baselineAudits });
+    const discovery = discoverDependencyUpdates({ ...base, metadata, advisories, securityOnly: ownedRestart && necessaryFixes.length > 0, now: now(), ...runtime });
+    await save('discovery', { selections: discovery.selections, metadata: registryEvidence(metadata, [base.lock], discovery.selections), baselineAudits });
     const branch = `automation/dependencies-${nonce()}`;
-    let headSHA = discovery.changed ? await gh.commitFiles(baseSHA, [{ path: 'package.json', content: JSON.stringify(discovery.manifest, null, 2) + '\n' }], 'chore: discover dependency releases') : baseSHA;
-    if (discovery.changed) await gh.createBranch(branch, headSHA);
+    let headSHA = discovery.changed ? await gh.commitFiles(startSHA, [{ path: 'package.json', content: JSON.stringify(discovery.manifest, null, 2) + '\n' }], 'chore: discover dependency releases') : startSHA;
+    const branchCreated = discovery.changed || ownedRestart;
+    if (branchCreated) await gh.createBranch(branch, headSHA);
     Object.assign(state, { branch, headSHA });
     // Direct exact targets are researched before even lock-only resolution.
     const preliminaryTargets = [...new Map([...discovery.selections, ...necessaryFixes].map(({ name, version }) => [`${name}@${version}`, { name, version }])).values()];
@@ -483,12 +724,13 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
     auditEvidence(resolution, resolvedLock, { baseline: true });
     if (isDeepStrictEqual(base.manifest, discovery.manifest) && isDeepStrictEqual(base.lock, resolvedLock)) {
       requireSafe(baselineAudits.every(audit => audit.ok) && baselineOsv.every(query => query.advisories.length === 0), 'no-available-fix-for-baseline-findings');
+      requireSafe(!ownedRestart, 'owned-updates-awaiting-a-new-safe-fix');
       state.outcome = 'no-updates';
       await checkpoint('complete');
       return { ...state, summary: 'No eligible dependency changes. Main, updates and production are unchanged.' };
     }
     const resolvedSHA = await gh.commitFiles(headSHA, resolvedFiles, 'chore: resolve dependency lock without scripts');
-    if (discovery.changed) await gh.fastForward(branch, headSHA, resolvedSHA);
+    if (branchCreated) await gh.fastForward(branch, headSHA, resolvedSHA);
     else await gh.createBranch(branch, resolvedSHA);
     headSHA = resolvedSHA;
     const candidate = await validatedCandidate({ baseSHA, headSHA, branch, base, advisories, runtime });
@@ -500,8 +742,11 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
     const capture = await dispatched('capture', baseSHA, baseSHA, { baselineURL: `https://${configuration.productionHostname}` });
     verifyCapture(capture);
     await vercel.verifyAlias({ hostname: configuration.productionHostname, sha: baseSHA, deploymentId: production.id });
-    state.baseline = { runId: capture.runId, artifactId: capture.artifactId, manifestSHA256: digest(capture.files.get('qa/result.json')) };
+    state.baseline = { runId: capture.runId, artifactId: capture.artifactId, request: capture.request,
+      controlSHA: capture.controlSHA, manifestSHA256: digest(capture.files.get('qa/result.json')) };
     await statuses(headSHA, ['policy', 'dependencies', 'audit', 'build', 'research', 'review'], true);
+    const ownershipPR = await ownedPR(branch, 'chore: validate researched dependency candidate', 'Ownership checkpoint before publishing updates. This candidate must pass public updates acceptance before promotion.');
+    state.ownerPR = ownershipPR.number;
     await checkpoint('publish-validated-updates');
     await current(baseSHA, updatesSHA);
     await gh.fastForward('updates', updatesSHA, headSHA);
@@ -529,8 +774,8 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
     requireSafe(CHECK_NAMES.every(name => Number.isFinite(timestamp(times[name])) && timestamp(times[name]) <= now() && now() - timestamp(times[name]) <= 86400000), 'promotion-review-evidence-stale');
     await save('promotion-verdict', verdict);
     await protection();
-    const pr = await gh.openPR({ base: 'main', head: 'updates', title: 'chore: promote validated dependency updates',
-      body: `<!-- dependency-promotion:${baseSHA}:${headSHA} -->\nHourly dependency promotion. All changed direct/transitive releases were researched live and passed whole-lock age/CVE policy, independent code review, both audits, build, browser comparison and screenshot vision review.\n\nBase: ${baseSHA}\nHead: ${headSHA}\nBaseline worker: ${capture.runId}\nEvidence: https://github.com/${gh.repository}/actions/runs/${env.GITHUB_RUN_ID}` });
+    const pr = await ownedPR('updates', 'chore: promote validated dependency updates', 'Hourly promotion passed all changed-version research, whole-lock policy, independent review, both audits, build, public updates browser comparison and vision review.');
+    await gh.repoApi(`/pulls/${ownershipPR.number}`, { method: 'PATCH', body: { state: 'closed' } });
     // This controller never consumes ordinary pull_request event metadata and
     // never turns an arbitrary PR number into an automatic merge target.
     const freshPR = await gh.repoApi(`/pulls/${pr.number}`);

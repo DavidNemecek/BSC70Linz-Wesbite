@@ -4,7 +4,8 @@ import { dirname, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import * as dependencies from './dependencies.mjs';
-import { createController, CHECK_CONTEXTS, validateMainProtection, reviewBrowserImages, auditEvidence } from './controller.mjs';
+import { createController, CHECK_CONTEXTS, validateMainProtection, reviewBrowserImages, auditEvidence, confirmRepeatedRegression, regressionSignals } from './controller.mjs';
+import { reviewMarker } from './pr-review.mjs';
 
 // All fixtures are synthetic. No git, processes, real network, deployment or
 // candidate code execution is used. Keep the real deterministic policy gates.
@@ -69,12 +70,14 @@ function comparisonResult(capture, { regression = false, substitution = false } 
 
 function harness(options = {}) {
   const calls = [], evidence = [], issues = [], statuses = [], commits = new Map();
+  const workerInputs = [];
+  const prs = new Map(), remote = new Map(), workflowRuns = new Map(), remoteArtifacts = new Map();
   const initialFiles = new Map([['package.json', JSON.stringify(manifest)], ['package-lock.json', JSON.stringify(lockFor(manifest))],
     ['.nvmrc', '24.22.1\n'], ['src/app.ts', 'export const value = 1;\n']]);
   commits.set(baseSHA, { files: initialFiles, parents: [] });
   commits.set(unrelatedSHA, { files: initialFiles, parents: [] });
   const refs = { main: baseSHA, updates: options.unrelatedUpdates ? unrelatedSHA : baseSHA };
-  let count = 10, runId = 100, capture, clockNow = now;
+  let count = 10, runId = 100, capture, clockNow = now, activeRunId = '900', activeControlSHA = baseSHA;
   const records = options.records ?? { synthetic: registry('synthetic'), helper: registry('helper', { '1.0.0': 30 }) };
   function ancestor(a, b) { return a === b || (commits.get(b)?.parents ?? []).some(parent => ancestor(a, parent)); }
   function commit(parent, files, extra = {}) {
@@ -93,6 +96,29 @@ function harness(options = {}) {
     changes: async (base, head) => [...commits.get(head).files].filter(([path, content]) => commits.get(base).files.get(path) !== content)
       .map(([filename]) => ({ filename, status: 'modified', additions: options.largeRepair && filename.startsWith('src/') ? 121 : 1, deletions: 1 })),
     repoApi: async (path, opts) => {
+      if (path.startsWith('/pulls?')) return [...prs.keys()].map(number => prInfo(number));
+      const pull = /^\/pulls\/(\d+)$/.exec(path);
+      if (pull) {
+        const number = Number(pull[1]);
+        if (opts?.method === 'PATCH') Object.assign(prs.get(number), opts.body);
+        return prInfo(number);
+      }
+      const history = /^\/pulls\/(\d+)\/reviews\?/.exec(path);
+      if (history) {
+        const pr = prInfo(Number(history[1]));
+        if (options.missingSiblingReview && pr.title === 'shared sibling') return [];
+        const ids = { repository: 'owner/repo', number: options.forgedReview ? 999 : pr.number, baseRef: 'main', baseSHA: refs.main, headSHA: pr.head.sha };
+        return [{ user: { login: 'github-actions[bot]', type: 'Bot' }, commit_id: pr.head.sha, state: 'COMMENTED', body: reviewMarker(ids, true) + '\nIndependent pass.' }];
+      }
+      if (path === '/actions/workflows/pr-review.yml/runs?event=workflow_dispatch&per_page=100') return { workflow_runs: [{
+        path: '.github/workflows/pr-review.yml', event: 'workflow_dispatch', head_branch: 'main', head_sha: refs.main,
+        run_attempt: 1, status: 'completed', conclusion: 'success', repository: { full_name: 'owner/repo' },
+        head_repository: { full_name: 'owner/repo' }, actor: { login: 'github-actions[bot]' }, created_at: new Date(clockNow).toISOString(),
+      }] };
+      const workflow = /^\/actions\/runs\/(\d+)$/.exec(path);
+      if (workflow) return workflowRuns.get(Number(workflow[1]));
+      const artifacts = /^\/actions\/runs\/(\d+)\/artifacts\?/.exec(path);
+      if (artifacts) return { artifacts: remoteArtifacts.get(Number(artifacts[1])) };
       if (path === '/branches/main/protection') {
         const p = options.protection ?? protection();
         if (options.standardRequiredChecks) p.required_status_checks.contexts.push(...options.standardRequiredChecks);
@@ -100,13 +126,17 @@ function harness(options = {}) {
       }
       if (/^\/actions\/workflows\/(?:automation-checks|pr-review)\.yml\/dispatches$/.test(path)) {
         assert.equal(opts.method, 'POST'); calls.push(`dispatch:${path.split('/')[3]}`);
+        if (options.missingSiblingReview && path.includes('/pr-review.yml/') && ![...prs.values()].some(pr => pr.title === 'shared sibling')) {
+          const number = prs.size + 1;
+          prs.set(number, { number, headRef: 'updates', title: 'shared sibling', body: '', state: 'open', merged: false });
+        }
         if (options.dispatchFailure) throw Error('Workflow dispatch denied');
         if (options.expireDuringChecks) clockNow = now + 25 * 3600000;
         return null;
       }
       if (path.includes('/check-runs?')) {
         const sha = path.split('/')[2];
-        const check_runs = (options.standardRequiredChecks ?? []).map(name => ({ name, head_sha: sha, app: { id: 15368 },
+        const check_runs = (options.standardRequiredChecks ?? CHECK_CONTEXTS).map(name => ({ name, head_sha: sha, app: { id: 15368 },
           status: 'completed', conclusion: options.requiredCheckFailure ? 'failure' : 'success' }));
         return { total_count: check_runs.length, check_runs };
       }
@@ -122,23 +152,35 @@ function harness(options = {}) {
         const [base, head] = path.slice('/compare/'.length).split('...');
         return { status: base === head ? 'identical' : ancestor(base, head) ? 'ahead' : 'diverged' };
       }
-      if (path === '/pulls/1') return { number: 1, state: 'open', head: { ref: options.ordinaryPR ? 'feature/ordinary' : 'updates', sha: refs.updates, repo: { full_name: 'owner/repo' } },
-        base: { ref: 'main', sha: refs.main } };
       if (path === '/git/commits' && opts?.method === 'POST') {
-        const sha = commit(opts.body.parents[0], [...commits.get(opts.body.tree).files].map(([path, content]) => ({ path, content })));
+        const sha = commit(opts.body.parents[0], [...commits.get(opts.body.tree).files].map(([path, content]) => ({ path, content })), { parents: opts.body.parents });
         return { sha };
       }
       throw Error(`Unexpected fake GitHub path ${path}`);
     },
-    openPR: async () => { calls.push('openPR'); return { number: 1 }; },
+    openPR: async ({ head, body, title }) => {
+      calls.push('openPR');
+      const number = prs.size + 1;
+      prs.set(number, { number, headRef: head, body, title, state: 'open', merged: false });
+      return prInfo(number);
+    },
     mergePR: async (number, head, base) => {
-      calls.push('mergePR'); assert.equal(number, 1); assert.equal(refs.main, base); assert.equal(refs.updates, head);
+      calls.push('mergePR'); assert.equal(refs.main, base); assert.equal(refs[prs.get(number).headRef], head);
       if (options.mergeRace) { refs.main = commit(base, [{ path: 'src/unrelated.ts', content: 'unrelated' }]); throw Error('Strict protection rejected stale base'); }
-      const merged = commit(head, [], { parents: [base, head] }); refs.main = merged; return merged;
+      const merged = commit(head, [], { parents: [base, head] }); refs.main = merged;
+      Object.assign(prs.get(number), { merged: true, merge_commit_sha: merged, state: 'closed' }); return merged;
     },
     setStatus: async (sha, context, success) => { statuses.push({ sha, context, success }); },
-    ensureLabels: async () => {}, issue: async (...args) => { issues.push(args); },
+    ensureLabels: async () => {}, issue: async (...args) => { if (options.issueFailure) throw Error('Issue API unavailable'); issues.push(args); },
   };
+  function prInfo(number) {
+    const pr = prs.get(number);
+    assert(pr, `Missing fake PR ${number}`);
+    return { ...pr, user: { login: 'github-actions[bot]', type: 'Bot' }, draft: false,
+      head: { ref: options.ordinaryPR && pr.headRef === 'updates' ? 'feature/ordinary' : pr.headRef,
+        sha: refs[pr.headRef], repo: { full_name: 'owner/repo' } },
+      base: { ref: 'main', sha: refs.main, repo: { full_name: 'owner/repo' } } };
+  }
   let reviews = 0, validations = 0, researchCalls = 0;
   const ai = {
     preflight: async () => ({ pass: !options.preflightFailure }),
@@ -169,6 +211,7 @@ function harness(options = {}) {
     waitForDeployment: async ({ sha, branch }) => {
       calls.push(`deploy:${branch}`);
       if (options.postInfrastructureFailure && branch === 'main') throw Error('Deployment API unavailable');
+      if (options.restoreDeploymentFailure && branch === 'main' && JSON.parse(commits.get(sha).files.get('package.json')).dependencies.synthetic === '1.0.0') throw Error('Restore deployment unavailable');
       return { id: `dpl_${branch}`, sha, branch, readyState: 'READY', projectId: 'prj_synthetic', url: `https://${branch}.vercel.app` };
     },
     rollback: async () => { calls.push('rollback'); return { verified: true }; },
@@ -179,9 +222,10 @@ function harness(options = {}) {
     fetchOsvAdvisory: async id => options.advisories[id],
   };
   async function worker(input) {
+    workerInputs.push(input);
     calls.push(`worker:${input.phase}`);
     if (input.phase === 'resolve' && options.expectUrgent !== undefined) assert.equal(input.urgent, options.expectUrgent);
-    const result = { ...input, request: 'synthetic', runId: runId++, artifactId: runId + 100, completedAt: iso, pass: true, nodeVersion: 'v24.22.1', files: new Map() };
+    const result = { ...input, request: 'synthetic', controlSHA: activeControlSHA, runId: runId++, artifactId: runId + 100, completedAt: iso, pass: true, nodeVersion: 'v24.22.1', files: new Map() };
     const currentManifest = JSON.parse(commits.get(input.headSHA).files.get('package.json'));
     const lock = input.phase === 'inspect' ? lockFor(manifest) : lockFor(currentManifest, currentManifest.dependencies.synthetic, options.helperTarget ?? (options.youngTransitive ? '1.0.1' : '1.0.0'));
     result.audit = audit(lock); result.auditProduction = audit(lock);
@@ -199,7 +243,17 @@ function harness(options = {}) {
     if (input.phase === 'capture') { capture = captureResult(); Object.assign(result, capture); }
     if (input.phase === 'browser') {
       const post = input.headSHA === refs.main;
-      const comparison = comparisonResult(capture, { regression: post && options.postRegression, substitution: options.baselineSubstitution });
+      const failedProduction = post && currentManifest.dependencies.synthetic !== '1.0.0';
+      const comparison = comparisonResult(capture, { regression: failedProduction && options.postRegression, substitution: options.baselineSubstitution });
+      if (failedProduction && options.postBehavior) {
+        const messages = { functional: ['candidate 360-de-light functional', 'Fee disclosure did not open after click'],
+          api: ['candidate API /api/teams', 'HTTP 500'], pdf: ['candidate 360-de-light functional', 'PDF text/content missing'],
+          infrastructure: ['candidate 360-de-light functional', 'page.waitForURL: Timeout 30000ms exceeded'] };
+        const [check, message] = messages[options.postBehavior];
+        comparison.qa.pass = false; comparison.qa.errors = [{ check, message }]; comparison.qa.checks = [];
+        if (options.postBehavior === 'api' || options.postBehavior === 'infrastructure') comparison.qa.candidate.variants[0].routes = [];
+        comparison.files.set('qa/result.json', Buffer.from(JSON.stringify(comparison.qa)));
+      }
       Object.assign(result, comparison); result.pass = comparison.qa.pass;
       // Only production vision is negative for the regression fixture.
       if (!post && options.postRegression) ai.reviewVisualEvidence = async input => {
@@ -207,23 +261,48 @@ function harness(options = {}) {
         return { pass: true, imageIndexes: input.images.map((_, i) => i), findings: [] };
       };
       if (post && options.postRegression) ai.reviewVisualEvidence = async input => {
-        calls.push('vision'); return { pass: false, imageIndexes: input.images.map((_, i) => i),
-          findings: [{ severity: 'high', message: 'Navigation clipped', evidence: ['Image 1 mobile'] }] };
+        calls.push('vision'); return { pass: !failedProduction, imageIndexes: input.images.map((_, i) => i),
+          findings: failedProduction ? [{ severity: 'high', message: 'Navigation clipped', evidence: ['Image 1 mobile'] }] : [] };
       };
+      if (options.postBehavior) ai.reviewVisualEvidence = async input => { calls.push('vision'); return { pass: true, imageIndexes: input.images.map((_, i) => i), findings: [] }; };
     }
     if (options.wrongWorkerHead && input.phase === 'validate') result.headSHA = unrelatedSHA;
     if (options.wrongRuntime && input.phase === 'validate') result.nodeVersion = 'v24.22.0';
     if (options.failedCapture && input.phase === 'capture') result.pass = false;
+    if (input.phase !== 'resolve') result.files.set('worker.json', Buffer.from(JSON.stringify({ ...result, files: undefined })));
+    workflowRuns.set(result.runId, { id: result.runId, path: '.github/workflows/dependency-worker.yml', event: 'workflow_dispatch',
+      head_sha: activeControlSHA, head_branch: 'main', run_attempt: 1, conclusion: 'success', status: 'completed',
+      repository: { full_name: 'owner/repo' }, head_repository: { full_name: 'owner/repo' }, actor: { login: 'github-actions[bot]' },
+      display_title: 'Dependency worker synthetic' });
+    remoteArtifacts.set(result.runId, [{ id: result.artifactId, name: 'dependency-worker-synthetic', expired: false,
+      workflow_run: { id: result.runId, head_sha: activeControlSHA, head_branch: 'main' } }]);
+    remote.set(result.artifactId, new Map(result.files));
     return result;
   }
   if (options.standardRequiredChecks) {
     gh.REQUIRED_SECURITY_CHECKS = options.standardRequiredChecks;
     gh.assertProtection = async () => { calls.push('assertProtection'); return gh.repoApi('/branches/main/protection'); };
   }
-  const controller = createController({ gh, ai, dep, vercel, worker, now: () => clockNow, toolchain: async () => runtime, sleep: async () => {},
-    env: { GITHUB_RUN_ID: 'synthetic-run', AI_API_KEY: 'private-test-value' },
-    nonce: () => 'synthetic-run', persist: async (name, value) => evidence.push({ name, value }) });
-  return { controller, calls, refs, commits, evidence, issues, statuses, ai, worker, gh, get researchCalls() { return researchCalls; } };
+  function newController(id = '900') {
+    activeRunId = id; activeControlSHA = refs.main;
+    return createController({ gh, ai, dep, vercel, worker, now: () => clockNow, toolchain: async () => runtime, sleep: async () => {},
+      env: { GITHUB_RUN_ID: id, GITHUB_SHA: activeControlSHA, AI_API_KEY: 'private-test-value' },
+      loadArtifact: async id => remote.get(id), nonce: () => `synthetic-run-${id}`,
+      persist: async (name, value) => evidence.push({ name, value, runId: id }) });
+  }
+  function uploadEvidence(id = activeRunId) {
+    const checkpoint = evidence.filter(item => item.runId === id).at(-1).value;
+    workflowRuns.set(Number(id), { id: Number(id), path: '.github/workflows/dependency-updates.yml', event: 'workflow_dispatch',
+      head_branch: 'main', head_sha: checkpoint.controlSHA, repository: { full_name: 'owner/repo' },
+      head_repository: { full_name: 'owner/repo' }, run_attempt: 1, status: 'completed' });
+    const artifactId = Number(id) * 10;
+    remoteArtifacts.set(Number(id), [{ id: artifactId, name: `dependency-controller-${id}`, expired: false,
+      workflow_run: { id: Number(id), head_sha: checkpoint.controlSHA, head_branch: 'main' } }]);
+    remote.set(artifactId, new Map(evidence.filter(item => item.runId === id).map(item => [item.name, Buffer.from(JSON.stringify(item.value))])));
+  }
+  const controller = newController();
+  return { controller, newController, uploadEvidence, calls, workerInputs, refs, commits, evidence, issues, statuses, ai, worker, gh, prs, remote, workflowRuns, remoteArtifacts,
+    get researchCalls() { return researchCalls; } };
 }
 
 test('protection fails closed for missing strict checks, admin bypass and force push', () => {
@@ -234,6 +313,12 @@ test('protection fails closed for missing strict checks, admin bypass and force 
     const p = protection(); change(p); assert.equal(validateMainProtection(p), false);
   }
   assert.equal(validateMainProtection(null), false);
+  const callerBound = protection();
+  callerBound.current_user_can_bypass = 'never'; callerBound.enforce_admins.enabled = null;
+  callerBound.required_pull_request_reviews = { bypass_pull_request_allowances: null };
+  assert.equal(validateMainProtection(callerBound), true);
+  callerBound.current_user_can_bypass = 'always';
+  assert.equal(validateMainProtection(callerBound), false);
 });
 
 test('preflight performs no candidate execution or branch writes', async () => {
@@ -301,7 +386,7 @@ test('main racing at merge is rejected by strict protection; controller does not
 
 test('ordinary PR identity cannot become an automatic merge target', async () => {
   const h = harness({ ordinaryPR: true }); const result = await h.controller.run();
-  assert.equal(result.reason, 'promotion-pr-identity-mismatch');
+  assert.equal(result.reason, 'automation-pr-ownership-required');
   assert.equal(h.calls.includes('mergePR'), false); assert.equal(h.refs.main, baseSHA);
 });
 
@@ -358,7 +443,9 @@ test('postproduction infrastructure failure reports and blocks without rollback'
 test('confirmed production regression rolls back Vercel then safely restores only failed main', async () => {
   const h = harness({ postRegression: true }); const result = await h.controller.run();
   assert.equal(result.reason, 'confirmed-regression-rolled-back', JSON.stringify(result));
-  assert(h.calls.includes('rollback')); assert(h.calls.includes('ff:main'));
+  assert(h.calls.includes('rollback')); assert.equal(h.calls.includes('ff:main'), false);
+  assert.equal(h.calls.filter(call => call === 'mergePR').length, 2);
+  assert.equal(result.recoveryComplete, true);
   assert.notEqual(h.refs.main, result.mergedSHA);
   assert.equal(h.commits.get(h.refs.main).files.get('package.json'), JSON.stringify(manifest));
 });
@@ -444,4 +531,91 @@ test('waiting for checks cannot freshen expired promotion evidence', async () =>
   const h = harness({ expireDuringChecks: true }); const result = await h.controller.run();
   assert.equal(result.reason, 'promotion-evidence-expired-before-merge');
   assert.equal(h.calls.includes('mergePR'), false);
+});
+
+test('functional, API and PDF regressions confirm with a new browser worker even when vision passes', async () => {
+  for (const postBehavior of ['functional', 'api', 'pdf']) {
+    const h = harness({ postBehavior }); const result = await h.controller.run();
+    assert.equal(result.reason, 'confirmed-regression-rolled-back', JSON.stringify(result));
+    assert.equal(result.recoveryComplete, true);
+    assert(h.calls.includes('rollback'));
+    assert.equal(h.calls.filter(call => call === 'worker:browser').length, 4); // updates, production, independent confirmation, restored production
+  }
+});
+
+test('incomplete timeout captures and repeatable transport failures never authorize rollback', async () => {
+  const h = harness({ postBehavior: 'infrastructure' }); const result = await h.controller.run();
+  assert.equal(result.reason, 'postproduction-check-blocked-without-confirmed-regression');
+  assert.equal(h.calls.includes('rollback'), false);
+  const timeout = { errors: [{ check: 'candidate 360-de-light functional', message: 'page.goto: net::ERR_CONNECTION_RESET' }] };
+  assert.deepEqual(regressionSignals(timeout), []); assert.equal(confirmRepeatedRegression(timeout, timeout), false);
+});
+
+test('post-merge interruption resumes from authenticated immutable evidence and original capture', async () => {
+  const options = { postInfrastructureFailure: true }, h = harness(options);
+  const first = await h.controller.run(); assert.equal(first.outcome, 'blocked');
+  const merged = h.refs.main; h.uploadEvidence(); options.postInfrastructureFailure = false;
+  const resumed = await h.newController('901').run();
+  assert.equal(resumed.outcome, 'promoted', JSON.stringify(resumed)); assert.equal(h.refs.main, merged);
+  assert.equal(h.calls.filter(call => call === 'mergePR').length, 1);
+  assert.equal(h.calls.filter(call => call === 'worker:capture').length, 1);
+});
+
+test('owned published updates retry after temporary failure without force or loss of main history', async () => {
+  const options = { visionFailure: true }, h = harness(options);
+  const first = await h.controller.run(); assert.equal(first.outcome, 'blocked');
+  const retained = h.refs.updates; h.uploadEvidence(); options.visionFailure = false;
+  const resumed = await h.newController('901').run();
+  assert.equal(resumed.outcome, 'promoted', JSON.stringify(resumed));
+  assert.notEqual(h.refs.updates, retained); assert.equal(h.calls.includes('ff:main'), false);
+  const parents = h.commits.get(h.refs.updates).parents;
+  assert(parents.length > 0); assert.equal(resumed.resumedFromRun, '900');
+});
+
+test('resume ownership rejects missing artifacts and forged workflow provenance', async () => {
+  for (const forged of [false, true]) {
+    const options = { visionFailure: true }, h = harness(options);
+    await h.controller.run(); h.uploadEvidence();
+    const retained = h.refs.updates;
+    if (forged) h.workflowRuns.get(900).path = '.github/workflows/foreign.yml';
+    else h.remoteArtifacts.set(900, []);
+    const result = await h.newController('901').run();
+    assert.equal(result.outcome, 'blocked'); assert.equal(h.refs.updates, retained); assert.equal(h.refs.main, baseSHA);
+  }
+});
+
+test('protected restore deployment failure resumes without a second rollback or direct main push', async () => {
+  const options = { postRegression: true, restoreDeploymentFailure: true }, h = harness(options);
+  const first = await h.controller.run(); assert.equal(first.outcome, 'blocked'); assert(first.restorePR);
+  h.uploadEvidence(); options.restoreDeploymentFailure = false;
+  const resumed = await h.newController('901').run();
+  assert.equal(resumed.outcome, 'recovered', JSON.stringify(resumed)); assert.equal(resumed.recoveryComplete, true);
+  assert.equal(h.calls.filter(call => call === 'rollback').length, 1); assert.equal(h.calls.includes('ff:main'), false);
+});
+
+test('issue API failure after verified rollback cannot prevent protected restoration', async () => {
+  const h = harness({ postRegression: true, issueFailure: true }); const result = await h.controller.run();
+  assert.equal(result.recoveryComplete, true, JSON.stringify(result));
+  assert.equal(h.calls.filter(call => call === 'mergePR').length, 2); assert.equal(h.calls.includes('ff:main'), false);
+});
+
+test('bare green status cannot replace an exact authenticated v2 PR review', async () => {
+  const h = harness({ forgedReview: true }); const result = await h.controller.run();
+  assert.equal(result.reason, 'required-pr-checks-timeout'); assert.equal(h.calls.includes('mergePR'), false);
+});
+
+test('browser acceptance uses public hosts while deployment SHA/alias identity remains separate', async () => {
+  const h = harness(); const result = await h.controller.run(); assert.equal(result.outcome, 'promoted');
+  const capture = h.workerInputs.find(input => input.phase === 'capture');
+  assert.equal(capture.baselineURL, 'https://www.bsc70linz.at');
+  const comparisons = h.workerInputs.filter(input => input.phase === 'browser');
+  assert.equal(comparisons[0].candidateURL, 'https://updates.dev.bsc70linz.at');
+  assert.equal(comparisons[1].candidateURL, 'https://www.bsc70linz.at');
+  assert(comparisons.every(input => input.baselineRun === String(result.baseline.runId)));
+});
+
+test('every open main PR sharing the head needs its own exact review despite green shared statuses', async () => {
+  const h = harness({ missingSiblingReview: true }); const result = await h.controller.run();
+  assert.equal(result.reason, 'required-pr-checks-timeout'); assert.equal(h.calls.includes('mergePR'), false);
+  assert.equal(h.calls.filter(call => call === 'dispatch:pr-review.yml').length, 2);
 });

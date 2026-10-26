@@ -79,3 +79,11 @@ test('publication/engine defects block urgent fix, while exact targets deduplica
   assert.deepEqual(exactTargets([{ name: 'synthetic', entry: { version: '1.0.1' } },
     { name: 'synthetic', entry: { version: '1.0.1' } }]), [{ name: 'synthetic', version: '1.0.1' }]);
 });
+
+test('recovery can prioritize independently confirmed CVEs over unrelated ordinary major upgrades', () => {
+  const withHelper = { ...manifest, dependencies: { ...manifest.dependencies, helper: '1.0.0' } };
+  const metadata = { synthetic: pack('synthetic', { '1.0.0': 30, '1.0.1': 1, '2.0.0': 8 }), helper: pack('helper', { '1.0.0': 30, '2.0.0': 8 }) };
+  const result = discoverDependencyUpdates({ manifest: withHelper, lock, metadata, advisories: { x: advisory }, securityOnly: true, now, ...runtime });
+  assert.equal(result.manifest.dependencies.synthetic, '1.0.1');
+  assert.equal(result.manifest.dependencies.helper, '1.0.0');
+});
