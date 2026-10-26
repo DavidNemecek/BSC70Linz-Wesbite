@@ -525,6 +525,74 @@ function harness(options = {}) {
     get researchCalls() { return researchCalls; } };
 }
 
+// Model the real shared commit status separately from per-PR run/artifact
+// completion. The production verifier still authenticates every fixture record.
+function pendingReviewHarness({ race = false, settle = true, applicationPending = false, nonMainProof = false, ...options } = {}) {
+  const h = harness({ ...options, standardRequiredChecks: ['Automation tests', 'Application lint, build and audit', 'security/ai-review'] });
+  const api = h.gh.repoApi, dispatches = [], observations = [], artifactReads = [];
+  const counts = new Map();
+  let polls = 0, refreshAt = null, sibling;
+  h.gh.repoApi = async (path, opts) => {
+    if (path === '/actions/workflows/pr-review.yml/dispatches') {
+      const number = Number(opts.body.inputs.pr_number);
+      assert.equal(opts.body.ref, 'main');
+      dispatches.push({ number, poll: polls });
+      counts.set(number, (counts.get(number) ?? 0) + 1);
+      if (counts.get(number) > 1) refreshAt = polls;
+      const result = await api(path, opts);
+      if (!sibling) {
+        sibling = h.prs.size + 1;
+        h.prs.set(sibling, { number: sibling, headRef: 'updates', title: 'pending sibling', body: '', state: 'open', merged: false });
+      }
+      return result;
+    }
+    if (path.includes('/check-runs?')) {
+      polls++;
+      const result = await api(path, opts);
+      result.check_runs = result.check_runs.filter(check => check.name !== 'security/ai-review');
+      if (applicationPending) result.check_runs.find(check => check.name === 'Application lint, build and audit').status = 'in_progress';
+      result.total_count = result.check_runs.length;
+      return result;
+    }
+    if (/\/commits\/[a-f0-9]+\/status\?/.test(path)) {
+      const result = await api(path, opts);
+      const ready = race ? refreshAt !== null && polls > refreshAt && settle : counts.has(sibling) && polls > 1;
+      const state = ready ? 'success' : 'pending';
+      observations.push({ poll: polls, state });
+      result.statuses = result.statuses.filter(status => status.context !== 'security/ai-review');
+      result.statuses.push({ context: 'security/ai-review', state, creator: { login: 'github-actions[bot]' } });
+      return result;
+    }
+    const history = /^\/pulls\/(\d+)\/reviews\?/.exec(path);
+    if (history) {
+      const number = Number(history[1]);
+      if (!race && !counts.has(number)) return [];
+      const reviews = await api(path, opts);
+      if (!reviews.length) return reviews;
+      const originalRun = 2000 + number, originalArtifact = 4000 + number;
+      const previous = JSON.parse(h.remote.get(originalArtifact).get('review-evidence.json'));
+      // Each dispatch creates a distinct fresh record/run, including refresh.
+      const generation = Math.max(0, (counts.get(number) ?? 1) - 1) * 10000;
+      const runID = originalRun + generation, artifactID = originalArtifact + generation, reviewID = 3000 + number + generation;
+      const ids = { repository: previous.repository, number: previous.number, baseRef: nonMainProof ? 'feature' : 'main', baseSHA: previous.baseSHA, headSHA: previous.headSHA };
+      const body = reviewMarker(ids, previous.verdict === 'pass', options.legacyReviewMarker ? undefined : runID) + '\nIndependent verdict.';
+      const record = createReviewEvidence({ ids, verdict: previous.verdict === 'pass', reviewID, runID, controlSHA: previous.controlSHA,
+        event: 'workflow_dispatch', actor: 'github-actions[bot]', reviewBody: body });
+      const bytes = Buffer.from(JSON.stringify(record));
+      const running = race && (polls === 1 || generation > 0 && polls === refreshAt);
+      h.workflowRuns.set(runID, { ...h.workflowRuns.get(originalRun), id: runID,
+        status: running || options.unfinishedReview ? 'in_progress' : 'completed' });
+      h.remoteArtifacts.set(runID, options.missingReviewArtifact || running ? [] : [{ id: artifactID, name: `review-evidence-${runID}`, expired: false,
+        size_in_bytes: bytes.length, workflow_run: { id: runID, head_sha: h.refs.main, head_branch: 'main' } }]);
+      h.remote.set(artifactID, new Map([['review-evidence.json', bytes]]));
+      artifactReads.push({ number, poll: polls, running });
+      return [{ ...reviews[0], id: reviewID, body }];
+    }
+    return api(path, opts);
+  };
+  return { ...h, dispatches, observations, artifactReads };
+}
+
 test('protection fails closed for missing strict checks, admin bypass and force push', () => {
   assert.equal(validateMainProtection(protection()), true);
   for (const change of [p => { p.required_status_checks.strict = false; }, p => { p.enforce_admins.enabled = false; },
@@ -1003,6 +1071,58 @@ test('every open main PR sharing the head needs its own exact review despite gre
   const h = harness({ missingSiblingReview: true }); const result = await h.controller.run();
   assert.equal(result.reason, 'required-pr-checks-timeout'); assert.equal(h.calls.includes('mergePR'), false);
   assert.equal(h.calls.filter(call => call === 'dispatch:pr-review.yml').length, 2);
+});
+
+test('real pending AI commit status still dispatches a missing sibling and converges without early merge', async () => {
+  const h = pendingReviewHarness();
+  const result = await h.controller.run();
+  assert.equal(result.outcome, 'promoted', JSON.stringify(result));
+  const target = h.dispatches[0].number, sibling = target + 1;
+  assert.deepEqual(h.dispatches, [{ number: target, poll: 0 }, { number: sibling, poll: 1 }]);
+  assert.deepEqual(h.observations, [{ poll: 1, state: 'pending' }, { poll: 2, state: 'success' }]);
+  assert(h.artifactReads.some(read => read.number === sibling && read.poll === 2 && !read.running));
+  const gate = h.evidence.find(item => item.name.endsWith('required-pr-checks.json')).value;
+  assert.equal(gate.exactReview, true);
+  assert(gate.observations.every(item => item.pass));
+  assert.equal(h.calls.filter(call => call === 'mergePR').length, 1);
+});
+
+test('two fresh running reviews with completed artifacts and a pending aggregate converge through one trusted refresh', async () => {
+  const h = pendingReviewHarness({ race: true });
+  const result = await h.controller.run();
+  assert.equal(result.outcome, 'promoted', JSON.stringify(result));
+  const target = h.dispatches[0].number, sibling = target + 1;
+  assert.deepEqual(h.dispatches, [{ number: target, poll: 0 }, { number: sibling, poll: 1 }, { number: target, poll: 2 }]);
+  assert.deepEqual(h.artifactReads.filter(read => read.poll === 1).map(read => read.running), [true, true]);
+  assert.deepEqual(h.artifactReads.filter(read => read.poll === 2).map(read => read.running), [false, false]);
+  assert.deepEqual(h.observations.map(item => item.state), ['pending', 'pending', 'success']);
+  assert.equal(h.calls.filter(call => call === 'mergePR').length, 1);
+});
+
+test('pending aggregate refresh is finite and completed exact artifacts never bypass another pending required check', async () => {
+  for (const options of [{ settle: false }, { applicationPending: true }]) {
+    const h = pendingReviewHarness({ race: true, ...options });
+    const result = await h.controller.run();
+    assert.equal(result.reason, 'required-pr-checks-timeout', JSON.stringify(result));
+    assert.equal(h.dispatches.length, 3);
+    assert.equal(h.observations.length, 210);
+    assert.equal(h.calls.includes('mergePR'), false);
+    assert.equal(h.calls.includes('rollback'), false);
+  }
+});
+
+test('pending AI status cannot promote non-main, foreign, missing, running, forged or negative exact proof', async () => {
+  for (const options of [{ nonMainProof: true }, { foreignReviewWorkflow: true }, { missingReviewArtifact: true },
+    { unfinishedReview: true }, { forgedReview: true }, { failedReviewVerdict: true }]) {
+    const h = pendingReviewHarness({ race: true, ...options });
+    const result = await h.controller.run();
+    assert.equal(result.reason, 'required-pr-checks-timeout', JSON.stringify({ options, result }));
+    assert.equal(h.calls.includes('mergePR'), false);
+    assert.equal(h.calls.includes('rollback'), false);
+    assert(h.dispatches.length <= 2, 'unverified or negative records must not trigger aggregate refresh');
+    if (options.failedReviewVerdict) assert.equal(new Set(h.dispatches.map(item => item.number)).size, h.dispatches.length,
+      'an authenticated failure must not trigger fresh AI retries');
+  }
 });
 
 

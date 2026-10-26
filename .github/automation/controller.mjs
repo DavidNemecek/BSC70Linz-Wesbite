@@ -674,6 +674,7 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
     await gh.repoApi('/actions/workflows/pr-review.yml/dispatches', { method: 'POST', body: { ref: 'main', inputs: { pr_number: String(number) } } });
     const contexts = gh.REQUIRED_SECURITY_CHECKS ?? CHECK_CONTEXTS;
     const dispatchedReviews = new Set([number]);
+    let aggregateReviewDispatched = false;
     async function reviewHistory(prNumber) {
       const reviews = [];
       for (let page = 1; page <= 20; page++) {
@@ -697,20 +698,21 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
         requireSafe(page < 20, 'shared-head-pr-inventory-incomplete');
       }
       requireSafe(pulls.some(pr => pr.number === number) && new Set(pulls.map(pr => pr.number)).size === pulls.length, 'shared-head-target-pr-missing');
+      let complete = true;
       for (const pull of pulls) {
         requireSafe(Number.isSafeInteger(pull.number) && pull.number > 0 && pull.base?.ref === 'main' && pull.base.sha === baseSHA, 'shared-head-pr-base-changed');
         const record = await verifiedReviewRecord({ api: gh.repoApi, reviews: await reviewHistory(pull.number),
           ids: { repository: gh.repository, number: pull.number, baseRef: 'main', baseSHA, headSHA },
           controlSHA: baseSHA, downloadArtifact: loadReviewArtifact });
         if (record?.verdict !== 'pass') {
-          if (!dispatchedReviews.has(pull.number)) {
+          complete = false;
+          if (!record && !dispatchedReviews.has(pull.number)) {
             await gh.repoApi('/actions/workflows/pr-review.yml/dispatches', { method: 'POST', body: { ref: 'main', inputs: { pr_number: String(pull.number) } } });
             dispatchedReviews.add(pull.number);
           }
-          return false;
         }
       }
-      return true;
+      return { complete, shared: pulls.length > 1 };
     }
     for (let poll = 0; poll < 210; poll++) {
       await current(baseSHA);
@@ -724,10 +726,22 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
         // independently requires the GitHub Actions integration at merge time.
         const status = statuses.statuses.find(item => item.context === context && item.creator?.login === 'github-actions[bot]');
         return { context, pass: check?.status === 'completed' && check.conclusion === 'success' || status?.state === 'success',
+          pending: status?.state === 'pending' || ['queued', 'in_progress'].includes(check?.status),
           failed: check?.status === 'completed' && !['success', 'neutral', 'skipped'].includes(check.conclusion) || ['failure', 'error'].includes(status?.state) };
       });
-      if (observations.every(item => item.pass) && await exactReview()) { await save('required-pr-checks', { headSHA, number, baseSHA, observations, exactReview: true }); return; }
       requireSafe(!observations.some(item => item.failed), 'required-pr-check-failed');
+      // A missing sibling keeps the shared AI status pending. Discover and
+      // dispatch its exact review before requiring that aggregate to be green.
+      const review = await exactReview();
+      if (observations.every(item => item.pass) && review.complete) { await save('required-pr-checks', { headSHA, number, baseSHA, observations, exactReview: true }); return; }
+      // Concurrent fresh reviews can both publish pending before either upload
+      // completes. Once all completed artifacts verify, refresh the aggregate
+      // through the trusted reviewer once; never loop on repeated AI calls.
+      if (review.complete && review.shared && !aggregateReviewDispatched &&
+          observations.some(item => item.context === 'security/ai-review' && item.pending && !item.pass)) {
+        aggregateReviewDispatched = true;
+        await gh.repoApi('/actions/workflows/pr-review.yml/dispatches', { method: 'POST', body: { ref: 'main', inputs: { pr_number: String(number) } } });
+      }
       if (poll < 209) await sleep(10000);
     }
     throw new Blocked('required-pr-checks-timeout');

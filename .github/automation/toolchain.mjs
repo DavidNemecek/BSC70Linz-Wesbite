@@ -320,8 +320,11 @@ function officialResearchSource(target, source) {
 }
 function queryCoversTarget(query, target) {
   if (typeof query !== 'string') return false;
-  const q = query.toLowerCase();
-  return q.includes(String(target.version).toLowerCase()) && (target.kind === 'node' ? q.includes('node') : q.includes(target.name.toLowerCase()));
+  const escape = value => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const name = target.kind === 'node' ? 'node(?:\\.?js)?' : escape(target.name);
+  const version = `${target.kind === 'node' ? 'v?' : ''}${escape(target.version)}`;
+  return new RegExp(`(^|[^a-z0-9._/@-])${name}(?=$|[^a-z0-9._/-])`, 'i').test(query) &&
+    new RegExp(`(^|[^a-z0-9.+-])${version}(?=$|[^a-z0-9.+-])`, 'i').test(query);
 }
 
 /** Fail-closed verifier for AI output and adapter-derived search provenance. */
@@ -332,7 +335,9 @@ export function validateResearchResults(results, targets) {
   const seen = new Set();
   for (const item of results) {
     const target = item?.target, key = target && researchTargetKey(target);
-    if (!expected.has(key) || seen.has(key)) { errors.push('research target set is incomplete or duplicated'); continue; }
+    if (!isRecord(target) || Object.keys(target).length !== 3 ||
+        !['kind', 'name', 'version'].every(field => typeof target[field] === 'string' && target[field] === expected.get(key)?.[field]) ||
+        seen.has(key)) { errors.push('research target set is incomplete or duplicated'); continue; }
     seen.add(key);
     const searches = item.provenance?.searches ?? item.searches;
     const evidence = Array.isArray(item.evidence) ? item.evidence : [];
@@ -382,7 +387,7 @@ export async function researchToolchainTargets({ targets, baseSHA = '0'.repeat(4
       : 'Assess only GitHub Advisory Database records (ecosystem actions) for this exact official Actions repository and release. Include CVE aliases when present, normalize the exact repository/version query, and report the exact fixed range; unknown metadata must fail.';
     const response = await ai.callAI({ search: true, instructions, input: { target, requirement: 'exact-target-security-proof' }, schema: researchSchema }, options);
     if (!response?.data || !response.provenance) fail(`research response missing for ${researchTargetKey(target)}`);
-    const item = { ...response.data, target, provenance: response.provenance };
+    const item = { ...response.data, provenance: response.provenance };
     const check = validateResearchResults([item], [target]);
     if (!check.ok) fail(check.errors.join('; '));
     results.push(item);
