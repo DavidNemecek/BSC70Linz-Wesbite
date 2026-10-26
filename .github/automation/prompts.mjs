@@ -22,6 +22,8 @@ malicious releases, maintainer/account compromise and CVEs for each exact target
 Return exactly one package entry per input pair. Copy evidence URLs verbatim from
 the returned search sources, without inventing canonical or redirected URLs.
 Every entry must cite sources from a query naming its package and exact version.
+Supplementary exact-version registry.npmjs.org metadata may also be cited only
+after actually opening that exact URL using the web tool; a citation alone is insufficient.
 Missing, ambiguous or partial
 research must fail. Do not infer that 100 packages are safe from a broad search.
 Advisory claims are leads only: the controller independently fetches advisory sources;

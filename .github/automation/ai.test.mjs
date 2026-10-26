@@ -209,6 +209,34 @@ test('preflight requires real search query containing current UTC date',async t=
 function researched(packages) {return {packages:packages.map(p=>({...p,...pass,evidence:[source]}))};}
 const researchArgs=packages=>({...SHA,packages});
 
+test('completed exact registry opens supplement real searches, without replacing them',async t=>{
+  const packages=[{name:'@scope/pkg',version:'1.2.3'}];
+  const url='https://registry.npmjs.org/@scope%2Fpkg/1.2.3';
+  const data={packages:[{...packages[0],...pass,evidence:[source,url]}]};
+  const open={type:'web_search_call',status:'completed',action:{type:'open_page',url}};
+  const exact=search(['@scope/pkg 1.2.3 supply chain attacks']);
+  const good=await fixture(t,res=>json(res,response(data,[exact,open])));
+  const result=await researchPackages(researchArgs(packages),good.options);
+  assert.equal(result.pass,true);
+  assert.deepEqual(result.provenance[0].openedURLs,[url]);
+  for (const [tools,expected] of [
+    [[exact],'PACKAGE_SEARCH_PROOF_MISSING'],
+    [[exact,{...open,status:'failed'}],'SEARCH_NOT_COMPLETED'],
+    [[exact,{...open,action:{type:'open_page',url:url.replace('1.2.3','1.2.30')}}],'PACKAGE_SEARCH_PROOF_MISSING'],
+    [[exact,{...open,action:{type:'open_page',url:url.replace('registry.npmjs.org','evil.example')}}],'PACKAGE_SEARCH_PROOF_MISSING'],
+    [[search(['latest packages security']),open],'PACKAGE_SEARCH_PROOF_MISSING'],
+    [[open],'SEARCH_PROOF_MISSING'],
+  ]) {
+    const f=await fixture(t,res=>json(res,response(data,tools)));
+    await assert.rejects(researchPackages(researchArgs(packages),f.options),code(expected));
+  }
+  // Assistant citation annotations do not establish a web-tool retrieval.
+  const annotated=response(data,[exact]);
+  annotated.output.at(-1).content[0].annotations.push({type:'url_citation',url});
+  const f=await fixture(t,res=>json(res,annotated));
+  await assert.rejects(researchPackages(researchArgs(packages),f.options),code('PACKAGE_SEARCH_PROOF_MISSING'));
+});
+
 test('exact-version research chunks all packages and checks executed multiqueries',async t=>{
   const packages=[{name:'@scope/pkg',version:'1.2.3'},{name:'foo',version:'2.4.1'},
     {name:'bar',version:'3.0.0'},{name:'baz',version:'4.0.0'},{name:'qux',version:'5.0.0'}];

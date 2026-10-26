@@ -167,7 +167,7 @@ function sourceURL(value, redact) {
 function extract(response, cfg, search) {
   if (!object(response) || response.status !== 'completed' || response.error || response.incomplete_details || !Array.isArray(response.output)) throw fail('RESPONSE_NOT_COMPLETED');
   if (response.model && response.model !== cfg.model) throw fail('MODEL_MISMATCH');
-  const text = [], searches = [], citations = [], toolCalls = [];
+  const text = [], searches = [], openedURLs = [], citations = [], toolCalls = [];
   for (const item of response.output) {
     if (!object(item)) throw fail('MALFORMED_RESPONSE');
     if (item.type === 'message') {
@@ -189,11 +189,14 @@ function extract(response, cfg, search) {
           .filter(q => typeof q === 'string' && q.trim()).map(q=>cfg.redact(q));
         const sources = (Array.isArray(item.action.sources) ? item.action.sources : []).map(s=>sourceURL(s.url,cfg.redact)).filter(Boolean);
         if (queries.length && sources.length) searches.push({queries:[...new Set(queries)],sources:[...new Set(sources)]});
+      } else if (item.action?.type === 'open_page') {
+        const url = sourceURL(item.action.url,cfg.redact);
+        if (url && new URL(url).protocol === 'https:') openedURLs.push(url);
       }
     } else if (item.type !== 'reasoning') throw fail('UNEXPECTED_OUTPUT_TOOL');
   }
   if (search && !searches.length) throw fail('SEARCH_PROOF_MISSING');
-  return { text: text.join(''), searches, citations:[...new Set(citations)], toolCalls };
+  return { text: text.join(''), searches, openedURLs:[...new Set(openedURLs)], citations:[...new Set(citations)], toolCalls };
 }
 
 /** Returns {data,provenance}; throws a static coded error on any transport, search,
@@ -244,7 +247,7 @@ export async function callAI({instructions,input,schema,search=false,images=[]},
           if (!valid(data,schema)) throw fail('SCHEMA_INVALID');
           return {data,provenance:{model:cfg.redact(cfg.model),reasoningEffort:'high',timestamp:new Date().toISOString(),
             durationMs:Date.now()-started,attempts:attempt+1,responseIdHash:typeof envelope.id==='string'?hash(envelope.id):null,
-            searches:output.searches,citations:output.citations,toolCalls:output.toolCalls}};
+            searches:output.searches,openedURLs:output.openedURLs,citations:output.citations,toolCalls:output.toolCalls}};
         }
       }
     } catch (error) {
@@ -298,6 +301,16 @@ function queryMatches(query,{name,version}) {
     new RegExp(`(^|[^a-z0-9.+-])${escape(version)}(?=$|[^a-z0-9.+-])`,'i').test(query);
 }
 
+// A completed web-tool open of exact registry metadata is supplementary evidence.
+// It never replaces a completed exact-version Internet search with actual sources.
+function exactRegistryURL(value,{name,version}) {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && url.hostname === 'registry.npmjs.org' && !url.port &&
+      !url.search && !url.hash && decodeURIComponent(url.pathname) === `/${name}/${version}`;
+  } catch { return false; }
+}
+
 function exactVersion(version) {
   if (typeof version!=='string' || version.length>200) return false;
   const match=/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/.exec(version);
@@ -328,13 +341,14 @@ export async function researchPackages({packages,baseSHA,headSHA}, options = {})
     for (const target of chunk) {
       const evidence = response.provenance.searches.filter(s=>s.queries.some(q=>queryMatches(q,target)));
       const sources = new Set(evidence.flatMap(s=>s.sources));
+      const opened = response.provenance.openedURLs.filter(url=>exactRegistryURL(url,target));
       const result = response.data.packages.find(p=>p.name===target.name && p.version===target.version);
-      if (!sources.size || result.evidence.some(url=>!sources.has(sourceURL(url,v=>v)))) {
+      if (!sources.size || result.evidence.some(url=>!sources.has(sourceURL(url,v=>v)) && !opened.includes(sourceURL(url,v=>v)))) {
         const error = fail('PACKAGE_SEARCH_PROOF_MISSING');
         // Adapter-redacted public research metadata only; no request, provider
         // response object, configuration or authorization header is retained.
         error.researchDiagnostic = { target, searches: response.provenance.searches,
-          citedURLs: result.evidence, matchingSearchCount: evidence.length };
+          openedURLs: response.provenance.openedURLs, citedURLs: result.evidence, matchingSearchCount: evidence.length };
         throw error;
       }
       results.push({...decision(result),searches:evidence});
