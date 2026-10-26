@@ -1,4 +1,5 @@
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
 import { callAI, preflight as aiPreflight, researchPackages, VERIFIED_SCANNER_EVIDENCE, VERIFIED_APPLICATION_CONTEXT } from './ai.mjs';
 import { preflight as vercelPreflight, getProductionDeployment, verifyRuntime } from './vercel.mjs';
 import { loadNpmSemver } from './dependencies.mjs';
@@ -6,6 +7,13 @@ import { TRUSTED_BASE_PATHS, usedToolchainTargets, fetchOfficialSecurityMetadata
 
 const result = { startedAt: new Date().toISOString(), pass: false, checks: [] };
 await mkdir('evidence', { recursive: true });
+// The module itself is always loaded from the trusted base checkout.  Candidate
+// files are inspected as inert data from a separately checked-out directory;
+// never import candidate automation or execute candidate package scripts here.
+const candidateRoot = process.env.CANDIDATE_ROOT ? pathToFileURL(process.env.CANDIDATE_ROOT.endsWith('/') ?
+  process.env.CANDIDATE_ROOT : `${process.env.CANDIDATE_ROOT}/`) : new URL('../../', import.meta.url);
+const candidateFile = path => new URL(path, candidateRoot);
+const candidateSHA = process.env.CANDIDATE_SHA ?? process.env.GITHUB_SHA;
 const outcomes = await Promise.allSettled([(async () => {
   await vercelPreflight();
   const production = await getProductionDeployment();
@@ -23,10 +31,9 @@ const outcomes = await Promise.allSettled([(async () => {
     bypassCount: Array.isArray(ruleset.bypass_actors) ? ruleset.bypass_actors.length : null,
     currentUserCanBypass: ruleset.current_user_can_bypass ?? null });
 })(), (async () => {
-  const root = new URL('../../', import.meta.url);
-  const workflows = (await readdir(new URL('.github/workflows/', root))).filter(name=>/\.ya?ml$/.test(name));
+  const workflows = (await readdir(candidateFile('.github/workflows/'))).filter(name=>/\.ya?ml$/.test(name));
   const paths = [...TRUSTED_BASE_PATHS, ...workflows.map(name=>`.github/workflows/${name}`)];
-  const files = new Map(await Promise.all(paths.map(async path=>[path,await readFile(new URL(path,root),'utf8')])));
+  const files = new Map(await Promise.all(paths.map(async path=>[path,await readFile(candidateFile(path),'utf8')])));
   const targets = usedToolchainTargets(files);
   const proofs = await fetchOfficialSecurityMetadata({ targets, semver: loadNpmSemver(), token: process.env.GITHUB_TOKEN });
   result.checks.push({ name: 'primary-toolchain-advisories', pass: true, targets, proofs });
@@ -43,9 +50,9 @@ const outcomes = await Promise.allSettled([(async () => {
   result.checks.push({ name: 'live-ai-web-search', pass: research.pass === true, research });
   if (!research.pass) throw Error('AI live search preflight did not pass');
 })(), (async () => {
-  const lock = JSON.parse(await readFile(new URL('../../package-lock.json', import.meta.url), 'utf8'));
+  const lock = JSON.parse(await readFile(candidateFile('package-lock.json'), 'utf8'));
   const packages = ['react', 'vite'].map(name => ({ name, version: lock.packages[`node_modules/${name}`].version }));
-  const research = await researchPackages({ packages, baseSHA: process.env.GITHUB_SHA, headSHA: process.env.GITHUB_SHA }, {
+  const research = await researchPackages({ packages, baseSHA: candidateSHA, headSHA: candidateSHA }, {
     verifiedScannerEvidence: VERIFIED_SCANNER_EVIDENCE, applicationContext: VERIFIED_APPLICATION_CONTEXT,
   });
   result.checks.push({ name: 'exact-version-research', pass: research.pass === true, research });
