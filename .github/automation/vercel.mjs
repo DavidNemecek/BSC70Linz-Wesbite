@@ -269,14 +269,16 @@ export async function waitForDeployment({ sha, branch, production = false, timeo
 export async function verifyAlias({ hostname, sha, deploymentId, ...options } = {}) {
   const expectedSha = checkedSha(sha), expectedId = checkedId(deploymentId, 'deploymentId');
   const opts = optionsOf(options), alias = await getAliases(hostname, opts);
-  if (alias.redirect !== undefined || alias.deploymentId !== expectedId) throw new VercelError('Vercel alias deployment mismatch');
+  if (alias.redirect != null || alias.deploymentId !== expectedId) throw new VercelError('Vercel alias deployment mismatch');
   const deployment = await getDeployment(expectedId, opts);
   if (deployment.info.sha !== expectedSha || deployment.info.readyState !== 'READY') throw new VercelError('Vercel alias SHA or readiness mismatch');
   return Object.freeze({ ...deployment.info, hostname: checkedHostname(hostname) });
 }
 
 /**
- * Atomically guarded instant rollback. The API response is only a request
+ * Guarded instant rollback. Vercel does not expose an expected-current CAS here.
+ * The controller serializes its own releases and also guards the main SHA.
+ * The API response is only a request
  * acknowledgement; the final alias read proves the resulting deployment.
  */
 export async function rollback({ failedDeploymentId, previousDeploymentId, expectedFailedSHA, timeoutMs = DEFAULT_TIMEOUT_MS,
@@ -295,7 +297,7 @@ export async function rollback({ failedDeploymentId, previousDeploymentId, expec
     throw new VercelError('Rollback deployment identity or readiness mismatch');
   const current = await getProductionDeployment(opts);
   if (current.id !== failedId || current.sha !== expectedFailedSHA) throw new VercelError('Production changed before rollback');
-  // A second read closes the ordinary race between the first guard and POST.
+  // Recheck immediately before requesting rollback; this is not an atomic CAS.
   const currentAgain = await getProductionDeployment(opts);
   if (currentAgain.id !== failedId || currentAgain.sha !== expectedFailedSHA) throw new VercelError('Production changed before rollback');
   const response = await apiRequest(`/v1/projects/${pathPart(cfg.projectId)}/rollback/${pathPart(previousId)}`, {

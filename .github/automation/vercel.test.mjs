@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   DEFAULT_PROJECT_ID, DEFAULT_TEAM_ID, preflight, waitForDeployment,
-  verifyAlias, rollback, parseNodeVersion, VercelError, VercelTimeoutError,
+  verifyAlias, rollback, parseNodeVersion, getProductionDeployment, VercelError, VercelTimeoutError,
 } from './vercel.mjs';
 
 const env = { VERCEL_TOKEN: 'test-token' };
@@ -34,8 +34,24 @@ const routes = ({ currentId = 'dpl_failed', currentSha = SHA, previousId = 'dpl_
 };
 
 test('parseNodeVersion requires one concrete version', () => {
+  assert.equal(parseNodeVersion([{ text: 'v24.22.1\n' }]), '24.22.1');
   assert.equal(parseNodeVersion([{ payload: { text: 'Using Node.js 24.22.1' } }]), '24.22.1');
   assert.equal(parseNodeVersion([{ payload: { text: 'Node.js 22.0.0 then Node.js 24.22.1' } }]), null);
+});
+
+test('production accepts Vercel null redirects and rejects actual redirects', async () => {
+  const original = routes();
+  const fetchImpl = async (url, init) => {
+    const value = await original.fetch(url, init);
+    if (new URL(url).pathname.startsWith('/v4/aliases/')) return response({ ...await value.json(), redirect: null, redirectStatusCode: null });
+    return value;
+  };
+  assert.equal((await getProductionDeployment({ env, fetchImpl })).id, 'dpl_failed');
+  await assert.rejects(getProductionDeployment({ env, fetchImpl: async (url, init) => {
+    const value = await fetchImpl(url, init);
+    if (new URL(url).pathname.startsWith('/v4/aliases/')) return response({ ...await value.json(), redirect: 'https://example.org' });
+    return value;
+  } }), VercelError);
 });
 
 test('preflight rejects a project or team mismatch', async () => {

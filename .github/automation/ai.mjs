@@ -111,7 +111,14 @@ async function readResponse(response) {
     if (!data || data.trim() === '[DONE]') return;
     let e;
     try { e = JSON.parse(data); } catch { throw fail('MALFORMED_EVENT'); }
-    if (e.type === 'error' || e.type === 'response.failed' || e.type === 'response.incomplete') throw fail('RESPONSE_FAILED');
+    if (e.type === 'error' || e.type === 'response.failed' || e.type === 'response.incomplete') {
+      // Report only a fixed classification, never provider text or echoed inputs.
+      const error = e.response?.error ?? e.error ?? e;
+      const message = typeof error.message === 'string' ? error.message.toLowerCase() : '';
+      const parameters = ['max_output_tokens', 'max_tool_calls', 'tool_choice', 'web_search', 'external_web_access', 'include', 'model'];
+      const parameter = parameters.find(name => error.param === name || (message.includes(name) && /unsupported|not supported|invalid|unknown/.test(message)));
+      throw fail(parameter ? `RESPONSE_FAILED_${parameter.toUpperCase()}` : 'RESPONSE_FAILED');
+    }
     if (e.type === 'response.output_item.done') {
       if (!object(e.item) || !Number.isInteger(e.output_index) || e.output_index < 0) throw fail('MALFORMED_EVENT');
       items.set(e.output_index,e.item);
