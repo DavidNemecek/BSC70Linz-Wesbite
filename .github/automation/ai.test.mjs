@@ -155,6 +155,15 @@ test('timeout covers stalled response body, is bounded and is not retried',async
   assert.equal(f.requests.length,1);
 });
 
+test('research can use a bounded five-minute budget without allowing unlimited waits',async t=>{
+  const f=await fixture(t,res=>json(res,response()));
+  assert.equal((await callAI(args,{...f.options,timeoutMs:300000})).data.pass,true);
+  for (const timeoutMs of [0,300001,Infinity]) {
+    await assert.rejects(callAI(args,{...f.options,timeoutMs}),code('INVALID_CONFIG'));
+  }
+  assert.equal(f.requests.length,1);
+});
+
 test('only transient HTTP errors retry with a fixed attempt budget',async t=>{
   const f=await fixture(t,(res,body,n)=>n===1?json(res,{error:KEY},503):json(res,response()));
   const result=await callAI(args,{...f.options,maxRetries:2});
