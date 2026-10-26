@@ -236,7 +236,7 @@ test('exact low credential token requires matching controller evidence',async t=
   assert.equal(result.pass,true);
   assert.deepEqual(result.packages[0].scannerFindings,[scannerReport]);
   assert.equal(f.requests.length,1);
-  assert.match(f.requests[0].body.instructions,/actually retrieve the exact scanner/);
+  assert.match(f.requests[0].body.instructions,/controller\s+record and its independently inspected upstream protective source/);
   assert.match(f.requests[0].body.instructions,/unresolved and unknown/);
   assert.match(f.requests[0].body.instructions,/never an allowance/);
 });

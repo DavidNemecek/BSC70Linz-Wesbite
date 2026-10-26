@@ -29,11 +29,15 @@ an artifact problem: independent registry/lockfile verification remains mandator
 Missing exact-version searches, ambiguous release identity, contradictory sources or
 unresolved reports of an attack or defect must still block this research verdict.
 The controller may supply controllerVerifiedScannerEvidence for an authenticated,
-exact-release scanner record. This is context, not an approval: reproduce every
-supplied record exactly in scannerFindings, including every field and both URLs.
-Never invent, alter, omit or downgrade a supplied record. A scanner report without
-an identical controller record is model-only and remains unresolved. A supplied
-record that the model cannot reproduce remains unresolved.
+exact-release scanner record. This is trusted source evidence, not an approval:
+reproduce every supplied record exactly in scannerFindings, including every field
+and both URLs. Never invent, alter, omit or downgrade a supplied record. A scanner
+report without an identical controller record is model-only and remains unresolved.
+A supplied record that the model cannot reproduce remains unresolved. Do not add a
+new blocker merely because the scanner UI detail requires a login: the controller
+record and its independently inspected upstream protective source are the evidence.
+Still block any actual credential read, exfiltration sink, contradictory record or
+unresolved behavior outside that exact authenticated record.
 Include scannerFindings for every package ([] only when no credential scanner report
 was encountered). Record EVERY credential-related scanner report, including unresolved
 ones. A scanner's Review label alone proves neither compromise nor safety. A low
@@ -73,6 +77,11 @@ Execute web searches naming each package AND its exact version (separate queries
 preferred). Examine upstream release notes, compatibility, regressions, installation
 scripts and security information. Explicitly search for supply-chain attacks,
 malicious releases, maintainer/account compromise and CVEs for each exact target.
+Whenever a finding names a GHSA/CVE, an exact-tag manifest or an upstream issue,
+perform a separate exact query for that identifier or URL before citing it; cite
+only the URL returned by that search. Use canonical npm package URLs without a
+double slash in /package/<name>. Do not cite a source merely because it appears
+in your prose or because its URL is plausible.
 Return exactly one package entry per input pair. Copy evidence URLs verbatim from
 the returned search sources, without inventing canonical or redirected URLs.
 Every entry must cite sources from a query naming its package and exact version.
