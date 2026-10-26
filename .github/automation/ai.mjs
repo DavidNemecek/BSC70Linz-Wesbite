@@ -442,6 +442,8 @@ function contextualizeCompatibilityFindings(findings, context) {
     // framework is a prerequisite. Require an explicit relation to exactly one
     // absent framework; loose words such as "only" or "requires" are not enough.
     const text = String(finding.message ?? '');
+    const explicitlyApplicable = /\b(?:not|never)\s+(?:strictly\s+)?(?:limited|confined|restricted)\s+to\b|\b(?:also\s+affects?|affects?\s+(?:all|this|vite|react)|applies?\s+to\s+(?:all|this|vite|react)|regardless|even\s+without|including\s+vite)\b/i.test(text);
+    if (explicitlyApplicable) return finding;
     const relations = [
       {absent: !context.usesNext, name:/next(?:\.js)?/i},
       {absent: !context.usesVitest, name:/vitest/i},

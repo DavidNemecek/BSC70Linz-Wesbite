@@ -292,6 +292,10 @@ test('conditional absent-framework compatibility is informational while applicab
   const presentNextResult=await researchPackages(researchArgs([{name:'react',version:'19.3.1'}]),{...presentNext.options,applicationContext:{...context,usesNext:true}});
   assert.equal(presentNextResult.pass,false);
   assert.equal(presentNextResult.packages[0].findings[0].severity,'medium');
+  const broad=await fixture(t,res=>json(res,response({packages:[{name:'react',version:'19.3.1',pass:false,findings:[{severity:'medium',message:'The issue is not limited to Next.js; it also affects this Vite React application',evidence:[source]}],evidence:[source],scannerFindings:[]}]},[search(['react 19.3.1 security'],[source])] )));
+  const broadResult=await researchPackages(researchArgs([{name:'react',version:'19.3.1'}]),{...broad.options,applicationContext:context});
+  assert.equal(broadResult.pass,false);
+  assert.equal(broadResult.packages[0].findings[0].severity,'medium');
 });
 
 test('incomplete scanner evidence and omitted fields fail the strict research schema',async t=>{
