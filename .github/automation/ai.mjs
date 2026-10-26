@@ -448,54 +448,12 @@ function verifiedApplicationContext(value) {
   return {...value};
 }
 
-// Keep the application-context exception deliberately narrow. It only changes a
-// low/medium finding that explicitly describes a conditional Next.js/Vitest
-// incompatibility while the verified context says that framework is absent.
-// High/critical findings, uncertain applicability and defects affecting the
-// Vite/React app retain their original severity and pass value.
+// The verified application context is supplied to the model as evidence, but the
+// adapter never rewrites a model finding's severity from free text. Advisory
+// titles and compatibility prose are not a local proof of non-applicability.
+// Keeping this identity function makes the monotonic correction path explicit.
 function contextualizeCompatibilityFindings(findings, context) {
-  if (!context) return findings;
-  return findings.map(finding => {
-    if (['high', 'critical', 'info'].includes(finding.severity)) return finding;
-    // Applicability comes only from the finding's prose. URLs and arbitrary
-    // evidence strings are citations, not a trustworthy statement that a
-    // framework is a prerequisite. Require an explicit relation to exactly one
-    // absent framework; loose words such as "only" or "requires" are not enough.
-    const text = String(finding.message ?? '');
-    const explicitlyApplicable = /\b(?:not|never)\s+(?:strictly\s+)?(?:limited|confined|restricted)\s+to\b|\b(?:also\s+(?:affect(?:s|ed)?|impact(?:s|ed)?)|affect(?:s|ed)?\s+(?:all|this|vite|react)|appl(?:y|ies)\s+to\s+(?:all|this|vite|react)|(?:this|the|current)\s+(?:vite\s+react\s+)?(?:application|app|spa)\s+(?:is|remains)\s+(?:also\s+)?affected|regardless|even\s+without|including\s+vite)\b/i.test(text);
-    if (explicitlyApplicable) return finding;
-    // A conditional-looking relation is not enough when the report leaves
-    // applicability unresolved. This covers both the original assessment and
-    // the citation-correction pass.
-    if (/\b(?:uncertain|unknown|unclear|unresolved|not\s+clear|cannot\s+(?:determine|confirm)|evidence\s+gap)\b/i.test(text)) return finding;
-    const frameworks = [
-      {absent: !context.usesNext, name:/next(?:\.js)?/i},
-      {absent: !context.usesVitest, name:/vitest/i},
-      {absent: !context.usesReactServerComponents, name:/react\s+server\s+components?|server\s+components?/i},
-      {absent: !context.usesServerFunctions, name:/server\s+functions?/i},
-    ].filter(({name}) => name.test(text));
-    // Mentioning more than one framework leaves the dependency relationship
-    // ambiguous, even when one of them is absent from this application.
-    if (frameworks.length !== 1 || !frameworks[0].absent) return finding;
-    const relations = frameworks.filter(({name}) => [
-      new RegExp(`\\b(?:${name.source})\\s*(?:only|specific(?:ally)?|exclusive(?:ly)?)\\b`, 'i'),
-      new RegExp(`\\b(?:only|exclusive(?:ly)?|specific(?:ally)?)\\s+(?:when\\s+)?(?:using\\s+|running\\s+|with\\s+)?(?:${name.source})\\b`, 'i'),
-      new RegExp(`\\b(?:requires?|depends\\s+on|limited\\s+to|confined\\s+to)\\s+(?:using\\s+|running\\s+|with\\s+)?(?:${name.source})\\b`, 'i'),
-      new RegExp(`\\b(?:when|if)\\s+(?:using\\s+|running\\s+|with\\s+)?(?:${name.source})\\b`, 'i'),
-      new RegExp(`\\b(?:denial\\s+of\\s+service|vulnerabilit(?:y|ies))\\s+in\\s+(?:${name.source})\\b`, 'i'),
-    ].some(pattern => pattern.test(text)));
-    // Advisory titles such as "Denial of Service in Server Functions" do not
-    // establish a prerequisite by themselves. They need either an explicit
-    // conditional relation or a direct statement that this app is unaffected.
-    const conditional = frameworks.filter(({name}) => [
-      new RegExp(`\\b(?:${name.source})\\s*(?:only|specific(?:ally)?|exclusive(?:ly)?)\\b`, 'i'),
-      new RegExp(`\\b(?:only|exclusive(?:ly)?|specific(?:ally)?)\\s+(?:when\\s+)?(?:using\\s+|running\\s+|with\\s+)?(?:${name.source})\\b`, 'i'),
-      new RegExp(`\\b(?:requires?|depends\\s+on|limited\\s+to|confined\\s+to)\\s+(?:using\\s+|running\\s+|with\\s+)?(?:${name.source})\\b`, 'i'),
-      new RegExp(`\\b(?:when|if)\\s+(?:using\\s+|running\\s+|with\\s+)?(?:${name.source})\\b`, 'i'),
-    ].some(pattern => pattern.test(text)));
-    const explicitNotApplicable = /\b(?:not|never)\s+(?:a\s+)?(?:finding\s+that\s+this\s+(?:vite\s+react\s+)?(?:application|app|spa)\s+is\s+vulnerable|affected|applicable|vulnerable)\b|\b(?:this|the|current)\s+(?:vite\s+react\s+)?(?:application|app|spa)\s+(?:is|does)\s+not\s+(?:affected|affect|use|run|support|expose|have)\b|\b(?:without|absent|lacking)\s+(?:any\s+)?(?:server\s+functions?|server\s+components?|next(?:\.js)?|vitest)\b/i.test(text);
-    return (conditional.length === 1 || (relations.length === 1 && explicitNotApplicable)) ? {...finding, severity:'info'} : finding;
-  });
+  return context ? findings.map(finding => ({...finding})) : findings;
 }
 
 // This can only make a model assessment more conservative. Source semantics and
