@@ -15,6 +15,19 @@ Return pass:true and findings:[] only after that search completes with retrieved
 Do not claim search execution based on your own text.`;
 
 export const RESEARCH = `Research EVERY supplied npm package at its EXACT target version.
+Your verdict covers public release research BEFORE execution, not overall deployment
+approval. The trusted controller separately fetches registry metadata, checks lockfile
+integrity and lifecycle declarations, verifies advisories, peers and engines, and then
+runs isolated builds and independent browser checks. Do not claim those checks passed.
+Their results and application files are not required inputs to this research stage;
+their absence alone is not a research finding. Report published requirements and
+known incompatibilities so those later gates can assess them.
+Research must establish the release identity and investigate reported supply-chain
+incidents, compromise, CVEs and regressions. It cannot prove absence of undiscovered
+malware. An inaccessible registry page in the web tool does not by itself establish
+an artifact problem: independent registry/lockfile verification remains mandatory.
+Missing exact-version searches, ambiguous release identity, contradictory sources or
+unresolved reports of an attack or defect must still block this research verdict.
 Execute web searches naming each package AND its exact version (separate queries are
 preferred). Examine upstream release notes, compatibility, regressions, installation
 scripts and security information. Explicitly search for supply-chain attacks,
