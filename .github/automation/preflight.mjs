@@ -1,5 +1,5 @@
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
-import { preflight as aiPreflight, researchPackages } from './ai.mjs';
+import { callAI, preflight as aiPreflight, researchPackages } from './ai.mjs';
 import { preflight as vercelPreflight, getProductionDeployment, verifyRuntime } from './vercel.mjs';
 import { loadNpmSemver } from './dependencies.mjs';
 import { TRUSTED_BASE_PATHS, usedToolchainTargets, fetchOfficialSecurityMetadata } from './maintenance.mjs';
@@ -30,6 +30,14 @@ const outcomes = await Promise.allSettled([(async () => {
   const targets = usedToolchainTargets(files);
   const proofs = await fetchOfficialSecurityMetadata({ targets, semver: loadNpmSemver(), token: process.env.GITHUB_TOKEN });
   result.checks.push({ name: 'primary-toolchain-advisories', pass: true, targets, proofs });
+})(), (async () => {
+  const response = await callAI({ instructions: 'Protocol echo only. Return the exact supplied sentinel; this is not a security or release approval.',
+    input: { sentinel: 'citation-schema-ok' }, strictFormat: true,
+    schema: { type: 'object', additionalProperties: false, required: ['sentinel'],
+      properties: { sentinel: { type: 'string', enum: ['citation-schema-ok'] } } } });
+  const pass = response.data.sentinel === 'citation-schema-ok';
+  result.checks.push({ name: 'ai-citation-schema-protocol', pass, provenance: response.provenance });
+  if (!pass) throw Error('AI strict citation-schema protocol did not pass');
 })(), (async () => {
   const research = await aiPreflight();
   result.checks.push({ name: 'live-ai-web-search', pass: research.pass === true, research });

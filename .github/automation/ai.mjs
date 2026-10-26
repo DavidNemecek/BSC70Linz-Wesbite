@@ -45,7 +45,7 @@ function config(options) {
       url.username || url.password || url.search || url.hash ||
       typeof apiKey !== 'string' || !apiKey.trim() || /[\r\n]/.test(apiKey) ||
       typeof model !== 'string' || !/^[a-zA-Z0-9][a-zA-Z0-9._:/-]{0,199}$/.test(model)) throw fail('INVALID_CONFIG');
-  const timeoutMs = Number(options.timeoutMs ?? process.env.AI_TIMEOUT_MS ?? 180000);
+  const timeoutMs = Number(options.timeoutMs ?? process.env.AI_TIMEOUT_MS ?? 300000);
   const maxRetries = Number(options.maxRetries ?? process.env.AI_MAX_RETRIES ?? 1);
   if (!Number.isInteger(timeoutMs) || timeoutMs < 10 || timeoutMs > 300000 ||
       !Number.isInteger(maxRetries) || maxRetries < 0 || maxRetries > 2) throw fail('INVALID_CONFIG');
