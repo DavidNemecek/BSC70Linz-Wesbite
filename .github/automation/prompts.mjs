@@ -58,16 +58,16 @@ or protective string alone is never an allowance. Return pass:true only if your 
 complete assessment supports it; retain concrete findings and never erase a negative.
 The controller may also supply verifiedApplicationContext. This repository's
 context is explicitly a Vite React browser SPA: it has no Next.js, Vitest, React
-Server Components or Server Functions. If a compatibility or security report is
-conditional on exactly one framework/runtime that the context explicitly marks
-absent (for example a Next.js-only, Vitest-only, React Server Components-only or
-Server Functions-only issue), classify that conditional report as info and do not
-block for it. This narrow classification applies only when exactly one absent
-combination is explicitly established; if multiple frameworks are mentioned, a
-framework is present, applicability is uncertain, or the defect affects this
-Vite/React application, retain the concrete severity and block unresolved or
-applicable defects. Do not generalize this context to other frameworks or
-compatibility reports.
+Server Components or Server Functions. A compatibility or security report may be
+classified as info only when it has an unambiguous conditional relation to exactly
+one absent framework/runtime (for example a Next.js-only, Vitest-only, React
+Server Components-only or Server Functions-only issue), or explicitly states that
+this application is unaffected. A title, package name or advisory label alone is
+not proof of a prerequisite. If multiple frameworks are mentioned, a framework is
+present, applicability is uncertain/unknown/unclear/unresolved, or the defect
+affects this Vite/React application, retain the concrete severity and block
+unresolved or applicable defects. Do not generalize this context to other
+frameworks or compatibility reports.
 Execute web searches naming each package AND its exact version (separate queries are
 preferred). Examine upstream release notes, compatibility, regressions, installation
 scripts and security information. Explicitly search for supply-chain attacks,

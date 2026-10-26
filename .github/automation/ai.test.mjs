@@ -296,10 +296,22 @@ test('conditional absent-framework compatibility is informational while applicab
   const broadResult=await researchPackages(researchArgs([{name:'react',version:'19.3.1'}]),{...broad.options,applicationContext:context});
   assert.equal(broadResult.pass,false);
   assert.equal(broadResult.packages[0].findings[0].severity,'medium');
-  const server=await fixture(t,res=>json(res,response({packages:[{name:'react',version:'19.3.1',pass:true,findings:[{severity:'medium',message:'Denial of Service in Server Functions advisory remains an evidence gap; this is not a finding that this Vite React SPA is vulnerable',evidence:[source]}],evidence:[source],scannerFindings:[]}]},[search(['react 19.3.1 security'],[source])] )));
+  const server=await fixture(t,res=>json(res,response({packages:[{name:'react',version:'19.3.1',pass:true,findings:[{severity:'medium',message:'Denial of Service in Server Functions; this Vite React SPA is not affected because it has no Server Functions',evidence:[source]}],evidence:[source],scannerFindings:[]}]},[search(['react 19.3.1 security'],[source])] )));
   const serverResult=await researchPackages(researchArgs([{name:'react',version:'19.3.1'}]),{...server.options,applicationContext:context});
   assert.equal(serverResult.pass,true);
   assert.equal(serverResult.packages[0].findings[0].severity,'info');
+  for (const message of [
+    'Denial of Service in Server Functions; applicability to this browser SPA remains uncertain.',
+    'Denial of Service in React Server Components; applicability to this browser SPA remains unknown.',
+    'Reproduction requires Server Functions; applicability to this browser SPA is unclear.',
+    'The issue occurs only when using Server Functions; it also impacts this browser SPA.',
+    'Denial of Service in Server Functions; the current application is affected even when no server is used.',
+  ]) {
+    const unresolved=await fixture(t,res=>json(res,response({packages:[{name:'react',version:'19.3.1',pass:false,findings:[{severity:'medium',message,evidence:[source]}],evidence:[source],scannerFindings:[]}]},[search(['react 19.3.1 security'],[source])] )));
+    const result=await researchPackages(researchArgs([{name:'react',version:'19.3.1'}]),{...unresolved.options,applicationContext:context});
+    assert.equal(result.pass,false);
+    assert.equal(result.packages[0].findings[0].severity,'medium');
+  }
   for (const message of [
     'The issue is limited to Next.js and Vitest.',
     'Only when using Next.js; Vitest is also affected.',

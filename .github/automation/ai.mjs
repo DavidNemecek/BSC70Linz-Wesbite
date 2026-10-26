@@ -462,8 +462,12 @@ function contextualizeCompatibilityFindings(findings, context) {
     // framework is a prerequisite. Require an explicit relation to exactly one
     // absent framework; loose words such as "only" or "requires" are not enough.
     const text = String(finding.message ?? '');
-    const explicitlyApplicable = /\b(?:not|never)\s+(?:strictly\s+)?(?:limited|confined|restricted)\s+to\b|\b(?:also\s+affect(?:s|ed)?|affect(?:s|ed)?\s+(?:all|this|vite|react)|appl(?:y|ies)\s+to\s+(?:all|this|vite|react)|regardless|even\s+without|including\s+vite)\b/i.test(text);
+    const explicitlyApplicable = /\b(?:not|never)\s+(?:strictly\s+)?(?:limited|confined|restricted)\s+to\b|\b(?:also\s+(?:affect(?:s|ed)?|impact(?:s|ed)?)|affect(?:s|ed)?\s+(?:all|this|vite|react)|appl(?:y|ies)\s+to\s+(?:all|this|vite|react)|(?:this|the|current)\s+(?:vite\s+react\s+)?(?:application|app|spa)\s+(?:is|remains)\s+(?:also\s+)?affected|regardless|even\s+without|including\s+vite)\b/i.test(text);
     if (explicitlyApplicable) return finding;
+    // A conditional-looking relation is not enough when the report leaves
+    // applicability unresolved. This covers both the original assessment and
+    // the citation-correction pass.
+    if (/\b(?:uncertain|unknown|unclear|unresolved|not\s+clear|cannot\s+(?:determine|confirm)|evidence\s+gap)\b/i.test(text)) return finding;
     const frameworks = [
       {absent: !context.usesNext, name:/next(?:\.js)?/i},
       {absent: !context.usesVitest, name:/vitest/i},
@@ -480,7 +484,17 @@ function contextualizeCompatibilityFindings(findings, context) {
       new RegExp(`\\b(?:when|if)\\s+(?:using\\s+|running\\s+|with\\s+)?(?:${name.source})\\b`, 'i'),
       new RegExp(`\\b(?:denial\\s+of\\s+service|vulnerabilit(?:y|ies))\\s+in\\s+(?:${name.source})\\b`, 'i'),
     ].some(pattern => pattern.test(text)));
-    return relations.length === 1 ? {...finding, severity:'info'} : finding;
+    // Advisory titles such as "Denial of Service in Server Functions" do not
+    // establish a prerequisite by themselves. They need either an explicit
+    // conditional relation or a direct statement that this app is unaffected.
+    const conditional = frameworks.filter(({name}) => [
+      new RegExp(`\\b(?:${name.source})\\s*(?:only|specific(?:ally)?|exclusive(?:ly)?)\\b`, 'i'),
+      new RegExp(`\\b(?:only|exclusive(?:ly)?|specific(?:ally)?)\\s+(?:when\\s+)?(?:using\\s+|running\\s+|with\\s+)?(?:${name.source})\\b`, 'i'),
+      new RegExp(`\\b(?:requires?|depends\\s+on|limited\\s+to|confined\\s+to)\\s+(?:using\\s+|running\\s+|with\\s+)?(?:${name.source})\\b`, 'i'),
+      new RegExp(`\\b(?:when|if)\\s+(?:using\\s+|running\\s+|with\\s+)?(?:${name.source})\\b`, 'i'),
+    ].some(pattern => pattern.test(text)));
+    const explicitNotApplicable = /\b(?:not|never)\s+(?:a\s+)?(?:finding\s+that\s+this\s+(?:vite\s+react\s+)?(?:application|app|spa)\s+is\s+vulnerable|affected|applicable|vulnerable)\b|\b(?:this|the|current)\s+(?:vite\s+react\s+)?(?:application|app|spa)\s+(?:is|does)\s+not\s+(?:affected|affect|use|run|support|expose|have)\b|\b(?:without|absent|lacking)\s+(?:any\s+)?(?:server\s+functions?|server\s+components?|next(?:\.js)?|vitest)\b/i.test(text);
+    return (conditional.length === 1 || (relations.length === 1 && explicitNotApplicable)) ? {...finding, severity:'info'} : finding;
   });
 }
 
