@@ -14,6 +14,33 @@ export const sha = value => createHash('sha256').update(value).digest('hex');
 export const json = async (file, value) => fs.writeFile(file, JSON.stringify(value, null, 2) + '\n');
 export const pdfText = file => execFileSync('pdftotext', ['-layout', file, '-'], { encoding: 'utf8', timeout: 15000, maxBuffer: 1024 * 1024 }).replace(/\s+/g, ' ').trim();
 
+export function pageErrorDetails(error) {
+  const message = String(error.message ?? '');
+  const stack = String(error.stack ?? '').slice(0, 8192);
+  const header = String(error.name || 'Error') + (message ? ': ' + message : '');
+  // Only the throwing frame counts. Never infer origin from the message, a
+  // caller lower in the stack, an eval wrapper, or the containing page URL.
+  const firstFrame = stack.startsWith(header + '\n') ? stack.slice(header.length + 1).split('\n')[0] : '';
+  const match = firstFrame.match(/^\s+at (?:[^()\r\n]* \()?(https?:\/\/[^\s()]+):(\d+):(\d+)\)?$/);
+  let scriptURL = null;
+  if (match && match[1].length <= 2048) {
+    try { scriptURL = new URL(match[1]).href; } catch { /* unknown origin */ }
+  }
+  return { message: message.slice(0, 2048), stack, scriptURL, line: scriptURL ? Number(match[2]) : null, column: scriptURL ? Number(match[3]) : null };
+}
+
+export function pdfComparisons(baseline, candidate) {
+  return ['de', 'en'].map(lang => {
+    const first = baseline.pdfs.find(pdf => pdf.lang === lang), second = candidate.pdfs.find(pdf => pdf.lang === lang);
+    const completion = { baseline: baseline.completion?.pdfs?.[lang] ?? null, candidate: candidate.completion?.pdfs?.[lang] ?? null };
+    const complete = (pdf, state) => !!pdf && typeof pdf.text === 'string' && state?.retrieved === true && state?.parsed === true;
+    if (!complete(first, completion.baseline) || !complete(second, completion.candidate)) {
+      return { name: `PDF ${lang} capture incomplete`, pass: false, completion, message: 'Missing retrieved/parsed PDF capture; content was not compared' };
+    }
+    return { name: `PDF ${lang} content comparison`, pass: first.text === second.text, captureComplete: true, completion };
+  });
+}
+
 export function safeURL(value, local = false) {
   const u = new URL(value);
   const host = u.hostname.toLowerCase();

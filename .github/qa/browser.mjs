@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { parseArgs } from 'node:util';
 import { chromium } from 'playwright';
-import { routes, anchors, matrix, pixels, sha, json, pdfText, safeURL, get, imageDiff, integrity, verifyBaseline } from './support.mjs';
+import { routes, anchors, matrix, pixels, sha, json, pdfText, pageErrorDetails, pdfComparisons, safeURL, get, imageDiff, integrity, verifyBaseline } from './support.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const { values: args } = parseArgs({ options: {
@@ -83,6 +83,8 @@ async function context(variant, label) {
   const ctx = await browser.newContext({ viewport: { width: variant.width, height: 900 }, deviceScaleFactor: 1, locale: 'de-AT', timezoneId: 'Europe/Vienna', colorScheme: variant.theme, reducedMotion: 'reduce', acceptDownloads: true, serviceWorkers: 'block' });
   ctx.setDefaultTimeout(12000);
   await ctx.addInitScript(({ lang, theme }) => {
+    // Preferences belong to the app, not third-party or failed iframe documents.
+    if (window.top !== window) return;
     if (!localStorage.getItem('bsc70-lang')) localStorage.setItem('bsc70-lang', lang);
     if (!localStorage.getItem('bsc70-theme')) localStorage.setItem('bsc70-theme', theme);
   }, variant);
@@ -100,9 +102,15 @@ async function context(variant, label) {
   return ctx;
 }
 
+function requestMetadata(request) {
+  let frameURL = null;
+  try { frameURL = request.frame()?.url().slice(0, 2048) ?? null; } catch { /* no frame for some requests */ }
+  return { resourceType: request.resourceType(), frameURL };
+}
+
 function observe(page, site, phase) {
   const events = site.runtime;
-  page.on('pageerror', e => events.push({ phase, type: 'pageerror', message: e.message, url: page.url() }));
+  page.on('pageerror', e => events.push({ phase, type: 'pageerror', ...pageErrorDetails(e), url: page.url() }));
   page.on('console', m => { if (['error', 'warning'].includes(m.type())) events.push({ phase, type: `console.${m.type()}`, message: m.text(), url: page.url() }); });
   page.on('requestfailed', async r => {
     // Only navigations cancelled by a subsequent navigation may be ignored.
@@ -114,11 +122,11 @@ function observe(page, site, phase) {
       const superseded = await page.evaluate(url => ![...document.images].some(i => i.src === url || i.currentSrc === url), r.url()).catch(() => false);
       if (superseded) { site.supersededLogoRequests.push({ phase, url: r.url(), reason: 'ERR_ABORTED after image source replaced' }); return; }
     }
-    events.push({ phase, type: 'requestfailed', url: r.url(), message: r.failure()?.errorText });
+    events.push({ phase, type: 'requestfailed', url: r.url(), message: r.failure()?.errorText, ...requestMetadata(r) });
   });
   page.on('response', r => {
     site.assets.push({ phase, url: r.url(), status: r.status(), type: r.request().resourceType() });
-    if (r.status() >= 400) events.push({ phase, type: 'http', status: r.status(), url: r.url() });
+    if (r.status() >= 400) events.push({ phase, type: 'http', status: r.status(), url: r.url(), ...requestMetadata(r.request()) });
   });
 }
 
@@ -131,6 +139,15 @@ async function ready(page) {
       try { await image.decode(); } catch { /* reported by stateOf */ }
     }));
   });
+}
+
+async function registrationReady(page) {
+  const input = page.frameLocator('iframe[src^="https://formular.vereinsplaner.com/"]').locator('input:not([type="hidden"])').first();
+  await input.waitFor({ state: 'visible' });
+  // The server-rendered input can appear before the form's initialization fetch.
+  const frame = await (await input.elementHandle()).ownerFrame();
+  await frame.waitForLoadState('networkidle');
+  await input.evaluate(async () => { await document.fonts.ready; });
 }
 
 async function goto(page, url) {
@@ -200,6 +217,7 @@ async function functional(page, base, variant, site) {
     await page.waitForURL(u => u.pathname === route);
     await page.waitForFunction(({ previousHeading, route }) => document.querySelector('h1')?.textContent !== previousHeading && new URL(document.querySelector('link[rel="canonical"]')?.href ?? location.href).pathname === route, { previousHeading, route });
     await ready(page);
+    if (route === '/anmeldung') await registrationReady(page);
     requireThat(await page.evaluate(s => window.__qaNavigation === s, sentinel), `SPA navigation failed ${route}`);
     evidence.links.push({ path: new URL(page.url()).pathname, h1: await page.locator('h1').innerText(), spa: true });
   }
@@ -235,6 +253,7 @@ async function functional(page, base, variant, site) {
       // The drawer is the only visible link outside the footer on this subpage.
       await clickLink(page, route); await page.waitForURL(u => u.pathname === route);
       requireThat(await page.locator('div.fixed.inset-0').evaluateAll(es => es.every(e => getComputedStyle(e).pointerEvents === 'none')), 'Short drawer did not close');
+      if (route === '/anmeldung') await registrationReady(page);
       await page.locator('nav a[href="/"]').click();
       await page.waitForFunction(() => location.pathname === '/' && scrollY < 3);
       evidence.menu.push({ route, closed: true, logoHome: true });
@@ -251,16 +270,23 @@ async function functional(page, base, variant, site) {
   evidence.liveTeams = await page.locator('#teams h3').allTextContents();
   requireThat(JSON.stringify(evidence.liveTeams) === JSON.stringify(site.api.teams.teams.map(t => t.name)), 'Real teams UI differs from API');
   if (width === 360 && theme === 'light') {
+    const completion = site.completion.pdfs[lang];
+    completion.attempted = true;
     await goto(page, base + '/anmeldung');
+    await registrationReady(page);
     const downloading = page.waitForEvent('download', { timeout: 30000 });
     await page.getByRole('button', { name: /PDF/ }).click();
     const download = await downloading;
     requireThat(!await download.failure(), 'PDF download failed');
     const file = `${site.label}/membership-${lang}.pdf`, absolute = artifact(file);
     await download.saveAs(absolute);
-    const bytes = await fs.readFile(absolute), text = pdfText(absolute);
+    const bytes = await fs.readFile(absolute);
+    completion.retrieved = true;
     requireThat(bytes.subarray(0, 5).toString() === '%PDF-' && bytes.length > 10000 && bytes.subarray(-100).toString().includes('%%EOF'), 'Downloaded artifact is not a complete PDF');
+    const text = pdfText(absolute);
+    completion.parsed = true;
     requireThat(/BSC 70 Linz/.test(text) && (lang === 'de' ? /Beitritt|Mitgliedschaft/.test(text) && /Jahresbeitr|jährlich|Jahresgebühr/.test(text) : /Membership|membership/.test(text) && /annual fees/.test(text)) && /40/.test(text) && /IBAN/.test(text), 'PDF text/content missing');
+    completion.validated = true;
     site.pdfs.push({ lang, file, filename: download.suggestedFilename(), bytes: bytes.length, text });
   }
   return evidence;
@@ -284,10 +310,7 @@ async function visual(ctx, base, variant, site, fixture) {
     if (route === '/anmeldung') {
       await page.waitForLoadState('networkidle');
       await page.clock.runFor(1000);
-      const frame = page.frames().find(f => f.parentFrame() && f.url().startsWith('https://formular.vereinsplaner.com/'));
-      requireThat(frame, 'Registration iframe missing');
-      await frame.locator('input:not([type="hidden"])').first().waitFor({ state: 'visible' });
-      await frame.evaluate(async () => { await document.fonts.ready; });
+      await registrationReady(page);
     }
     if (route === '/') {
       await page.locator('#teams h3').first().waitFor({ state: 'attached' });
@@ -322,7 +345,7 @@ async function visual(ctx, base, variant, site, fixture) {
 }
 
 async function capture(base, label, fixture) {
-  const site = { label, url: base, variants: [], pdfs: [], runtime: [], assets: [], supersededLogoRequests: [] };
+  const site = { label, url: base, variants: [], pdfs: [], runtime: [], assets: [], supersededLogoRequests: [], completion: { functional: false, visual: false, pdfs: Object.fromEntries(['de', 'en'].map(lang => [lang, { phase: `360-${lang}-light/functional`, attempted: false, retrieved: false, parsed: false, validated: false }])) } };
   const apiContext = await context(matrix[0], label);
   site.api = await endpoints(apiContext, base, label);
   await apiContext.close();
@@ -358,6 +381,8 @@ async function capture(base, label, fixture) {
   await Promise.all(Array.from({ length: 3 }, worker));
   site.variants.sort((a, b) => matrix.findIndex(v => v.key === a.key) - matrix.findIndex(v => v.key === b.key));
   site.pdfs.sort((a, b) => a.lang.localeCompare(b.lang));
+  site.completion.functional = site.variants.length === matrix.length && site.variants.every(v => !!v.functional);
+  site.completion.visual = site.variants.length === matrix.length && site.variants.every(v => v.routes.length === routes.length);
   check(`${label} runtime clean`, site.runtime.length === 0, { events: site.runtime });
   check(`${label} PDFs complete`, site.pdfs.length === 2);
   return { site, fixture };
@@ -381,7 +406,7 @@ async function compare(baseline, candidate, baselineRoot) {
       check(`${v.key} ${route.path} pixels`, diff.pass, { ...diff, file: diffFile });
     }
   }
-  for (const pdf of baseline.pdfs) check(`PDF ${pdf.lang} content comparison`, pdf.text === candidate.pdfs.find(p => p.lang === pdf.lang)?.text);
+  for (const { name, pass, ...detail } of pdfComparisons(baseline, candidate)) check(name, pass, detail);
 }
 
 try {

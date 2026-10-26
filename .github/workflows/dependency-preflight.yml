@@ -2,6 +2,13 @@ name: Dependency integration preflight
 on:
   push:
     branches: [automation/dependency-pipeline]
+    paths:
+      - .github/automation/ai.mjs
+      - .github/automation/prompts.mjs
+      - .github/automation/preflight.mjs
+      - .github/automation/vercel.mjs
+      - .github/workflows/dependency-preflight.yml
+      - .nvmrc
   workflow_dispatch:
 permissions:
   contents: write

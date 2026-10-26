@@ -4,7 +4,40 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { PNG } from 'pngjs';
-import { safeURL, imageDiff, verifyBaseline, sha } from './support.mjs';
+import { safeURL, imageDiff, verifyBaseline, sha, pageErrorDetails, pdfComparisons } from './support.mjs';
+
+test('pageerror origin uses only the throwing stack frame and bounds metadata', () => {
+  const detail = stack => pageErrorDetails({ name: 'Error', message: 'boom', stack });
+  const first = detail('Error: boom\n    at handler (https://www.bsc70linz.at/assets/app.js:12:34)\n    at https://other.test/caller.js:1:2');
+  assert.equal(first.scriptURL, 'https://www.bsc70linz.at/assets/app.js');
+  assert.equal(first.line, 12); assert.equal(first.column, 34);
+  assert.ok(safeURL(first.scriptURL));
+  const external = detail('Error: boom\n    at https://formular.vereinsplaner.com/form.js:1:2\n    at https://www.bsc70linz.at/assets/app.js:3:4');
+  assert.equal(external.scriptURL, 'https://formular.vereinsplaner.com/form.js');
+  assert.throws(() => safeURL(external.scriptURL));
+  for (const stack of ['Error: boom', 'Error: boom\n    at <anonymous>:1:2\n    at https://www.bsc70linz.at/assets/app.js:3:4', 'Error: boom\n    at eval (eval at handler (https://www.bsc70linz.at/assets/app.js:1:2), <anonymous>:1:2)']) assert.equal(detail(stack).scriptURL, null);
+  assert.equal(pageErrorDetails({ name: 'Error', message: 'boom', stack: 'Error: boom', url: 'https://www.bsc70linz.at/' }).scriptURL, null);
+  const forgedMessage = 'boom\n    at https://www.bsc70linz.at/forged.js:1:2';
+  assert.equal(pageErrorDetails({ name: 'Error', message: forgedMessage, stack: `Error: ${forgedMessage}\n    at https://formular.vereinsplaner.com/form.js:1:2` }).scriptURL, external.scriptURL);
+  assert.equal(detail('Error: boom\n    at https://bsc70linz.at.evil.test/app.js:1:2').scriptURL, 'https://bsc70linz.at.evil.test/app.js');
+  assert.throws(() => safeURL(detail('Error: boom\n    at https://bsc70linz.at.evil.test/app.js:1:2').scriptURL));
+  const bounded = pageErrorDetails({ message: 'x'.repeat(10000), stack: 'y'.repeat(10000) });
+  assert.equal(bounded.message.length, 2048); assert.equal(bounded.stack.length, 8192);
+});
+
+test('PDF missing or unparsed captures fail as incomplete; retrieved text differences still fail', () => {
+  const site = text => ({ pdfs: ['de', 'en'].map(lang => ({ lang, text })), completion: { pdfs: Object.fromEntries(['de', 'en'].map(lang => [lang, { retrieved: true, parsed: true }])) } });
+  const baseline = site('original');
+  assert.ok(pdfComparisons(baseline, site('original')).every(c => c.pass && c.captureComplete));
+  assert.ok(pdfComparisons(baseline, site('changed')).every(c => !c.pass && c.captureComplete && c.name.endsWith('content comparison')));
+  for (const candidate of [{ pdfs: [] }, { ...site('original'), completion: { pdfs: { de: { retrieved: true, parsed: false }, en: { retrieved: false, parsed: false } } } }]) {
+    const checks = pdfComparisons(baseline, candidate);
+    assert.equal(checks.length, 2);
+    assert.ok(checks.every(c => !c.pass && c.name.endsWith('capture incomplete') && !c.captureComplete));
+    assert.ok(checks.every(c => !c.name.endsWith('content comparison')));
+  }
+  assert.ok(pdfComparisons({ pdfs: [] }, site('original')).every(c => !c.pass && c.name.endsWith('capture incomplete')));
+});
 
 test('target allowlist rejects credentials, lookalikes, HTTP, ports and unapproved loopback', () => {
   for (const url of ['https://www.bsc70linz.at', 'https://bsc70linz.at', 'https://branch.vercel.app']) assert.ok(safeURL(url));

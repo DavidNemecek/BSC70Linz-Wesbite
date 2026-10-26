@@ -9,7 +9,8 @@ The harness never updates or accepts a baseline automatically.
 
 ## Install
 
-Use Node 24, `pdftotext` (Ubuntu package `poppler-utils`), `fc-list` (fontconfig)
+Use the Node version pinned in `.github/qa/.nvmrc` (24.22.1),
+`pdftotext` (Ubuntu package `poppler-utils`), `fc-list` (fontconfig)
 and the system libraries/fonts required by Playwright Chromium. Install on the
 same pinned OS/container image for capture and verification. Keep browser caches
 outside uploaded evidence; the following cache is local to this harness:
@@ -98,6 +99,13 @@ run concurrently. Fresh pages separate real functional checks from screenshots.
   Checks PDF magic/EOF, minimum size and extracted membership/annual fee/bank
   content with `pdftotext`; compares normalized extracted text between sides.
   Random PDF document IDs/creation dates do not affect this comparison.
+  `completion.pdfs[lang]` records attempted/retrieved/parsed/validated stages.
+  Text comparisons require retrieved and parsed captures on both sides; missing
+  evidence fails as `PDF <lang> capture incomplete`, never as a text difference.
+- Every registration visit waits for a visible input, the iframe's network-idle
+  state and loaded fonts before navigating away or downloading the PDF. The
+  language/theme init script runs only in the top frame; runtime observation
+  still includes iframe exceptions and failed requests.
 - All six 480×640 portraits, all document images decoded, headings, description,
   canonical/current host and hidden news noindex. Semantic evidence includes
   links, image sources, headings and document dimensions. Existing overflow is
@@ -108,6 +116,15 @@ run concurrently. Fresh pages separate real functional checks from screenshots.
   known theme-logo fetch proven no longer referenced by any document image. The
   latter are recorded separately; replacement images must still decode. No
   general network-error suppression or console allowlist is used.
+  Page errors retain a bounded original `stack` (8192 characters), `message`
+  (2048), `scriptURL` (2048), `line`, `column` and the existing `phase`. The script
+  URL is extracted only from the throwing stack frame; anonymous/eval/unknown
+  origins stay null. The event's `url` is top-page context, **not script-origin
+  evidence**. Consumers must validate `scriptURL` against their site allowlist
+  and checked origin; neither that page URL nor a first-party caller lower in a
+  stack proves origin.
+  HTTP and failed-request events also include `resourceType` and `frameURL` when
+  available. All these events still fail the runtime-clean gate.
 - Real unmocked `/api/teams`, `/robots.txt` and `/sitemap.xml` on both hosts;
   checks response types/status, teams schema/count/values and rendered team names,
   exact sitemap routes (excluding news), and the **response host's** absolute
@@ -171,7 +188,8 @@ deployment identity, CI status, branch protections, rollout and the full pipelin
 
 ## Implementation validation, 2026-10-26
 
-Final source was exercised with Node 24.22.1 and its pinned Chromium 156:
+Before the iframe initialization/readiness fix, the harness was exercised with
+Node 24.22.1 and its pinned Chromium 156:
 
 - Production `https://www.bsc70linz.at` capture-only: **113/113 checks passed**, all
   12 variants, 96 screenshots and both actual PDFs. Evidence:
@@ -198,3 +216,57 @@ Final source was exercised with Node 24.22.1 and its pinned Chromium 156:
 These generated artifacts and local logs are ignored by git; retain/upload the
 needed evidence separately. No workflow, deployment, branch, commit or push was
 performed by this implementation task.
+
+## Iframe initialization/readiness verification, 2026-10-26
+
+The revised harness was run locally with the same Node 24.22.1, Playwright
+1.64.1 and Chromium 156.0.8078.4 toolchain:
+
+- A focused Chromium fixture executed the actual init callback and runtime
+  observer extracted from `browser.mjs`. The old callback threw in sandboxed
+  frames and reproduced `Failed to read the 'localStorage' property from
+  'Window': Access is denied for this document.` in a failed-navigation frame.
+  The top-frame guard removed those harness exceptions, preserved top-frame
+  preferences across reload, and still recorded the failed request and an
+  injected iframe exception. Evidence: `artifacts/frame-init-fixture.mjs` and
+  `artifacts/frame-init-fixture.json`.
+- Input/font readiness alone left some automatic Livewire initialization
+  requests unfinished on navigation. The shared readiness helper additionally
+  waits for the iframe's own network-idle state. The initial attempt also
+  encountered `ERR_NETWORK_CHANGED` on application assets and correctly failed;
+  its evidence is retained at `artifacts/frame-init-baseline/result.json`.
+- Readiness-fix production capture: **113/113 passed**, 12 variants, 96 screenshots,
+  both PDFs and zero runtime events. Evidence:
+  `artifacts/frame-ready-baseline/result.json`.
+- Stored-baseline comparison against the live updates alias: **415/415 passed**,
+  96/96 zero-pixel differences and zero runtime events. Evidence:
+  `artifacts/frame-ready-comparison/result.json`. These two runs precede the
+  subsequent runtime/PDF evidence metadata changes.
+- Syntax validation and all three helper tests passed, including pixel/dimension
+  rejection and baseline tampering. Evidence:
+  `artifacts/frame-ready-helper-tests.txt`. The earlier complete injected visual/
+  fee regression run was not repeated; runtime rejection was exercised by the
+  focused fixture above.
+
+These local results do not establish that CI's intermittent third-party reset
+is eliminated. Genuine iframe/network failures still fail the run. CI retesting
+and independent review remain the parent's responsibility.
+
+The final source, including review R2 runtime-origin/PDF-completion metadata,
+then passed a fresh **113/113** production capture and **415/415** stored-baseline
+comparison against the live updates alias. Both had zero runtime events; all
+96 pixel comparisons had zero changed pixels and both actual PDFs were retrieved,
+parsed and validated. Evidence: `artifacts/runtime-metadata-baseline/result.json`
+and `artifacts/runtime-metadata-comparison/result.json` (matching harness
+fingerprint `53bde10305034518d89934562e3a9e09683fdcca4415ba310faf46c98d065df3`).
+The updates deployment may have changed identity during these read-only runs;
+they establish observed application behavior, not a deployment commit identity.
+
+All **five** helper tests passed, including throwing-frame origin extraction,
+forged-message/unknown-origin rejection, and incomplete-PDF versus actual text
+difference handling (`artifacts/runtime-metadata-helper-tests.txt`). The extended
+browser fixture also verified an exception from a script origin different from
+the top page, and an iframe script 404 with `resourceType`/`frameURL`. Its failed
+request and exception remained recorded; the guard only removed init-script
+storage errors (`artifacts/frame-init-fixture.json`). No complete injected
+visual/fee regression rerun was needed for these metadata-only additions.
