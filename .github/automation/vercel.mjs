@@ -25,7 +25,7 @@ export const NODE_LINE = 24;
 export const DEFAULT_TIMEOUT_MS = 10 * 60 * 1000;
 export const DEFAULT_POLL_INTERVAL_MS = 5_000;
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const SHA = /^[a-f0-9]{40}$/;
 const ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$/;
 const HOSTNAME = /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i;
