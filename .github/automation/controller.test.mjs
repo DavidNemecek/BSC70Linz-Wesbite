@@ -632,6 +632,7 @@ test('happy path researches before resolution, reviews before execution and prom
   assert.equal(h.researchOptions.length > 0, true);
   assert.deepEqual(h.researchOptions[0].applicationContext, {
     applicationType: 'vite-react-spa', bundler: 'vite', framework: 'react', usesNext: false, usesVitest: false,
+    usesReactServerComponents: false, usesServerFunctions: false,
   });
   assert.deepEqual(h.researchOptions[0].verifiedScannerEvidence, []);
 });
