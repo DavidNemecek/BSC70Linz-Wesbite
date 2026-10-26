@@ -313,7 +313,15 @@ function shas(baseSHA,headSHA) {
 }
 function decision(data) {
   if (!data.pass && !data.findings.length) throw fail('MISSING_FINDINGS');
-  return {...data,pass:data.pass && !data.findings.some(f=>['high','critical'].includes(f.severity))};
+  // A model cannot turn an unresolved contradiction into an approval merely by
+  // labelling it medium/low.  Keep this deliberately conservative and textual:
+  // only explicit, affirmative non-applicability (for example "not affected")
+  // can remain informational.  All uncertainty and incomplete evidence stays
+  // blocking for the deterministic controller.
+  const unresolved = /\b(?:unresolved|uncertain|unknown|unclear|incomplete|contradict(?:ory|ion)|missing|not\s+(?:established|assessed|verified|available)|unassessed|ambiguous|insufficient|cannot\s+(?:confirm|determine|establish)|unable\s+to|requires\s+(?:investigation|further|review)|blocked|not\s+proven)\b/i;
+  const blocking = data.findings.some(f => ['high','critical'].includes(f.severity) ||
+    (['medium','low'].includes(f.severity) && unresolved.test(f.message)));
+  return {...data,pass:data.pass && !blocking};
 }
 const blocked = (message,evidence) => ({severity:'high',message,evidence});
 
@@ -403,9 +411,13 @@ function verifiedUpstreamURL(value, target) {
     const url = new URL(value);
     if (!(url.protocol === 'https:' && url.hostname === 'github.com' &&
       url.pathname.includes(`/blob/v${target.version}/`) && !url.search && !url.hash)) return false;
-    return target.name === 'vite' && target.version === '8.3.5'
-      ? value === 'https://github.com/vitejs/vite/blob/v8.3.5/packages/vite/src/node/server/index.ts'
-      : true;
+    if (target.name === 'vite' && target.version === '8.3.5')
+      return value === 'https://github.com/vitejs/vite/blob/v8.3.5/packages/vite/src/node/server/index.ts';
+    // Generic scanner records must still point into the package's canonical
+    // upstream repository, never an unrelated GitHub project or an arbitrary
+    // versioned source.
+    const packageName = target.name.replace(/^@/,'').replace('/', '-');
+    return url.pathname.toLowerCase().startsWith(`/${packageName}/`);
   } catch { return false; }
 }
 function sameScannerReport(left, right) {
@@ -431,7 +443,9 @@ function verifiedScannerEvidence(value, targets) {
         ![JSON.stringify(report.matchedToken), `'${report.matchedToken}'`].some(quoted => typeof report.protectiveCode === 'string' && report.protectiveCode.includes(quoted)))
       throw fail('INVALID_VERIFIED_EVIDENCE');
     if (target.name === 'vite' && target.version === '8.3.5' &&
-        (report.scannerStatus !== 'Review' || report.scannerFinding !== 'Credential file access: matched ".npmrc"' ||
+        (JSON.stringify(report) !== JSON.stringify(Object.fromEntries(Object.keys(scannerProperties)
+          .map(key => [key, VERIFIED_SCANNER_EVIDENCE[0][key]]))) ||
+         report.scannerStatus !== 'Review' || report.scannerFinding !== 'Credential file access: matched ".npmrc"' ||
          report.matchedToken !== '.npmrc' || report.artifactSHA256 !== '7f22c2a78d15bac5ad755c5f413806048db453604fa0c293f6a0613890dc7c17'))
       throw fail('INVALID_VERIFIED_EVIDENCE');
     records.push({ name: target.name, version: target.version, report });
@@ -491,6 +505,40 @@ function scannerDecision(data,target,allowedURLs,verifiedReports = []) {
   return decision({...data,findings});
 }
 
+function nonCanonicalNpmURL(value) {
+  try {
+    const url = new URL(value);
+    return url.hostname === 'www.npmjs.com' && /^\/package\/\//.test(url.pathname);
+  } catch { return false; }
+}
+
+function requiredResearchSearches(result, target, searches) {
+  const queries = searches.flatMap(search => search.queries).map(query => query.toLowerCase());
+  const text = JSON.stringify({ findings: result.findings, evidence: result.evidence }).toLowerCase();
+  const required = [];
+  for (const match of text.matchAll(/\b(?:ghsa|cve)-[a-z0-9-]+\b/gi)) required.push(match[0].toLowerCase());
+  for (const url of result.evidence) {
+    if (/\/issues\/\d+|\/security\/advisories\//i.test(url)) required.push(url.toLowerCase());
+    if (/\/blob\/v[^/]+\/.*(?:package\.json|package-lock\.json)/i.test(url)) required.push(url.toLowerCase());
+  }
+  if (/\b(?:exact[- ]tag|exact[- ]version|manifest|upstream issue|package\.json)\b/i.test(text)) {
+    // A package/version search is insufficient for a named source claim. The
+    // query must also name the source kind, and exact-tag URLs must be present
+    // when the provider returned them.
+    required.push('package.json');
+  }
+  return [...new Set(required)].filter(token => !queries.some(query => query.includes(token)));
+}
+
+function missingExactSourceCitations(result, target, sources) {
+  const text = JSON.stringify({ findings: result.findings, evidence: result.evidence });
+  if (!/\b(?:exact[- ]tag|exact[- ]version|manifest|package\.json)\b/i.test(text)) return [];
+  const exact = [...sources].filter(url => new RegExp(`/blob/v${target.version.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}/`).test(url));
+  if (!exact.length) return [];
+  const cited = result.evidence.some(url => exact.includes(url));
+  return cited ? [] : ['exact-tag-source-citation'];
+}
+
 /** packages: [{name,version}] exact npm semver targets, <=100 unique pairs. Returns
  * {pass,findings,packages,baseSHA,headSHA,timestamp,provenance:[]} or throws; never
  * returns an approval for partial coverage. Independently fetched advisory evidence
@@ -548,15 +596,18 @@ export async function researchPackages({packages,baseSHA,headSHA}, options = {})
           }
         }
       }
-      const allowedURLs = [...new Set([...sources,...opened])];
-      const unsupported = result.evidence.filter(url=>!allowedURLs.includes(sourceURL(url,v=>v)));
+      const allowedURLs = [...new Set([...sources,...opened])].filter(url => !nonCanonicalNpmURL(url));
+      const unsupported = result.evidence.filter(url=>nonCanonicalNpmURL(url) || !allowedURLs.includes(sourceURL(url,v=>v)));
+      const missingSearches = [...requiredResearchSearches(result,target,evidence),
+        ...missingExactSourceCitations(result,target,sources)];
       let proofError;
-      if (!sources.size || unsupported.length) {
+      if (!sources.size || unsupported.length || missingSearches.length) {
         const error = fail('PACKAGE_SEARCH_PROOF_MISSING');
         // Adapter-redacted public research metadata only; no request, provider
         // response object, configuration or authorization header is retained.
         error.researchDiagnostic = { target, searches: response.provenance.searches,
-          openedURLs: response.provenance.openedURLs, citedURLs: result.evidence, matchingSearchCount: evidence.length };
+          openedURLs: response.provenance.openedURLs, citedURLs: result.evidence, matchingSearchCount: evidence.length,
+          missingSearches };
         proofError = error;
       }
       // A correction cannot rescue missing exact search or fabricated-only evidence.
