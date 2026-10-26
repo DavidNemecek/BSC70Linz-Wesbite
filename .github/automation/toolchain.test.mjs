@@ -14,7 +14,7 @@ const nodeIndex = [
   { version: 'v24.22.1', date: old(30), lts: 'Krypton' },
   { version: 'v24.22.2', date: old(8), lts: 'Krypton' },
   { version: 'v24.22.3', date: old(2), lts: 'Krypton' },
-  { version: 'v24.23.0', date: old(20), lts: 'Krypton' },
+  { version: 'v24.23.0', date: old(2), lts: 'Krypton' },
 ];
 const shasums = `${nodeDigest}  node-v24.22.2-linux-x64.tar.gz\n`;
 const actionRefs = Object.fromEntries(ALLOWED_ACTIONS.map((action, index) => [action, sha(String.fromCharCode(98 + index))]));
@@ -77,9 +77,16 @@ test('an installed newer or equal action release is grandfathered without downgr
 
 test('Node checksum, same-minor policy and runtime metadata are strict', () => {
   assert.throws(() => discoverNodeRelease({ index: nodeIndex, currentVersion: '24.22.1', now, shasums: `${'g'.repeat(64)}  node-v24.22.2-linux-x64.tar.gz`, shasumsSignature: 'sig' }));
-  assert.throws(() => discoverNodeRelease({ index: [{ version: 'v24.23.0', date: old(20), lts: 'Krypton' }], currentVersion: '24.22.1', now, shasums, shasumsSignature: 'sig' }));
+  assert.equal(discoverNodeRelease({ index: [{ version: 'v24.23.0', date: old(20), lts: 'Krypton' }], currentVersion: '24.22.1', now,
+    shasums: `${nodeDigest}  node-v24.23.0-linux-x64.tar.gz\n`, shasumsSignature: 'sig' }).to, '24.23.0');
   const bytes = Buffer.from('node fixture');
   assert.throws(() => discoverNodeRelease({ index: nodeIndex, currentVersion: '24.22.1', now, shasums, shasumsSignature: 'sig', tarballBytes: bytes }));
+});
+
+test('strict generator can opt into an official Node 24 LTS minor after cooldown', () => {
+  const result = discoverNodeRelease({ index: [{ version: 'v24.23.0', date: old(20), lts: 'Krypton' }], currentVersion: '24.22.1',
+    now, shasums: `${nodeDigest}  node-v24.23.0-linux-x64.tar.gz\n`, shasumsSignature: 'signed SHASUMS fixture', allowMinor: true });
+  assert.equal(result.to, '24.23.0');
 });
 
 test('research requires exact query, official provenance and proven security status', () => {

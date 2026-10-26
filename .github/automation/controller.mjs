@@ -15,6 +15,7 @@ import { worker as dispatchWorker, readArtifactZip } from './artifacts.mjs';
 import * as aiAdapter from './ai.mjs';
 import * as vercelAdapter from './vercel.mjs';
 import * as dependencies from './dependencies.mjs';
+import * as maintenanceAdapter from './maintenance.mjs';
 import {
   REQUIRED_CHECKS, changedLockEntries, validateCandidateDiff, validateLockfile,
   validatePackageUpgrade, validatePromotionVerdict, timestamp, packageNameFromPath, publicationEligibility,
@@ -279,7 +280,7 @@ export async function trustedToolchain() {
  * construct adapters/options from candidate contents or PR metadata.
  */
 export function createController({ gh = github, worker = dispatchWorker, ai = aiAdapter,
-  vercel = vercelAdapter, dep = dependencies, env = process.env, now = Date.now,
+  vercel = vercelAdapter, dep = dependencies, maintenance = maintenanceAdapter, env = process.env, now = Date.now,
   toolchain = trustedToolchain, evidenceDir = resolve(ROOT, 'evidence'), persist,
   nonce = randomUUID, sleep = delay, loadArtifact = id => downloadControllerArtifact(id, { env, repository: gh.repository }),
   loadReviewArtifact = id => downloadReviewArtifact({ repository: gh.repository, artifactID: id, token: env.GH_TOKEN || env.GITHUB_TOKEN }) } = {}) {
@@ -455,6 +456,32 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
     requireOK(validateLockfile(lock), 'invalid-lockfile');
     return { manifest, lock };
   }
+  // Read EVERY managed file from the authenticated Git tree, including unchanged
+  // workflows and the independent QA pin. The candidate never supplies this list.
+  async function maintenanceSnapshot(sha) {
+    const entries = await tree(sha);
+    const paths = [...new Set([...maintenanceAdapter.TRUSTED_BASE_PATHS,
+      ...[...entries.keys()].filter(path => /^\.github\/workflows\/[^/]+\.ya?ml$/.test(path))])].sort();
+    return new Map(await Promise.all(paths.map(async path => [path, await regularFile(path, sha)])));
+  }
+  function maintenanceTimes(plan, fresh = true) {
+    const values = [...Object.values(plan.evidenceTimes ?? {}), plan.research?.researchedAt,
+      ...(plan.research?.results ?? []).map(item => item.provenance?.timestamp).filter(value => value !== undefined)];
+    requireSafe(values.length >= 3 && values.every(value => Number.isFinite(timestamp(value)) && timestamp(value) <= now() &&
+      (!fresh || now() - timestamp(value) <= 86400000)), 'maintenance-evidence-stale');
+    return values;
+  }
+  async function maintenanceBytes(baseSHA, headSHA, plan) {
+    const before = await maintenanceSnapshot(baseSHA), after = await maintenanceSnapshot(headSHA);
+    const checked = requireOK(maintenanceAdapter.validateMaintenancePlan(before, plan, { now: now() }), 'maintenance-plan-invalid');
+    // The validator regenerates the bytes. Compare that independent result,
+    // not just hashes or contents asserted by the serialized plan.
+    for (const file of checked.expectedFiles) requireSafe(after.get(file.path) === file.content &&
+      digest(before.get(file.path)) === file.fromSHA256 && digest(after.get(file.path)) === file.toSHA256,
+    'maintenance-candidate-bytes-mismatch');
+    requireOK(maintenanceAdapter.assertCandidateBytes(before, after, plan), 'maintenance-candidate-bytes-blocked');
+    return checked;
+  }
   async function dispatched(phase, baseSHA, headSHA, extra = {}) {
     const evidence = await worker({ phase, baseSHA, headSHA, ...extra });
     requireSafe(evidence?.phase === phase && evidence.baseSHA === baseSHA && evidence.headSHA === headSHA &&
@@ -496,7 +523,7 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
     const production = await vercel.getProductionDeployment();
     requireSafe(production.sha === baseSHA && production.branch === 'main' && production.projectId === configuration.projectId, 'production-does-not-match-main');
     await vercel.verifyAlias({ hostname: configuration.productionHostname, sha: baseSHA, deploymentId: production.id });
-    await vercel.verifyRuntime({ deploymentId: production.id });
+    await vercel.verifyRuntime({ deploymentId: production.id, minimumNodeVersion: runtime.nodeVersion });
     const readiness = await ai.preflight();
     await save('ai-preflight', readiness);
     requireSafe(readiness.pass === true, 'ai-websearch-preflight-blocked');
@@ -504,14 +531,36 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
     await current(baseSHA, updatesSHA);
     return { runtime, baseSHA, updatesSHA, configuration, production };
   }
-  async function candidateDiff(baseSHA, headSHA, compatibilityPaths) {
+  async function candidateDiff(baseSHA, headSHA, compatibilityPaths, plan) {
     const files = await gh.changes(baseSHA, headSHA);
     const changes = files.map(file => ({ path: file.filename, status: file.status === 'modified' ? 'M' : file.status,
       oldPath: file.previous_filename, addedLines: file.additions, deletedLines: file.deletions }));
-    requireOK(validateCandidateDiff(changes, { compatibilityPaths }), 'candidate-scope-blocked');
+    if (plan) {
+      await maintenanceBytes(baseSHA, headSHA, plan);
+      const before = await tree(baseSHA), after = await tree(headSHA);
+      const leaves = new Set([...before.keys(), ...after.keys()].filter(path => before.get(path)?.type !== 'tree' || after.get(path)?.type !== 'tree'));
+      const actualPaths = [...leaves].filter(path => {
+        const a = before.get(path), b = after.get(path);
+        requireSafe([a, b].filter(Boolean).every(entry => /^[a-f0-9]{40}$/.test(entry.sha)), 'maintenance-tree-identity-incomplete');
+        return !a || !b || a.sha !== b.sha || a.mode !== b.mode || a.type !== b.type;
+      }).sort();
+      requireSafe(isDeepStrictEqual(actualPaths, changes.map(change => change.path).sort()), 'maintenance-diff-tree-mismatch');
+      const planned = new Set(plan.files.map(file => file.path));
+      requireSafe(planned.size === plan.files.length && [...planned].every(path => changes.some(change => change.path === path)) &&
+        changes.every(change => change.status === 'M' && (!change.oldPath || change.oldPath === change.path) &&
+          (planned.has(change.path) || compatibilityPaths.includes(change.path))), 'maintenance-candidate-scope-blocked');
+      const repairs = changes.filter(change => !planned.has(change.path));
+      if (repairs.length) requireOK(validateCandidateDiff(repairs, { compatibilityPaths }), 'candidate-scope-blocked');
+    } else requireOK(validateCandidateDiff(changes, { compatibilityPaths }), 'candidate-scope-blocked');
     for (const change of changes) await regularFile(change.path, headSHA);
     const diff = await gh.repoApi(`/compare/${baseSHA}...${headSHA}`, { accept: 'application/vnd.github.diff' });
     requireSafe(typeof diff === 'string' && diff.length > 0 && Buffer.byteLength(diff) <= 8_000_000, 'candidate-diff-incomplete');
+    if (plan) {
+      const headers = [...diff.matchAll(/^diff --git a\/([^\r\n]+) b\/([^\r\n]+)$/gm)];
+      requireSafe(headers.every(([, before, after]) => before === after) &&
+        isDeepStrictEqual(headers.map(([, path]) => path).sort(), changes.map(change => change.path).sort()),
+      'maintenance-review-diff-incomplete');
+    }
     return { changes, diff };
   }
   async function repair({ baseSHA, headSHA, findings, validation, compatibilityPaths }) {
@@ -538,18 +587,22 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
     return { headSHA: await gh.commitFiles(headSHA, changed, 'fix: bounded dependency compatibility repair'),
       compatibilityPaths: [...new Set([...compatibilityPaths, ...paths])] };
   }
-  async function validatedCandidate({ baseSHA, headSHA, branch, base, advisories, runtime }) {
+  async function validatedCandidate({ baseSHA, headSHA, branch, base, advisories, runtime, plan }) {
     let compatibilityPaths = [];
     for (let attempt = 0; attempt <= 3; attempt++) {
       state.headSHA = headSHA;
       await checkpoint('candidate-policy-and-research');
       const head = await snapshot(headSHA);
-      requireOK(validatePackageUpgrade(base.manifest, head.manifest), 'manifest-upgrade-policy-blocked');
+      if (plan) { maintenanceTimes(plan); await maintenanceBytes(baseSHA, headSHA, plan); }
+      const approvedNodePatch = plan?.toolchainPlan.nodePlan.changed ? {
+        from: base.manifest.engines.node, to: head.manifest.engines.node, supportedLtsMajors: runtime.supportedLtsMajors,
+      } : undefined;
+      requireOK(validatePackageUpgrade(base.manifest, head.manifest, { approvedNodePatch }), 'manifest-upgrade-policy-blocked');
       requireOK(dep.validateManifestLock(head.manifest, head.lock, runtime.semver), 'manifest-lock-mismatch');
       const changes = changedLockEntries(base.lock, head.lock);
       const metadata = await dep.fetchRegistryMetadata([...new Set(changes.map(change => change.name))]);
       const proofs = deriveCveProofs({ baseLock: base.lock, headLock: head.lock, metadata, advisories, now: now(), semver: runtime.semver });
-      const policy = dep.preflightLockUpdate({ baseLock: base.lock, headLock: head.lock, metadata, advisories, proofs, now: now(), ...runtime });
+      const policy = dep.preflightLockUpdate({ baseLock: base.lock, headLock: head.lock, metadata, advisories, proofs, now: now(), ...runtime, approvedNodePatch });
       const policyAt = new Date(now()).toISOString();
       await save('lock-policy', { policy, metadata: registryEvidence(metadata, [base.lock, head.lock]), proofs });
       requireOK(policy, 'whole-lock-policy-blocked');
@@ -558,10 +611,11 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
       await save('osv-candidate', osv);
       requireSafe(osv.every(query => query.advisories.length === 0), 'candidate-osv-advisory-blocked');
       const dependenciesAt = new Date(now()).toISOString();
-      const diff = await candidateDiff(baseSHA, headSHA, compatibilityPaths);
+      const diff = await candidateDiff(baseSHA, headSHA, compatibilityPaths, plan);
       const review = await ai.reviewPullRequest({ baseSHA, headSHA, diff: diff.diff,
         context: { manifest: head.manifest, lock: head.lock, research: researched, lockPolicy: policy,
           lifecycleChanges: policy.lifecycleChanges, requiresLifecycleReview: policy.requiresLifecycleReview,
+          maintenancePlan: plan,
           instruction: 'Explicitly review every lifecycle change; install scripts remain disabled in all workers.' } });
       await save('independent-code-review', review);
       requireSafe(review.baseSHA === baseSHA && review.headSHA === headSHA, 'independent-code-review-identity-mismatch');
@@ -572,12 +626,14 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
         await checkpoint('secretless-validation');
         validation = await dispatched('validate', baseSHA, headSHA);
         if (validation.pass === true) {
-          requireSafe(validation.nodeVersion === `v${runtime.nodeVersion}`, 'validation-runtime-mismatch');
+          requireSafe(validation.nodeVersion === `v${plan?.targetNodeVersion ?? runtime.nodeVersion}` &&
+            (!plan || validation.expectedNodeVersion === plan.targetNodeVersion), 'validation-runtime-mismatch');
           requireSafe(['install', 'tree', 'lint', 'build'].every(name => validation.checks?.some(check => check.name === name && check.pass === true && check.exitCode === 0)), 'validation-checks-incomplete');
           auditEvidence(validation, head.lock);
           return { headSHA, head, policy, researched, review, validation, compatibilityPaths,
             evidenceTimes: { policy: policyAt, dependencies: dependenciesAt, audit: validation.completedAt, build: validation.completedAt,
-              research: researched.length ? oldestTime(researched.map(result => result.timestamp)) : policyAt,
+              research: oldestTime([...(researched.length ? researched.map(result => result.timestamp) : [policyAt]),
+                ...(plan ? maintenanceTimes(plan) : [])]),
               review: review.provenance?.timestamp } };
         }
       }
@@ -595,7 +651,7 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
   async function requiredPRChecks({ baseSHA, headSHA, number, headBranch = 'updates' }) {
     // GITHUB_TOKEN-originated updates/PRs do not trigger push or PR workflows.
     // Dispatch only installed, trusted workflow names. The candidate cannot
-    // change either workflow under validateCandidateDiff.
+    // change either workflow; maintenance bytes are independently regenerated.
     const inputs = { pr_number: String(number), head_sha: headSHA };
     await gh.repoApi('/actions/workflows/automation-checks.yml/dispatches', { method: 'POST', body: { ref: headBranch, inputs } });
     await gh.repoApi('/actions/workflows/application-checks.yml/dispatches', { method: 'POST', body: { ref: 'main', inputs } });
@@ -689,7 +745,7 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
     const deployed = await vercel.waitForDeployment({ sha: state.restoreSHA, branch: 'main', production: true });
     requireSafe(deployed.sha === state.restoreSHA && deployed.projectId === configuration.projectId, 'restore-deployment-identity-mismatch');
     await vercel.verifyAlias({ hostname: configuration.productionHostname, sha: state.restoreSHA, deploymentId: deployed.id });
-    await vercel.verifyRuntime({ deploymentId: deployed.id });
+    await vercel.verifyRuntime({ deploymentId: deployed.id, minimumNodeVersion: (await regularFile('.nvmrc', state.baseSHA)).trim() });
     const browser = await dispatched('browser', state.baseSHA, state.restoreSHA, { baselineRun: String(capture.runId),
       baselineURL: `https://${configuration.productionHostname}`, candidateURL: `https://${configuration.productionHostname}` });
     const review = await reviewBrowserImages({ capture, comparison: browser, baseSHA: state.baseSHA, headSHA: state.restoreSHA, deploymentId: deployed.id, ai });
@@ -712,7 +768,7 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
     const deployed = await vercel.waitForDeployment({ sha: mergedSHA, branch: 'main', production: true });
     requireSafe(deployed.sha === mergedSHA && deployed.branch === 'main' && deployed.projectId === configuration.projectId && deployed.readyState === 'READY', 'production-deployment-identity-mismatch');
     await vercel.verifyAlias({ hostname: configuration.productionHostname, sha: mergedSHA, deploymentId: deployed.id });
-    await vercel.verifyRuntime({ deploymentId: deployed.id });
+    await vercel.verifyRuntime({ deploymentId: deployed.id, minimumNodeVersion: state.maintenance?.plan.targetNodeVersion ?? (await regularFile('.nvmrc', baseSHA)).trim() });
     const comparison = await dispatched('browser', baseSHA, mergedSHA, { baselineRun: String(capture.runId),
       baselineURL: `https://${configuration.productionHostname}`, candidateURL: `https://${configuration.productionHostname}` });
     await vercel.verifyAlias({ hostname: configuration.productionHostname, sha: mergedSHA, deploymentId: deployed.id });
@@ -760,7 +816,16 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
         requireSafe(configuration.projectId === previous.configuration?.projectId &&
           configuration.productionHostname === previous.configuration.productionHostname && configuration.updatesHostname === previous.configuration.updatesHostname,
         'recovery-configuration-changed');
-        requireSafe((await gh.file('.nvmrc', previous.baseSHA)).trim() === runtime.nodeVersion, 'recovery-runtime-changed');
+        const originalNode = (await regularFile('.nvmrc', previous.baseSHA)).trim();
+        if (previous.maintenance) {
+          const saved = previous.maintenance;
+          requireSafe(saved.baseSHA === previous.baseSHA && saved.identity === digest(JSON.stringify(saved.plan)) &&
+            isDeepStrictEqual(saved.files, saved.plan.changes) && isDeepStrictEqual(saved.evidenceTimes, saved.plan.evidenceTimes) &&
+            saved.plan.toolchainPlan.nodePlan.from === originalNode &&
+            [originalNode, saved.plan.targetNodeVersion].includes(runtime.nodeVersion), 'recovery-maintenance-identity-mismatch');
+          maintenanceTimes(saved.plan, false);
+          await candidateDiff(previous.baseSHA, previous.headSHA, saved.compatibilityPaths ?? [], saved.plan);
+        } else requireSafe(originalNode === runtime.nodeVersion, 'recovery-runtime-changed');
         const identity = { runId: state.runId, controlSHA: env.GITHUB_SHA || await gh.ref('main') };
         Object.assign(state, previous, identity, { outcome: 'running', mergedSHA });
         const capture = await savedCapture(previous);
@@ -815,44 +880,70 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
       const fix = necessaryCveFix({ name, fromVersion: entry.version, advisories, semver: runtime.semver, now: now() });
       return fix ? [{ name, ...fix }] : [];
     });
-    const names = [...new Set([...Object.keys(base.manifest.dependencies ?? {}), ...Object.keys(base.manifest.devDependencies ?? {}), ...necessaryFixes.map(fix => fix.name)])];
-    const metadata = await dep.fetchRegistryMetadata(names);
-    const discovery = discoverDependencyUpdates({ ...base, metadata, advisories, securityOnly: ownedRestart && necessaryFixes.length > 0, now: now(), ...runtime });
-    await save('discovery', { selections: discovery.selections, metadata: registryEvidence(metadata, [base.lock], discovery.selections), baselineAudits });
     const branch = `automation/dependencies-${nonce()}`;
-    let headSHA = discovery.changed ? await gh.commitFiles(startSHA, [{ path: 'package.json', content: JSON.stringify(discovery.manifest, null, 2) + '\n' }], 'chore: discover dependency releases') : startSHA;
-    const branchCreated = discovery.changed || ownedRestart;
-    if (branchCreated) await gh.createBranch(branch, headSHA);
-    Object.assign(state, { branch, headSHA });
-    // Direct exact targets are researched before even lock-only resolution.
-    const preliminaryTargets = [...new Map([...discovery.selections, ...necessaryFixes].map(({ name, version }) => [`${name}@${version}`, { name, version }])).values()];
-    await research(preliminaryTargets, baseSHA, headSHA);
-    await checkpoint('secretless-lock-resolution');
-    const urgent = necessaryFixes.some(fix => {
-      const age = publicationEligibility(metadata[fix.name]?.time?.[fix.version], now());
-      return !age.ok && Number.isFinite(age.ageMs) && metadata[fix.name]?.versions?.[fix.version]?.name === fix.name;
-    });
-    const resolution = await dispatched('resolve', baseSHA, headSHA, { urgent });
-    const resolvedFiles = artifactJSON(resolution, 'worker.json').files;
-    requireSafe(resolution.pass === true && Array.isArray(resolvedFiles) && resolvedFiles.length === 1 &&
-      resolvedFiles[0].path === 'package-lock.json' && typeof resolvedFiles[0].content === 'string', 'lock-resolution-failed');
-    let resolvedLock;
-    try { resolvedLock = JSON.parse(resolvedFiles[0].content); } catch { throw new Blocked('resolved-lock-is-invalid-json'); }
-    requireOK(validateLockfile(resolvedLock), 'resolved-lock-is-invalid');
-    auditEvidence(resolution, resolvedLock, { baseline: true });
-    if (isDeepStrictEqual(base.manifest, discovery.manifest) && isDeepStrictEqual(base.lock, resolvedLock)) {
-      requireSafe(baselineAudits.every(audit => audit.ok) && baselineOsv.every(query => query.advisories.length === 0), 'no-available-fix-for-baseline-findings');
-      requireSafe(!ownedRestart, 'owned-updates-awaiting-a-new-safe-fix');
-      state.outcome = 'no-updates';
-      await checkpoint('complete');
-      return { ...state, summary: 'No eligible dependency changes. Main, updates and production are unchanged.' };
+    let headSHA, candidate, plan;
+    // A verified necessary npm CVE fix cannot wait for unrelated tool metadata,
+    // AI research or maintenance cooldowns. Never merge two lockfile writers.
+    if (!necessaryFixes.length) {
+      await checkpoint('maintenance-discovery');
+      const baseFiles = await maintenanceSnapshot(baseSHA);
+      plan = await maintenance.createMaintenancePlan({ baseFiles, now: now(), ai,
+        token: env.GH_TOKEN || env.GITHUB_TOKEN, supportedLtsMajors: runtime.supportedLtsMajors });
+      requireOK(maintenanceAdapter.validateMaintenancePlan(baseFiles, plan, { now: now() }), 'maintenance-plan-invalid');
+      maintenanceTimes(plan);
+      await save('maintenance-plan', plan);
+      if (!plan.files.length) plan = undefined;
     }
-    const resolvedSHA = await gh.commitFiles(headSHA, resolvedFiles, 'chore: resolve dependency lock without scripts');
-    if (branchCreated) await gh.fastForward(branch, headSHA, resolvedSHA);
-    else await gh.createBranch(branch, resolvedSHA);
-    headSHA = resolvedSHA;
-    const candidate = await validatedCandidate({ baseSHA, headSHA, branch, base, advisories, runtime });
-    headSHA = candidate.headSHA; state.headSHA = headSHA;
+    if (plan) {
+      state.candidateKind = 'maintenance';
+      state.maintenance = { baseSHA, plan, identity: digest(JSON.stringify(plan)),
+        files: plan.changes, evidenceTimes: plan.evidenceTimes };
+      headSHA = await gh.commitFiles(startSHA, plan.files, 'chore: deterministic Node and Actions maintenance');
+      await gh.createBranch(branch, headSHA);
+      Object.assign(state, { branch, headSHA });
+      candidate = await validatedCandidate({ baseSHA, headSHA, branch, base, advisories, runtime, plan });
+      headSHA = candidate.headSHA; state.headSHA = headSHA;
+      state.maintenance.compatibilityPaths = candidate.compatibilityPaths;
+    } else {
+      state.candidateKind = 'dependencies';
+      const names = [...new Set([...Object.keys(base.manifest.dependencies ?? {}), ...Object.keys(base.manifest.devDependencies ?? {}), ...necessaryFixes.map(fix => fix.name)])];
+      const metadata = await dep.fetchRegistryMetadata(names);
+      const discovery = discoverDependencyUpdates({ ...base, metadata, advisories, securityOnly: necessaryFixes.length > 0, now: now(), ...runtime });
+      await save('discovery', { selections: discovery.selections, metadata: registryEvidence(metadata, [base.lock], discovery.selections), baselineAudits });
+      headSHA = discovery.changed ? await gh.commitFiles(startSHA, [{ path: 'package.json', content: JSON.stringify(discovery.manifest, null, 2) + '\n' }], 'chore: discover dependency releases') : startSHA;
+      const branchCreated = discovery.changed || ownedRestart;
+      if (branchCreated) await gh.createBranch(branch, headSHA);
+      Object.assign(state, { branch, headSHA });
+      // Direct exact targets are researched before even lock-only resolution.
+      const preliminaryTargets = [...new Map([...discovery.selections, ...necessaryFixes].map(({ name, version }) => [`${name}@${version}`, { name, version }])).values()];
+      await research(preliminaryTargets, baseSHA, headSHA);
+      await checkpoint('secretless-lock-resolution');
+      const urgent = necessaryFixes.some(fix => {
+        const age = publicationEligibility(metadata[fix.name]?.time?.[fix.version], now());
+        return !age.ok && Number.isFinite(age.ageMs) && metadata[fix.name]?.versions?.[fix.version]?.name === fix.name;
+      });
+      const resolution = await dispatched('resolve', baseSHA, headSHA, { urgent });
+      const resolvedFiles = artifactJSON(resolution, 'worker.json').files;
+      requireSafe(resolution.pass === true && Array.isArray(resolvedFiles) && resolvedFiles.length === 1 &&
+        resolvedFiles[0].path === 'package-lock.json' && typeof resolvedFiles[0].content === 'string', 'lock-resolution-failed');
+      let resolvedLock;
+      try { resolvedLock = JSON.parse(resolvedFiles[0].content); } catch { throw new Blocked('resolved-lock-is-invalid-json'); }
+      requireOK(validateLockfile(resolvedLock), 'resolved-lock-is-invalid');
+      auditEvidence(resolution, resolvedLock, { baseline: true });
+      if (isDeepStrictEqual(base.manifest, discovery.manifest) && isDeepStrictEqual(base.lock, resolvedLock)) {
+        requireSafe(baselineAudits.every(audit => audit.ok) && baselineOsv.every(query => query.advisories.length === 0), 'no-available-fix-for-baseline-findings');
+        requireSafe(!ownedRestart, 'owned-updates-awaiting-a-new-safe-fix');
+        state.outcome = 'no-updates';
+        await checkpoint('complete');
+        return { ...state, summary: 'No eligible dependency changes. Main, updates and production are unchanged.' };
+      }
+      const resolvedSHA = await gh.commitFiles(headSHA, resolvedFiles, 'chore: resolve dependency lock without scripts');
+      if (branchCreated) await gh.fastForward(branch, headSHA, resolvedSHA);
+      else await gh.createBranch(branch, resolvedSHA);
+      headSHA = resolvedSHA;
+      candidate = await validatedCandidate({ baseSHA, headSHA, branch, base, advisories, runtime });
+      headSHA = candidate.headSHA; state.headSHA = headSHA;
+    }
     // Capture once, before publishing updates or touching main, and bind its
     // immutable artifact to the original production deployment and main SHA.
     await current(baseSHA, updatesSHA);
@@ -871,7 +962,7 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
     const deployed = await vercel.waitForDeployment({ sha: headSHA, branch: 'updates' });
     requireSafe(deployed.sha === headSHA && deployed.projectId === configuration.projectId && deployed.readyState === 'READY', 'updates-deployment-identity-mismatch');
     await vercel.verifyAlias({ hostname: configuration.updatesHostname, sha: headSHA, deploymentId: deployed.id });
-    await vercel.verifyRuntime({ deploymentId: deployed.id });
+    await vercel.verifyRuntime({ deploymentId: deployed.id, minimumNodeVersion: plan?.targetNodeVersion ?? runtime.nodeVersion });
     const browser = await dispatched('browser', baseSHA, headSHA, { baselineRun: String(capture.runId), baselineURL: `https://${configuration.productionHostname}`, candidateURL: `https://${configuration.updatesHostname}` });
     await vercel.verifyAlias({ hostname: configuration.updatesHostname, sha: headSHA, deploymentId: deployed.id });
     const visual = await reviewBrowserImages({ capture, comparison: browser, baseSHA, headSHA, deploymentId: deployed.id, ai });
@@ -914,7 +1005,7 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
     const verified = await verifyProduction({ baseSHA, headSHA, mergedSHA, capture, production, configuration });
     state.outcome = 'promoted'; state.productionDeploymentId = verified.deployed.id;
     await checkpoint('complete');
-    return { ...state, summary: 'Dependencies promoted and production verified against the saved baseline.' };
+    return { ...state, summary: `${plan ? 'Node and Actions maintenance' : 'Dependencies'} promoted and production verified against the saved baseline.` };
   }
   async function run(mode = 'scan') {
     requireSafe(['scan', 'preflight'].includes(mode), 'unsupported-controller-mode');

@@ -1,12 +1,13 @@
-import { readFile, writeFile, mkdir, lstat } from 'node:fs/promises';
+import { appendFile, readFile, writeFile, mkdir, lstat } from 'node:fs/promises';
 import { resolve, dirname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { auditCommandPlans } from './dependencies.mjs';
-import { createDependencySandbox, sha256 } from './dependency-sandbox.mjs';
+import { createDependencySandbox, sha256, NODE_VERSION, assertCandidateNodeVersion, readCandidateNodeVersion } from './dependency-sandbox.mjs';
 
 const execute = promisify(execFile);
+async function worker() {
 const trustedRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const output = resolve(process.env.EVIDENCE_DIR || 'evidence');
 const candidate = resolve(process.env.CANDIDATE_DIR || 'candidate');
@@ -43,7 +44,14 @@ try {
   if (!/^[a-f0-9]{40}$/.test(result.baseSHA) || !/^[a-f0-9]{40}$/.test(result.headSHA) || !/^[0-9a-f-]{36}$/.test(result.request)) throw Error('Invalid worker identities');
   if (['inspect', 'resolve', 'validate'].includes(phase)) {
     if (output === candidate || output.startsWith(candidate + sep) || candidate.startsWith(output + sep)) throw Error('Evidence and candidate must be separate');
-    sandbox = await createDependencySandbox(candidate);
+    // The workflow reads candidate data under the trusted runtime BEFORE setup,
+    // then binds that selection through an environment value. Re-read to catch
+    // changes between setup and execution. No env binding means the old trusted
+    // default only (also used by the synthetic Docker isolation smoke).
+    result.expectedNodeVersion = assertCandidateNodeVersion(process.env.CANDIDATE_NODE_VERSION ?? NODE_VERSION);
+    if (process.env.CANDIDATE_NODE_VERSION !== undefined && await readCandidateNodeVersion(candidate) !== result.expectedNodeVersion)
+      throw Error('Candidate .nvmrc differs from authorized runtime');
+    sandbox = await createDependencySandbox(candidate, { nodeVersion: result.expectedNodeVersion });
     result.sandbox = { commands: sandbox.commands };
     if (phase === 'resolve') {
       const before = new Date(Date.now() - 7 * 86400000).toISOString();
@@ -109,3 +117,11 @@ result.completedAt = new Date().toISOString();
 if ((await lstat(output)).isSymbolicLink()) throw Error('Evidence directory must not be a symlink');
 await writeFile(resolve(output, 'worker.json'), JSON.stringify(result, null, 2));
 if (!result.pass) process.exitCode = 1;
+}
+
+if (process.argv[2] === 'select-node') {
+  // Run only trusted host code; never source .nvmrc or invoke candidate npm.
+  const nodeVersion = await readCandidateNodeVersion(resolve(process.env.CANDIDATE_DIR || 'candidate'));
+  if (!process.env.GITHUB_OUTPUT) throw Error('Missing workflow output binding');
+  await appendFile(process.env.GITHUB_OUTPUT, `node_version=${nodeVersion}\n`);
+} else await worker();

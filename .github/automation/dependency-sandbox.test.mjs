@@ -1,14 +1,80 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cp, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import { cp, link, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { containerArguments, assertContainerBoundary, sourceSnapshot, assertSourceUnchanged, sha256, SANDBOX_IMAGE } from './dependency-sandbox.mjs';
+import { containerArguments, assertContainerBoundary, sourceSnapshot, assertSourceUnchanged, sha256, SANDBOX_IMAGE,
+  NODE_VERSION, assertCandidateNodeVersion, parseCandidateNodeVersion, readCandidateNodeVersion, createDependencySandbox } from './dependency-sandbox.mjs';
 const execute = promisify(execFile);
 const config = { name: 'bsc70-12345678-1234-1234-1234-123456789abc', work: '/tmp/narrow/work', runtime: '/trusted/node',
   uid: 1001, gid: 1001, network: false, writable: true, nodeArgs: ['/opt/node/lib/node_modules/npm/bin/npm-cli.js', 'run', 'lint'] };
+
+const [, minor, patch] = NODE_VERSION.split('.').map(Number);
+const newerPatch = `24.${minor}.${patch + 1}`, newerMinor = `24.${minor + 1}.0`;
+
+test('candidate runtime allows exact same/newer stable 24 patch and minor, never a downgrade or setup-node selector', async () => {
+  for (const version of [NODE_VERSION, newerPatch, newerMinor]) {
+    assert.equal(assertCandidateNodeVersion(version), version);
+    for (const newline of ['', '\n', '\r\n']) assert.equal(parseCandidateNodeVersion(version + newline), version);
+  }
+  for (const version of [undefined, '', '24', '24.x', 'node', 'lts/*', 'v' + NODE_VERSION, '^' + NODE_VERSION,
+    '>=' + NODE_VERSION, NODE_VERSION + '-rc.1', NODE_VERSION + '+custom', '25.0.0', '22.99.99',
+    `24.${minor - 1}.999`, `24.${minor}.${patch - 1}`, '24.022.1', '24.22.01', '24.99999999999999999.0',
+    'https://nodejs.org/dist/' + NODE_VERSION, 'file:///tmp/node', 'refs/heads/main', 'nightly/' + NODE_VERSION,
+    NODE_VERSION + '\n', NODE_VERSION + '\r', NODE_VERSION + ' ', ' ' + NODE_VERSION]) {
+    assert.throws(() => assertCandidateNodeVersion(version));
+  }
+  for (const text of [NODE_VERSION + '\n\n', NODE_VERSION + '\r\n\n', NODE_VERSION + '\nnode', NODE_VERSION + '\0', 'node=' + NODE_VERSION])
+    assert.throws(() => parseCandidateNodeVersion(text));
+  // Deliberately no download/execution of a hypothetical newer release.
+  await assert.rejects(createDependencySandbox('/not-read', { nodeVersion: newerPatch }), /host Node/);
+  await assert.rejects(createDependencySandbox('/not-read', { nodeVersion: '25.0.0' }), /exact stable Node 24/);
+});
+
+test('candidate .nvmrc reader rejects links, directories, FIFOs, oversized files and invalid selectors', async t => {
+  const root = await mkdtemp(join(tmpdir(), 'bsc70-node-file-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const pin = join(root, '.nvmrc'), other = join(root, 'other');
+  await writeFile(other, NODE_VERSION);
+  await symlink(other, pin); await assert.rejects(readCandidateNodeVersion(root)); await rm(pin);
+  await link(other, pin); await assert.rejects(readCandidateNodeVersion(root), /regular file/); await rm(pin);
+  await mkdir(pin); await assert.rejects(readCandidateNodeVersion(root), /regular file/); await rm(pin, { recursive: true });
+  await execute('/usr/bin/mkfifo', [pin]); await assert.rejects(readCandidateNodeVersion(root), /regular file/); await rm(pin);
+  for (const content of ['24.x', 'https://example.org/node', '25.0.0', 'x'.repeat(65)]) {
+    await writeFile(pin, content); await assert.rejects(readCandidateNodeVersion(root));
+  }
+  await writeFile(pin, newerMinor + '\n'); assert.equal(await readCandidateNodeVersion(root), newerMinor);
+});
+
+test('host worker binds candidate file through selection and rejects env tampering or actual runtime mismatch before Docker', async t => {
+  const root = await mkdtemp(join(tmpdir(), 'bsc70-worker-node-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const candidate = join(root, 'candidate'); await mkdir(candidate);
+  const pin = join(candidate, '.nvmrc'), binding = join(root, 'outputs');
+  const worker = new URL('./worker.mjs', import.meta.url).pathname;
+  const env = { PATH: '/usr/bin:/bin', CANDIDATE_DIR: candidate, GITHUB_OUTPUT: binding };
+  await writeFile(pin, newerPatch + '\n');
+  await execute(process.execPath, [worker, 'select-node'], { env });
+  assert.equal(await readFile(binding, 'utf8'), `node_version=${newerPatch}\n`);
+  for (const [expected, actual, errorPattern] of [
+    [NODE_VERSION, newerPatch, /differs from authorized/],
+    [newerPatch, newerPatch, /host Node/],
+    ['25.0.0', '25.0.0', /exact stable Node 24/],
+    [NODE_VERSION + '\n', NODE_VERSION, /exact stable Node 24/],
+  ]) {
+    await writeFile(pin, actual + '\n');
+    const evidence = join(root, 'evidence-' + Math.random());
+    await assert.rejects(execute(process.execPath, [worker], { env: { ...env, EVIDENCE_DIR: evidence,
+      CANDIDATE_NODE_VERSION: expected, WORKER_PHASE: 'validate', WORKER_REQUEST: '12345678-1234-1234-1234-123456789abc',
+      BASE_SHA: 'a'.repeat(40), HEAD_SHA: 'b'.repeat(40) } }));
+    const result = JSON.parse(await readFile(join(evidence, 'worker.json'), 'utf8'));
+    assert.equal(result.pass, false); assert.equal(result.nodeVersion, process.version);
+    assert.equal(result.checks.length, 0); assert.equal(result.sandbox, undefined); assert.match(result.error, errorPattern);
+    if (expected === newerPatch) assert.equal(result.expectedNodeVersion, newerPatch);
+  }
+});
 
 function inspectedBoundary() {
   const args = containerArguments(config), env = [];
@@ -53,16 +119,17 @@ test('host byte snapshots reject changed or added source and manifests but allow
   const root = await mkdtemp(join(tmpdir(), 'bsc70-source-test-'));
   t.after(() => rm(root, { recursive: true, force: true }));
   await writeFile(join(root, 'package.json'), '{}'); await writeFile(join(root, 'package-lock.json'), '{}');
+  await writeFile(join(root, '.nvmrc'), NODE_VERSION);
   await writeFile(join(root, 'app.js'), 'original');
   const before = await sourceSnapshot(root);
   await mkdir(join(root, 'dist')); await writeFile(join(root, 'dist/app.js'), 'built');
   await mkdir(join(root, 'node_modules')); await writeFile(join(root, 'node_modules/output'), 'generated');
   assert.equal((await assertSourceUnchanged(root, before)).packageSHA256, sha256(Buffer.from('{}')));
-  for (const name of ['app.js', 'package.json', 'package-lock.json', 'new-source.js', '__proto__']) {
+  for (const name of ['app.js', '.nvmrc', 'package.json', 'package-lock.json', 'new-source.js', '__proto__']) {
     await writeFile(join(root, name), 'modified');
     await assert.rejects(assertSourceUnchanged(root, before), /Candidate source changed/);
     if (['new-source.js', '__proto__'].includes(name)) await rm(join(root, name));
-    else await writeFile(join(root, name), name === 'app.js' ? 'original' : '{}');
+    else await writeFile(join(root, name), name === 'app.js' ? 'original' : name === '.nvmrc' ? NODE_VERSION : '{}');
   }
   await writeFile(join(root, 'package-lock.json'), 'resolved');
   await assertSourceUnchanged(root, before, { allowLockChange: true });
@@ -106,4 +173,17 @@ await writeFile(out+'/result.json',JSON.stringify(report));`;
     assert.equal(envelope.qa.counts.checks, 415);
     assert.equal(envelope.qa.manifestSHA256, sha256(Buffer.from(JSON.stringify(JSON.parse(full).artifacts))));
   }
+});
+
+test('worker workflow bootstraps under trusted pin before selecting candidate data, with secretless runtime binding and separate QA pin', async () => {
+  const workflow = await readFile(new URL('../workflows/dependency-worker.yml', import.meta.url), 'utf8');
+  assert(!workflow.includes('secrets.') && !workflow.includes(': write'));
+  const checkout = workflow.indexOf('name: Checkout candidate without credentials');
+  const smoke = workflow.indexOf('node .github/automation/sandbox-integration.mjs');
+  const select = workflow.indexOf('node .github/automation/worker.mjs select-node');
+  const setup = workflow.indexOf('name: Set up authorized candidate dependency runtime');
+  assert(checkout > 0 && checkout < select && smoke < select && select < setup);
+  assert(workflow.includes('CANDIDATE_NODE_VERSION: ${{ steps.candidate_node.outputs.node_version }}'));
+  assert(workflow.includes('node-version: ${{ steps.candidate_node.outputs.node_version }}'));
+  assert(workflow.includes('node-version-file: .github/qa/.nvmrc'));
 });

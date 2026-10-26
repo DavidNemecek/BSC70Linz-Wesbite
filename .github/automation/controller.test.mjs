@@ -4,6 +4,7 @@ import { dirname, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import * as dependencies from './dependencies.mjs';
+import * as maintenanceAdapter from './maintenance.mjs';
 import { createController, CHECK_CONTEXTS, validateMainProtection, reviewBrowserImages, auditEvidence, confirmRepeatedRegression, regressionSignals } from './controller.mjs';
 import { reviewMarker, createReviewEvidence } from './review-evidence.mjs';
 import { authorize as authorizeApplication, auditVerdict as applicationAuditVerdict } from './recovery-checks.mjs';
@@ -89,12 +90,38 @@ function runtimeEvent(type, origin = 'https://www.bsc70linz.at', path = '/assets
       url: `${origin}/news` };
 }
 
+// Primary upstream metadata and search provenance are synthetic, but the real
+// maintenance planner and independent byte validators run in every fixture.
+function maintenanceInput(options = {}) {
+  const node = options.maintenance && !options.actionOnly ? '24.22.2' : '24.22.1';
+  const tag = options.maintenance && !options.nodeOnly ? 'v6.0.1' : 'v6.0.0';
+  const sha = tag === 'v6.0.0' ? 'c'.repeat(40) : 'd'.repeat(40);
+  const old = new Date(now - (options.youngMaintenance ? 1 : 8) * 86400000).toISOString();
+  const targets = [{ kind: 'node', name: 'node', version: node }, { kind: 'action', name: 'actions/checkout', version: tag }];
+  return {
+    metadata: { fetchedAt: options.staleMaintenance ? new Date(now - 25 * 3600000).toISOString() : iso,
+      nodeIndex: [{ version: `v${node}`, date: old, lts: 'Krypton' }],
+      shasums: `${'a'.repeat(64)}  node-v${node}-linux-x64.tar.gz\n`, shasumsSignature: 'signed fixture',
+      actionReleases: { 'actions/checkout': [{ tag_name: tag, published_at: old, prerelease: false, draft: false,
+        repository: { full_name: 'actions/checkout' }, ref: { object: { type: 'commit', sha } } }] },
+      actionCommits: { 'actions/checkout': sha } },
+    researchresults: { researchedAt: iso, results: targets.map(target => {
+      const source = target.kind === 'node' ? 'https://nodejs.org/en/blog/vulnerability/security' : 'https://github.com/actions/checkout/security/advisories';
+      return { target, pass: true, findings: [], evidence: [source], security: { status: 'clear', advisories: [] },
+        provenance: { timestamp: iso, searches: [{ queries: [`${target.name} ${target.version} official security`], sources: [source] }] } };
+    }) },
+  };
+}
+
 function harness(options = {}) {
   const calls = [], evidence = [], issues = [], statuses = [], commits = new Map();
-  const workerInputs = [];
+  const workerInputs = [], reviewInputs = [];
   const prs = new Map(), remote = new Map(), workflowRuns = new Map(), remoteArtifacts = new Map();
   const initialFiles = new Map([['package.json', JSON.stringify(manifest)], ['package-lock.json', JSON.stringify(lockFor(manifest))],
-    ['.nvmrc', '24.22.1\n'], ['src/app.ts', 'export const value = 1;\n']]);
+    ['.nvmrc', '24.22.1\n'], ['.github/qa/.nvmrc', '24.22.1\n'],
+    ['.github/automation/dependency-sandbox.mjs', "export const NODE_VERSION = '24.22.1';\n"],
+    ['.github/workflows/fixture.yml', `name: fixture\njobs:\n  test:\n    steps:\n      - uses: actions/checkout@${'c'.repeat(40)} # v6.0.0\n`],
+    ['src/app.ts', 'export const value = 1;\n']]);
   commits.set(baseSHA, { files: initialFiles, parents: [], treeSHA: baseSHA });
   commits.set(unrelatedSHA, { files: initialFiles, parents: [], treeSHA: unrelatedSHA });
   const refs = { main: baseSHA, updates: options.unrelatedUpdates ? unrelatedSHA : baseSHA };
@@ -108,7 +135,27 @@ function harness(options = {}) {
   }
   const gh = {
     repository: 'owner/repo', ref: async branch => refs[branch], file: async (path, sha) => commits.get(sha).files.get(path),
-    commitFiles: async (parent, files) => { calls.push('commit'); return commit(parent, files); },
+    api: async path => {
+      const tree = /^\/repos\/owner\/repo\/git\/trees\/([a-f0-9]{40})$/.exec(path);
+      if (tree) return { sha: tree[1], truncated: false, tree: [{ path: '.nvmrc', type: 'blob', mode: '100644', sha: tree[1] }] };
+      const blob = /^\/repos\/owner\/repo\/git\/blobs\/([a-f0-9]{40})$/.exec(path);
+      if (blob) {
+        const bytes = Buffer.from(commits.get(blob[1]).files.get('.nvmrc'));
+        return { sha: blob[1], encoding: 'base64', size: bytes.length, content: bytes.toString('base64') };
+      }
+      throw Error(`Unexpected fake GitHub API ${path}`);
+    },
+    commitFiles: async (parent, files) => {
+      calls.push('commit');
+      if (options.tamperMaintenance && files.some(file => file.path === '.nvmrc' || file.path.endsWith('fixture.yml'))) {
+        files = structuredClone(files);
+        const path = options.tamperMaintenance;
+        const file = files.find(file => file.path === path);
+        if (file) file.content += '\n# unplanned edit\n';
+        else files.push({ path, content: (commits.get(parent).files.get(path) ?? '') + '\n// extra edit\n' });
+      }
+      return commit(parent, files);
+    },
     createBranch: async (branch, sha) => { calls.push('branch'); refs[branch] = sha; },
     fastForward: async (branch, expected, target) => {
       calls.push(`ff:${branch}`);
@@ -197,11 +244,14 @@ function harness(options = {}) {
       }
       if (path.startsWith('/git/trees/')) {
         const sha = path.split('/').at(-1).split('?')[0];
-        return { truncated: false, tree: [...commits.get(sha).files.keys()].map(path => ({ path, type: 'blob', mode: options.symlink && path === options.symlink ? '120000' : '100644' })) };
+        return { truncated: false, tree: [...commits.get(sha).files].map(([path, content]) => ({ path, type: 'blob',
+          sha: createHash('sha1').update(content).digest('hex'), mode: options.symlink && path === options.symlink ? '120000' : '100644' })) };
       }
       if (path.startsWith('/compare/')) {
-        if (opts?.accept) return 'diff --git a/package.json b/package.json\n+ synthetic dependency upgrade';
         const [base, head] = path.slice('/compare/'.length).split('...');
+        if (opts?.accept) return [...commits.get(head).files].filter(([file, content]) => commits.get(base).files.get(file) !== content)
+          .filter(([file]) => !options.incompleteMaintenanceDiff || file !== '.nvmrc')
+          .map(([file, content]) => `diff --git a/${file} b/${file}\n-${commits.get(base).files.get(file)}\n+${content}`).join('\n');
         return { status: base === head ? 'identical' : ancestor(base, head) ? 'ahead' : 'diverged' };
       }
       if (path === '/git/commits' && opts?.method === 'POST') {
@@ -244,7 +294,7 @@ function harness(options = {}) {
       return { ...input, pass: true, timestamp: options.staleResearch ? new Date(now - 25 * 3600000).toISOString() : iso, packages: input.packages };
     },
     reviewPullRequest: async input => {
-      calls.push('review'); reviews++;
+      calls.push('review'); reviews++; reviewInputs.push(input);
       const fail = options.reviewFailure && !input.context.stage;
       return { pass: !fail, baseSHA: input.baseSHA, headSHA: input.headSHA, provenance: { timestamp: iso }, findings: fail ?
         [{ path: 'src/app.ts', severity: 'high', message: 'compatibility defect', evidence: ['synthetic code finding'] }] : [] };
@@ -262,7 +312,10 @@ function harness(options = {}) {
     getProductionDeployment: async () => ({ id: rolledBack || refs.main === baseSHA ? 'dpl_old' : 'dpl_main',
       sha: options.productionMismatch ? unrelatedSHA : rolledBack ? baseSHA : refs.main,
       branch: 'main', readyState: 'READY', hostname: 'www.bsc70linz.at', projectId: 'prj_synthetic', url: 'https://old.vercel.app' }),
-    verifyAlias: async () => { calls.push('alias'); }, verifyRuntime: async () => {},
+    verifyAlias: async () => { calls.push('alias'); }, verifyRuntime: async input => {
+      calls.push(`runtime:${input.minimumNodeVersion}`);
+      if (options.platformRuntimeTooOld && input.minimumNodeVersion === '24.22.2') throw Error('Platform runtime below minimum');
+    },
     waitForDeployment: async ({ sha, branch }) => {
       calls.push(`deploy:${branch}`);
       if (options.postInfrastructureFailure && branch === 'main') throw Error('Deployment API unavailable');
@@ -281,7 +334,8 @@ function harness(options = {}) {
     workerInputs.push(input);
     calls.push(`worker:${input.phase}`);
     if (input.phase === 'resolve' && options.expectUrgent !== undefined) assert.equal(input.urgent, options.expectUrgent);
-    const result = { ...input, request: 'synthetic', controlSHA: activeControlSHA, runId: runId++, artifactId: runId + 100, completedAt: iso, pass: true, nodeVersion: 'v24.22.1', files: new Map() };
+    const candidateNode = commits.get(input.headSHA).files.get('.nvmrc').trim();
+    const result = { ...input, expectedNodeVersion: options.wrongExpectedRuntime ? '24.22.1' : candidateNode, request: 'synthetic', controlSHA: activeControlSHA, runId: runId++, artifactId: runId + 100, completedAt: iso, pass: true, nodeVersion: `v${candidateNode}`, files: new Map() };
     const currentManifest = JSON.parse(commits.get(input.headSHA).files.get('package.json'));
     const lock = input.phase === 'inspect' ? lockFor(manifest) : lockFor(currentManifest, currentManifest.dependencies.synthetic, options.helperTarget ?? (options.youngTransitive ? '1.0.1' : '1.0.0'));
     result.audit = audit(lock); result.auditProduction = audit(lock);
@@ -307,7 +361,7 @@ function harness(options = {}) {
     }
     if (input.phase === 'browser') {
       const post = input.headSHA === refs.main;
-      const failedProduction = post && currentManifest.dependencies.synthetic !== '1.0.0';
+      const failedProduction = post && (currentManifest.dependencies.synthetic !== '1.0.0' || candidateNode !== '24.22.1');
       const comparison = comparisonResult(capture, { regression: failedProduction && options.postRegression, substitution: options.baselineSubstitution });
       if (failedProduction && options.postBehavior) {
         const messages = { functional: ['candidate 360-de-light functional', 'Fee disclosure did not open after click'],
@@ -374,7 +428,14 @@ function harness(options = {}) {
   }
   function newController(id = '900') {
     activeRunId = id; activeControlSHA = refs.main;
-    return createController({ gh, ai, dep, vercel, worker, now: () => clockNow, toolchain: async () => runtime, sleep: async () => {},
+    return createController({ gh, ai, dep, vercel, worker,
+      maintenance: { createMaintenancePlan: async input => {
+        calls.push('maintenance');
+        if (options.maintenanceFailure) throw Error('Unrelated maintenance adapter unavailable');
+        const plan = await maintenanceAdapter.createMaintenancePlan({ ...input, ...maintenanceInput(options) });
+        if (options.tamperPlan) plan.files[0].content += '\n# forged plan\n';
+        return plan;
+      } }, now: () => clockNow, toolchain: async () => options.trustedRuntimeFromMain ? { ...runtime, nodeVersion: commits.get(refs.main).files.get('.nvmrc').trim() } : runtime, sleep: async () => {},
       env: { GITHUB_RUN_ID: id, GITHUB_SHA: activeControlSHA, AI_API_KEY: 'private-test-value' },
       loadArtifact: async id => remote.get(id), nonce: () => `synthetic-run-${id}`,
       loadReviewArtifact: async id => remote.get(id),
@@ -391,7 +452,7 @@ function harness(options = {}) {
     remote.set(artifactId, new Map(evidence.filter(item => item.runId === id).map(item => [item.name, Buffer.from(JSON.stringify(item.value))])));
   }
   const controller = newController();
-  return { controller, newController, uploadEvidence, calls, workerInputs, refs, commits, evidence, issues, statuses, ai, worker, gh, prs, remote, workflowRuns, remoteArtifacts,
+  return { controller, newController, uploadEvidence, calls, workerInputs, reviewInputs, refs, commits, evidence, issues, statuses, ai, worker, gh, prs, remote, workflowRuns, remoteArtifacts,
     get researchCalls() { return researchCalls; } };
 }
 
@@ -873,4 +934,192 @@ test('every open main PR sharing the head needs its own exact review despite gre
   const h = harness({ missingSiblingReview: true }); const result = await h.controller.run();
   assert.equal(result.reason, 'required-pr-checks-timeout'); assert.equal(h.calls.includes('mergePR'), false);
   assert.equal(h.calls.filter(call => call === 'dispatch:pr-review.yml').length, 2);
+});
+
+
+test('automatic maintenance-only promotion uses exact Node/action bytes and the existing public acceptance and protected merge gates', async () => {
+  const h = harness({ maintenance: true });
+  const result = await h.controller.run();
+  assert.equal(result.outcome, 'promoted', `${result.stage}: ${result.reason}`);
+  assert.equal(result.candidateKind, 'maintenance');
+  assert.equal(h.calls.includes('worker:resolve'), false);
+  assert(h.calls.indexOf('maintenance') < h.calls.indexOf('commit'));
+  assert(h.calls.includes('worker:validate'));
+  const files = h.commits.get(result.headSHA).files;
+  assert.equal(files.get('.nvmrc'), '24.22.2\n');
+  assert.equal(files.get('.github/qa/.nvmrc'), '24.22.1\n');
+  assert.equal(JSON.parse(files.get('package.json')).dependencies.synthetic, '1.0.0');
+  assert.deepEqual(JSON.parse(files.get('package-lock.json')).packages['node_modules/synthetic'], lockFor(manifest).packages['node_modules/synthetic']);
+  assert.equal(JSON.parse(files.get('package-lock.json')).packages[''].engines.node, '>=24.22.2 <25');
+  assert.equal(JSON.parse(files.get('package.json')).engines.node, '>=24.22.2 <25');
+  assert.equal(files.get('.github/automation/dependency-sandbox.mjs'), "export const NODE_VERSION = '24.22.2';\n");
+  assert.match(files.get('.github/workflows/fixture.yml'), new RegExp(`actions/checkout@${'d'.repeat(40)} # v6.0.1`));
+  assert.equal(h.calls.filter(call => call === 'runtime:24.22.2').length, 2);
+  assert(h.calls.includes('dispatch:application-checks.yml'));
+  assert(h.calls.includes('dispatch:pr-review.yml'));
+  assert.equal(h.workerInputs.filter(input => input.phase === 'capture').length, 1);
+  assert.equal(h.workerInputs.filter(input => input.phase === 'browser').length, 2);
+  assert.equal(result.maintenance.identity, hash(JSON.stringify(result.maintenance.plan)));
+  assert.deepEqual(result.maintenance.files, result.maintenance.plan.changes);
+  const review = h.evidence.find(item => item.name.includes('independent-code-review'));
+  assert(review);
+  assert(h.reviewInputs[0].context.maintenancePlan);
+  for (const file of result.maintenance.plan.files) assert(h.reviewInputs[0].diff.includes(`diff --git a/${file.path} b/${file.path}`));
+});
+
+test('Node-only and action-only maintenance retain distinct root/QA pins and skip package lock resolution', async () => {
+  for (const mode of ['nodeOnly', 'actionOnly']) {
+    const h = harness({ maintenance: true, [mode]: true });
+    const result = await h.controller.run();
+    assert.equal(result.outcome, 'promoted', `${result.stage}: ${result.reason}`);
+    assert.equal(h.calls.includes('worker:resolve'), false);
+    const files = h.commits.get(result.headSHA).files;
+    if (mode === 'actionOnly') {
+      assert.equal(files.get('package-lock.json'), h.commits.get(baseSHA).files.get('package-lock.json'));
+      assert.equal(files.get('package.json'), h.commits.get(baseSHA).files.get('package.json'));
+      assert.equal(files.get('.nvmrc'), '24.22.1\n');
+    } else assert.equal(files.get('.github/workflows/fixture.yml'), h.commits.get(baseSHA).files.get('.github/workflows/fixture.yml'));
+  }
+});
+
+test('maintenance bytes reject substituted workflow, Node pin/engine/lock/constant, QA pin and all extra edits before candidate execution', async () => {
+  for (const path of ['.github/workflows/fixture.yml', '.nvmrc', 'package.json', 'package-lock.json',
+    '.github/automation/dependency-sandbox.mjs', '.github/qa/.nvmrc', '.github/automation/policy.mjs', 'src/app.ts']) {
+    const h = harness({ maintenance: true, tamperMaintenance: path });
+    const result = await h.controller.run();
+    assert.equal(result.outcome, 'blocked', `${path}: ${result.stage}: ${result.reason}`);
+    assert.equal(h.calls.includes('worker:validate'), false, path);
+    assert.equal(h.calls.includes('ff:updates'), false, path);
+    assert.equal(h.calls.includes('mergePR'), false, path);
+  }
+});
+
+test('a tampered deterministic plan is independently regenerated before any candidate commit', async () => {
+  const h = harness({ maintenance: true, tamperPlan: true });
+  const result = await h.controller.run();
+  assert.equal(result.reason, 'maintenance-plan-invalid', `${result.stage}: ${result.reason}`);
+  assert.equal(h.calls.includes('commit'), false);
+});
+
+test('young maintenance targets and stale metadata never authorize a candidate', async () => {
+  for (const options of [{ youngMaintenance: true }, { staleMaintenance: true }]) {
+    const h = harness({ maintenance: true, ...options });
+    const result = await h.controller.run();
+    assert.equal(result.outcome, 'blocked', `${result.stage}: ${result.reason}`);
+    assert.equal(h.calls.includes('commit'), false);
+    assert.equal(h.calls.includes('worker:validate'), false);
+    assert.equal(h.refs.main, baseSHA);
+  }
+});
+
+test('a necessary npm CVE fix entirely bypasses unavailable or young unrelated maintenance', async () => {
+  const advisory = { id: 'CVE-2026-12345', modified: iso, affected: [{ package: { ecosystem: 'npm', name: 'helper' },
+    ranges: [{ type: 'SEMVER', events: [{ introduced: '0' }, { fixed: '1.0.1' }] }] }] };
+  const h = harness({ maintenance: true, maintenanceFailure: true, youngMaintenance: true, helperTarget: '1.0.1', expectUrgent: true,
+    records: { synthetic: registry('synthetic'), helper: registry('helper', { '1.0.0': 30, '1.0.1': 1 }) },
+    advisories: { [advisory.id]: advisory }, osv: lock => lock.packages['node_modules/helper'].version === '1.0.0' ?
+      [{ name: 'helper', version: '1.0.0', advisories: [{ id: advisory.id }] }] : [] });
+  const result = await h.controller.run();
+  assert.equal(result.outcome, 'promoted', `${result.stage}: ${result.reason}`);
+  assert.equal(result.candidateKind, 'dependencies');
+  assert.equal(h.calls.includes('maintenance'), false);
+  const files = h.commits.get(result.headSHA).files;
+  assert.equal(JSON.parse(files.get('package.json')).dependencies.synthetic, '1.0.0');
+  assert.equal(JSON.parse(files.get('package-lock.json')).packages['node_modules/helper'].version, '1.0.1');
+  assert.equal(files.get('.nvmrc'), '24.22.1\n');
+});
+
+test('maintenance validation requires both actual new Node and its independently bound expected pin', async () => {
+  for (const options of [{ wrongRuntime: true }, { wrongExpectedRuntime: true }]) {
+    const h = harness({ maintenance: true, ...options });
+    const result = await h.controller.run();
+    assert.equal(result.reason, 'validation-runtime-mismatch', `${result.stage}: ${result.reason}`);
+    assert.equal(h.calls.includes('ff:updates'), false);
+  }
+  const h = harness({ maintenance: true, platformRuntimeTooOld: true });
+  assert.equal((await h.controller.run()).outcome, 'blocked');
+  assert.equal(h.calls.includes('mergePR'), false);
+});
+
+test('maintenance plans survive authenticated production resumption with the original saved baseline', async () => {
+  const options = { maintenance: true, postInfrastructureFailure: true };
+  const h = harness(options);
+  const first = await h.controller.run();
+  assert.equal(first.stage, 'verify-production', `${first.stage}: ${first.reason}`);
+  h.uploadEvidence();
+  options.postInfrastructureFailure = false;
+  const resumed = await h.newController('901').run();
+  assert.equal(resumed.outcome, 'promoted', `${resumed.stage}: ${resumed.reason}`);
+  assert.equal(resumed.maintenance.identity, first.maintenance.identity);
+  assert.equal(h.workerInputs.filter(input => input.phase === 'capture').length, 1);
+  assert.equal(h.calls.filter(call => call === 'commit').length, 1);
+});
+
+
+test('maintenance compatibility fixes require separate scope authorization and preserve every planned tool byte', async () => {
+  const h = harness({ maintenance: true, repairOnce: true });
+  const result = await h.controller.run();
+  assert.equal(result.outcome, 'promoted', `${result.stage}: ${result.reason}`);
+  assert.equal(h.calls.filter(call => call === 'builder').length, 1);
+  assert(h.calls.filter(call => call === 'review').length >= 3);
+  assert.deepEqual(result.maintenance.compatibilityPaths, ['src/app.ts']);
+  assert.equal(h.calls.includes('worker:resolve'), false);
+  const before = h.commits.get(baseSHA).files, after = h.commits.get(result.headSHA).files;
+  for (const file of result.maintenance.plan.files) assert.equal(after.get(file.path), file.content);
+  assert.notEqual(after.get('src/app.ts'), before.get('src/app.ts'));
+  for (const options of [{ badRepair: true }, { largeRepair: true }]) {
+    const blocked = harness({ maintenance: true, repairOnce: true, ...options });
+    assert.equal((await blocked.controller.run()).outcome, 'blocked');
+    assert.equal(blocked.calls.includes('ff:updates'), false);
+  }
+});
+
+test('maintenance confirmed production regression reuses rollback and exact protected baseline restoration', async () => {
+  const h = harness({ maintenance: true, postBehavior: 'runtime' });
+  const result = await h.controller.run();
+  assert.equal(result.reason, 'confirmed-regression-rolled-back', `${result.stage}: ${result.reason}`);
+  assert.equal(result.recoveryComplete, true);
+  assert.equal(h.calls.filter(call => call === 'rollback').length, 1);
+  assert.equal(h.calls.filter(call => call === 'mergePR').length, 2);
+  assert.equal(h.calls.includes('worker:resolve'), false);
+  assert.equal(h.commits.get(h.refs.main).files.get('.nvmrc'), '24.22.1\n');
+  assert.equal(h.workerInputs.filter(input => input.phase === 'capture').length, 1);
+  assert.equal(h.calls.filter(call => call.startsWith('runtime:')).at(-1), 'runtime:24.22.1');
+});
+
+test('resumed maintenance authenticates saved plan identity and recomputes bytes even under the new controller Node pin', async () => {
+  for (const tamper of [null, 'identity', 'bytes', 'hashes']) {
+    const options = { maintenance: true, postInfrastructureFailure: true, trustedRuntimeFromMain: true };
+    const h = harness(options);
+    const first = await h.controller.run();
+    assert.equal(first.stage, 'verify-production', `${first.stage}: ${first.reason}`);
+    h.uploadEvidence();
+    if (tamper) {
+      const artifact = h.remote.get(9000);
+      const path = [...artifact.keys()].sort().at(-1), saved = JSON.parse(artifact.get(path));
+      if (tamper === 'identity') saved.maintenance.identity = '0'.repeat(64);
+      if (tamper === 'bytes') {
+        saved.maintenance.plan.files[0].content += '// tampered';
+        saved.maintenance.identity = hash(JSON.stringify(saved.maintenance.plan));
+      }
+      if (tamper === 'hashes') saved.maintenance.files = [];
+      artifact.set(path, Buffer.from(JSON.stringify(saved)));
+    }
+    options.postInfrastructureFailure = false;
+    const resumed = await h.newController('901').run();
+    assert.equal(resumed.outcome, tamper ? 'blocked' : 'promoted', `${tamper}: ${resumed.stage}: ${resumed.reason}`);
+    assert.equal(h.calls.filter(call => call === 'mergePR').length, 1);
+    assert.equal(h.calls.filter(call => call === 'worker:capture').length, 1);
+    if (tamper) assert.equal(h.workerInputs.filter(input => input.phase === 'browser').length, 1);
+  }
+});
+
+
+test('maintenance review receives every changed file and rejects an incomplete compare response', async () => {
+  const h = harness({ maintenance: true, incompleteMaintenanceDiff: true });
+  const result = await h.controller.run();
+  assert.equal(result.reason, 'maintenance-review-diff-incomplete');
+  assert.equal(h.calls.includes('worker:validate'), false);
+  assert.equal(h.calls.includes('review'), false);
+  assert.equal(h.calls.includes('ff:updates'), false);
 });

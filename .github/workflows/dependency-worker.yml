@@ -46,7 +46,7 @@ jobs:
         if: inputs.phase != 'browser' && inputs.phase != 'capture'
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          # Coordinate trusted .nvmrc updates with dependency-sandbox NODE_VERSION.
+          # Bootstrap and isolation smoke use only the trusted-main pin.
           node-version-file: .nvmrc
           package-manager-cache: false
       - name: Set up pinned independent browser runtime
@@ -86,8 +86,19 @@ jobs:
         run: |
           node --test .github/automation/dependency-sandbox.test.mjs
           node .github/automation/sandbox-integration.mjs
+      - name: Select exact candidate Node from regular file data
+        if: inputs.phase != 'browser' && inputs.phase != 'capture'
+        id: candidate_node
+        run: node .github/automation/worker.mjs select-node
+      - name: Set up authorized candidate dependency runtime
+        if: inputs.phase != 'browser' && inputs.phase != 'capture'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ steps.candidate_node.outputs.node_version }}
+          package-manager-cache: false
       - name: Run isolated checks
         env:
+          CANDIDATE_NODE_VERSION: ${{ steps.candidate_node.outputs.node_version }}
           WORKER_PHASE: ${{ inputs.phase }}
           WORKER_REQUEST: ${{ inputs.request }}
           BASE_SHA: ${{ inputs.base_sha }}

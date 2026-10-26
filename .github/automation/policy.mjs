@@ -135,9 +135,10 @@ export function changedLockEntries(base, head) {
 const dependencySpec = spec => typeof spec === 'string' ? /^(?:\^|~)?(\d+\.\d+\.\d+)$/.exec(spec)?.[1] : undefined;
 
 /** Preserve all root metadata and dependency names; permit stable upgrades only. */
-export function validatePackageUpgrade(base, head, { nodePatch } = {}) {
+export function validatePackageUpgrade(base, head, { approvedNodePatch } = {}) {
   if (!isRecord(base) || !isRecord(head)) return result(['invalid package manifest']);
   const errors = [];
+  const trustedNodePatch = approvedNodePatch;
   for (const key of new Set([...Object.keys(base), ...Object.keys(head)])) {
     if (['dependencies', 'devDependencies'].includes(key)) {
       const before = base[key], after = head[key];
@@ -151,9 +152,9 @@ export function validatePackageUpgrade(base, head, { nodePatch } = {}) {
             (before[name] !== after[name] && compareStableVersions(newVersion, oldVersion) === 0))
           errors.push(`not a dependency upgrade: ${name}`);
       }
-    } else if (key === 'engines' && nodePatch) {
-      const patch = validateNodePatch(nodePatch);
-      if (!patch.ok || !isDeepStrictEqual(base.engines, { ...head.engines, node: nodePatch.from }) || head.engines?.node !== nodePatch.to)
+    } else if (key === 'engines' && trustedNodePatch) {
+      const patch = validateNodePatch(trustedNodePatch);
+      if (!patch.ok || !isDeepStrictEqual(base.engines, { ...head.engines, node: trustedNodePatch.from }) || head.engines?.node !== trustedNodePatch.to)
         errors.push('invalid supported Node patch engine update');
     } else if (!isDeepStrictEqual(base[key], head[key])) errors.push(`protected manifest field: ${key}`);
   }
@@ -165,9 +166,9 @@ export function validateNodePatch({ from, to, supportedLtsMajors } = {}) {
   const unwrap = value => typeof value === 'string' ? /^>=(\d+\.\d+\.\d+) <(\d+)$/.exec(value) : null;
   const a = unwrap(from), b = unwrap(to);
   const av = a && parseStableVersion(a[1]), bv = b && parseStableVersion(b[1]);
-  return result(av && bv && Array.isArray(supportedLtsMajors) && supportedLtsMajors.includes(bv[0]) &&
-    av[0] === bv[0] && av[1] === bv[1] && bv[2] > av[2] && Number(a[2]) === av[0] + 1 && a[2] === b[2]
-    ? [] : ['expected an explicitly supported same-line Node LTS patch upgrade']);
+  return result(av && bv && Array.isArray(supportedLtsMajors) && supportedLtsMajors.includes(av[0]) && supportedLtsMajors.includes(bv[0]) &&
+    av[0] === 24 && bv[0] === 24 && (bv[1] > av[1] || bv[1] === av[1] && bv[2] > av[2]) && Number(a[2]) === av[0] + 1 && a[2] === b[2]
+    ? [] : ['expected an explicitly supported Node 24 LTS patch or minor upgrade']);
 }
 
 /**

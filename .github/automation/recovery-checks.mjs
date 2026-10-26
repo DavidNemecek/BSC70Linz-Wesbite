@@ -28,7 +28,7 @@ import { promisify, isDeepStrictEqual } from 'node:util';
 import * as github from './github.mjs';
 import { getProductionDeployment } from './vercel.mjs';
 import { auditCommandPlans, inspectNpmAudit } from './dependencies.mjs';
-import { createDependencySandbox, sourceSnapshot, assertSourceUnchanged } from './dependency-sandbox.mjs';
+import { createDependencySandbox, sourceSnapshot, assertSourceUnchanged, parseCandidateNodeVersion, readCandidateNodeVersion } from './dependency-sandbox.mjs';
 
 export const APPLICATION_CONTEXT = 'Application lint, build and audit';
 const SHA = /^[a-f0-9]{40}$/;
@@ -64,6 +64,24 @@ async function commit(gh, sha) {
   return value;
 }
 
+async function githubCandidateNodeVersion(gh, repository, treeSHA) {
+  // Contents API follows symlinks. Inspect the exact commit's root Git tree
+  // instead and accept only a regular-file blob, including for fork PRs.
+  const prefix = `/repos/${repository}/git`;
+  const tree = await gh.api(`${prefix}/trees/${treeSHA}`);
+  requireThat(tree.sha === treeSHA && tree.truncated === false && Array.isArray(tree.tree), 'Incomplete candidate Git tree');
+  const entries = tree.tree.filter(entry => entry.path === '.nvmrc');
+  requireThat(entries.length === 1 && entries[0].type === 'blob' && ['100644', '100755'].includes(entries[0].mode) &&
+    SHA.test(entries[0].sha), 'Candidate .nvmrc must be a regular Git file');
+  const blob = await gh.api(`${prefix}/blobs/${entries[0].sha}`);
+  requireThat(blob.sha === entries[0].sha && blob.encoding === 'base64' && Number.isSafeInteger(blob.size) &&
+    blob.size > 0 && blob.size <= 64 && typeof blob.content === 'string' && blob.content.length <= 100 &&
+    /^[A-Za-z0-9+/=\r\n]+$/.test(blob.content), 'Invalid candidate .nvmrc blob');
+  const bytes = Buffer.from(blob.content, 'base64');
+  requireThat(bytes.length === blob.size, 'Candidate .nvmrc blob length mismatch');
+  return parseCandidateNodeVersion(bytes.toString('utf8'));
+}
+
 async function githubIdentity(request, gh) {
   const number = checkedPR(request.number), headSHA = checkedSHA(request.headSHA);
   const pr = await gh.repoApi(`/pulls/${number}`);
@@ -73,9 +91,10 @@ async function githubIdentity(request, gh) {
   const baseSHA = checkedSHA(pr.base.sha);
   requireThat(await gh.ref(pr.base.ref) === baseSHA, 'Current base changed');
   const head = await commit(gh, headSHA);
+  const candidateNodeVersion = await githubCandidateNodeVersion(gh, pr.head.repo.full_name, head.tree.sha);
   return { pr, head, identity: { version: 1, repository: gh.repository, number, headRepository: pr.head.repo.full_name,
     headRef: pr.head.ref, headSHA, baseRef: pr.base.ref, baseSHA, treeSHA: head.tree.sha,
-    parents: head.parents.map(parent => parent.sha) } };
+    parents: head.parents.map(parent => parent.sha), candidateNodeVersion } };
 }
 
 // No caller-supplied allowFindings/recovery flag exists. A malformed/forged
@@ -162,14 +181,16 @@ async function localIdentity(candidate, proof) {
 
 export async function validateApplication({ proof, candidate, evidence, gh = github,
   sandboxFactory = createDependencySandbox, verifyLocal = localIdentity }) {
-  const result = { proof, pass: false, audits: [], checks: [] };
+  const result = { proof, pass: false, audits: [], checks: [], nodeVersion: process.version,
+    expectedNodeVersion: proof.candidateNodeVersion };
   await mkdir(evidence, { recursive: true });
   let sandbox, before;
   try {
     await recheckIdentity(proof, gh);
     await verifyLocal(candidate, proof);
+    requireThat(await readCandidateNodeVersion(candidate) === proof.candidateNodeVersion, 'Local candidate .nvmrc differs from authorization');
     before = await sourceSnapshot(candidate);
-    sandbox = await sandboxFactory(candidate);
+    sandbox = await sandboxFactory(candidate, { nodeVersion: proof.candidateNodeVersion });
     const lock = JSON.parse(await readFile(resolve(candidate, 'package-lock.json'), 'utf8'));
     // Immutable npm, read-only workspace, before candidate plugins. Save both
     // complete reports even if the first contains ordinary blocking findings.
@@ -250,7 +271,8 @@ async function cli() {
     } });
     requireThat(Number.isSafeInteger(check.id) && check.id > 0, 'Invalid created check');
     for (const [name, value] of Object.entries({ proof: JSON.stringify(proof), check_id: String(check.id),
-      head_sha: proof.headSHA, head_repository: proof.headRepository, trusted_sha: env.GITHUB_WORKFLOW_SHA })) await github.output(name, value);
+      head_sha: proof.headSHA, head_repository: proof.headRepository, trusted_sha: env.GITHUB_WORKFLOW_SHA,
+      candidate_node_version: proof.candidateNodeVersion })) await github.output(name, value);
   } else {
     const proof = JSON.parse(env.APPLICATION_PROOF);
     if (mode === 'validate') {

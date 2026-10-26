@@ -1,14 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { authorize, resolveRequest, recheckIdentity, auditVerdict, validateApplication, finalize, APPLICATION_CONTEXT } from './recovery-checks.mjs';
+import { NODE_VERSION } from './dependency-sandbox.mjs';
 
 // Synthetic identities/advisory only; no live API/deployment or vulnerability.
 const original = '1'.repeat(40), failed = '2'.repeat(40), head = '3'.repeat(40);
 const oldTree = '4'.repeat(40), failedTree = '5'.repeat(40), other = '6'.repeat(40);
 const repository = 'owner/site';
+const nodePin = NODE_VERSION, nodeBlob = '7'.repeat(40);
+const [, minor, patch] = nodePin.split('.').map(Number);
+const newerPatch = `24.${minor}.${patch + 1}`, newerMinor = `24.${minor + 1}.0`;
 const marker = `<!-- dependency-restore:v1 failed=${failed} original=${original} -->`;
 const env = { GITHUB_REPOSITORY: repository, GITHUB_WORKFLOW_SHA: failed,
   GITHUB_WORKFLOW_REF: `${repository}/.github/workflows/application-checks.yml@refs/heads/main`, GITHUB_EVENT_NAME: 'workflow_dispatch' };
@@ -16,7 +20,7 @@ const request = { number: 3, headSHA: head };
 
 function fixture() {
   const state = {
-    main: failed,
+    main: failed, nodeContent: nodePin + '\n', nodeMode: '100644',
     pr: { number: 3, state: 'open', draft: false, body: marker, user: { login: 'github-actions[bot]', type: 'Bot' },
       head: { sha: head, ref: 'automation/restore-123', repo: { full_name: repository } },
       base: { sha: failed, ref: 'main', repo: { full_name: repository } } },
@@ -28,7 +32,17 @@ function fixture() {
     serving: { id: 'dpl_previous', projectId: 'prj_fixed', hostname: 'www.example.org', sha: original, branch: 'main', readyState: 'READY' },
     mutations: [], calls: [],
   };
-  const gh = { repository, ref: async ref => { assert(['main', 'updates'].includes(ref)); return state.main; },
+  const gh = { repository,
+    api: async path => {
+      state.calls.push(path);
+      if (path === `/repos/${state.pr.head.repo.full_name}/git/trees/${state.commits[head].tree.sha}`)
+        return { sha: state.commits[head].tree.sha, truncated: false,
+          tree: [{ path: '.nvmrc', mode: state.nodeMode, type: 'blob', sha: nodeBlob }], ...state.treeOverride };
+      if (path === `/repos/${state.pr.head.repo.full_name}/git/blobs/${nodeBlob}`)
+        return { sha: nodeBlob, encoding: 'base64', size: Buffer.byteLength(state.nodeContent),
+          content: Buffer.from(state.nodeContent).toString('base64'), ...state.blobOverride };
+      throw Error(`Unexpected API ${path}`);
+    }, ref: async ref => { assert(['main', 'updates'].includes(ref)); return state.main; },
     repoApi: async (path, options) => {
       state.calls.push(path);
       if (options) { state.mutations.push({ path, ...options }); return { id: 123 }; }
@@ -55,6 +69,58 @@ test('actual rolled-back production + exact old tree + one failed-main parent au
   assert.equal(f.productionReads(), 1);
   assert.equal(f.state.mutations.length, 0);
   await recheckIdentity(proof, f.gh);
+});
+
+test('ordinary PR runtime proof comes from exact GitHub head regular file, including newer stable 24 patches/minors and forks', async () => {
+  for (const version of [nodePin, newerPatch, newerMinor]) {
+    const f = fixture(); f.state.pr.body = ''; f.state.pr.head.ref = 'feature';
+    f.state.pr.head.repo.full_name = 'fork/site'; f.state.nodeContent = version + '\n';
+    const proof = await authorize({ ...request, candidateNodeVersion: '25.0.0' }, f);
+    assert.equal(proof.candidateNodeVersion, version); assert.equal(proof.recovery, null);
+    assert(f.state.calls.includes(`/repos/fork/site/git/trees/${oldTree}`));
+    assert(f.state.calls.includes(`/repos/fork/site/git/blobs/${nodeBlob}`));
+    assert.equal(f.productionReads(), 0);
+    await recheckIdentity(proof, f.gh);
+    await assert.rejects(recheckIdentity({ ...proof, candidateNodeVersion: '25.0.0' }, f.gh), /Authorized PR/);
+    f.state.nodeContent = newerMinor + '\n';
+    if (version !== newerMinor) await assert.rejects(recheckIdentity(proof, f.gh), /Authorized PR/);
+  }
+});
+
+test('GitHub runtime authorization rejects downgrade, URI, ranges, other major and nonregular/incomplete metadata', async () => {
+  for (const nodeContent of ['24.x', '^' + nodePin, 'v' + nodePin, '25.0.0', `24.${minor - 1}.999`,
+    `24.${minor}.${patch - 1}`, nodePin + '-rc.1', 'https://nodejs.org/dist/' + nodePin,
+    nodePin + '\n\n', nodePin + '\nnode_version=25.0.0']) {
+    const f = fixture(); f.state.nodeContent = nodeContent;
+    await assert.rejects(authorize({ ...request, candidateNodeVersion: nodePin }, f));
+  }
+  for (const change of [
+    { nodeMode: '120000' }, { nodeMode: '160000' }, { treeOverride: { truncated: true } },
+    { treeOverride: { sha: other } }, { treeOverride: { tree: [] } },
+    { blobOverride: { sha: other } }, { blobOverride: { encoding: 'utf8' } },
+    { blobOverride: { size: 0 } }, { blobOverride: { size: 65 } },
+    { blobOverride: { content: Buffer.from('25.0.0').toString('base64') } },
+  ]) {
+    const f = fixture(); Object.assign(f.state, change); await assert.rejects(authorize(request, f));
+  }
+});
+
+test('local runtime file changes and forged proof versions fail before candidate execution', async t => {
+  const f = fixture(); f.state.pr.body = ''; f.state.pr.head.ref = 'feature';
+  const proof = await authorize(request, f), root = await mkdtemp(join(tmpdir(), 'bsc70-application-node-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const candidate = join(root, 'candidate'); await mkdir(candidate);
+  let sandboxCalls = 0;
+  const validate = proof => validateApplication({ proof, candidate, evidence: join(root, 'evidence'), gh: f.gh,
+    verifyLocal: async () => {}, sandboxFactory: async () => { sandboxCalls++; throw Error('Must not execute candidate'); } });
+  await writeFile(join(candidate, '.nvmrc'), newerPatch);
+  const changed = await validate(proof);
+  assert.equal(changed.pass, false); assert.match(changed.error, /differs from authorization/);
+  const forged = await validate({ ...proof, candidateNodeVersion: newerPatch });
+  assert.equal(forged.pass, false); assert.match(forged.error, /Authorized PR/);
+  await rm(join(candidate, '.nvmrc')); await symlink('/etc/passwd', join(candidate, '.nvmrc'));
+  assert.equal((await validate(proof)).pass, false);
+  assert.equal(sandboxCalls, 0);
 });
 
 test('forged body/branch/label, non-bot author and unrolled-back production never authorize audit exception', async t => {
@@ -141,11 +207,14 @@ async function validationFixture(t, { recovery = true, findings = true, failComm
   t.after(() => rm(root, { recursive: true, force: true }));
   await writeFile(join(root, 'package-lock.json'), JSON.stringify(lock()));
   await writeFile(join(root, 'package.json'), '{}');
+  await writeFile(join(root, '.nvmrc'), nodePin + '\n');
   const evidence = root + '-evidence'; t.after(() => rm(evidence, { recursive: true, force: true }));
   const calls = []; let closed = 0, verified = 0, localChecks = 0;
   const result = await validateApplication({ proof, candidate: root, evidence, gh: f.gh,
     verifyLocal: async () => { localChecks++; },
-    sandboxFactory: async () => ({
+    sandboxFactory: async (candidate, options) => {
+      assert.equal(candidate, root); assert.deepEqual(options, { nodeVersion: proof.candidateNodeVersion });
+      return ({
       run: async (args, options) => {
         const name = args[0] === 'run' ? args[1] : args[0]; calls.push({ name, args, options });
         if (mutateHost && name === 'lint') await writeFile(join(root, 'package.json'), '{"tampered":true}');
@@ -155,7 +224,7 @@ async function validationFixture(t, { recovery = true, findings = true, failComm
       },
       verify: async () => { verified++; if (failVerify && calls.some(c => c.name === 'build')) throw Error('Sandbox source changed'); return {}; },
       close: async () => { closed++; },
-    }),
+    }); },
   });
   return { result, calls, closed, verified, localChecks, evidence };
 }
@@ -242,6 +311,8 @@ test('workflow keeps the required context out of candidate jobs and secrets out 
   assert(!build.includes('secrets.') && !build.includes('checks: write'));
   assert(build.includes('trusted/.github/automation/recovery-checks.mjs validate'));
   assert(build.includes('needs.authorize.outputs.head_sha') && build.includes('persist-credentials: false'));
+  assert(build.includes('node-version: ${{ needs.authorize.outputs.candidate_node_version }}'));
+  assert(!build.includes('node-version-file: trusted/.nvmrc'));
   const auth = workflow.split('\n  authorize:\n')[1].split('\n  validate:\n')[0];
   assert(!auth.includes('path: candidate') && !auth.includes('npm ci') && auth.includes('secrets.VERCEL_TOKEN'));
   const final = workflow.split('\n  finalize:\n')[1];

@@ -13,12 +13,13 @@
  * amd64 manifest below: response header AND SHA256 of raw bytes matched.
  * Image config created 2026-10-02T08:10:55Z (>7 days old). This is a base
  * pull, not installation/lifecycle execution of newly discovered dependencies.
- * Node/npm are the existing authorized setup-node 24.22.1 distribution, mounted
- * read-only, matching .nvmrc and the host process; no in-container apt/npm setup.
+ * Node/npm are the authorized exact setup-node distribution, mounted read-only,
+ * matching the expected version and host process; no in-container apt/npm setup.
  * Ubuntu's glibc/libstdc++ supports this Node and Linux native Vite/Rollup tools.
  * Docker isolation flags: https://docs.docker.com/reference/cli/docker/container/run/
  */
-import { cp, lstat, mkdir, mkdtemp, readFile, readdir, realpath, rm } from 'node:fs/promises';
+import { cp, lstat, mkdir, mkdtemp, open, readFile, readdir, realpath, rm } from 'node:fs/promises';
+import { constants } from 'node:fs';
 import { createHash, randomUUID } from 'node:crypto';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -27,6 +28,38 @@ import { promisify } from 'node:util';
 
 export const SANDBOX_IMAGE = 'docker.io/library/ubuntu@sha256:a2d43bffc46670d7108bb3c0468c67c5557c4c92e83e1e34cbff1322ad1b94dc';
 export const NODE_VERSION = '24.22.1';
+// This remains the trusted-main minimum/default. A candidate can only select
+// an exact stable release on the same Node 24 LTS line, never a setup-node range,
+// alias, URI, alternate distribution, prerelease or downgrade.
+export function assertCandidateNodeVersion(version) {
+  if (typeof version !== 'string' || version.length > 64 || /\s/.test(version) || !/^24\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(version))
+    throw Error('Candidate Node must be an exact stable Node 24 version');
+  const parts = version.split('.').map(Number), minimum = NODE_VERSION.split('.').map(Number);
+  if (!parts.every(Number.isSafeInteger) || parts[1] < minimum[1] || (parts[1] === minimum[1] && parts[2] < minimum[2]))
+    throw Error(`Candidate Node must be at least trusted Node ${NODE_VERSION}`);
+  return version;
+}
+
+export function parseCandidateNodeVersion(content) {
+  if (typeof content !== 'string' || content.length > 64)
+    throw Error('Candidate .nvmrc must contain only one exact stable Node 24 version');
+  return assertCandidateNodeVersion(content.replace(/\r?\n$/, ''));
+}
+
+export async function readCandidateNodeVersion(candidate) {
+  if (!(await lstat(candidate)).isDirectory()) throw Error('Candidate must be a regular directory');
+  // No candidate code has run yet. NOFOLLOW/NONBLOCK also reject symlinks and
+  // prevent a hostile FIFO/device from hanging the host's version selection.
+  const file = await open(join(candidate, '.nvmrc'), constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
+  try {
+    const stat = await file.stat();
+    if (!stat.isFile() || stat.nlink !== 1 || stat.size > 64) throw Error('Candidate .nvmrc must be a bounded regular file');
+    const bytes = Buffer.alloc(65);
+    const { bytesRead } = await file.read(bytes, 0, bytes.length, 0);
+    if (bytesRead !== stat.size) throw Error('Candidate .nvmrc changed while reading');
+    return parseCandidateNodeVersion(bytes.subarray(0, bytesRead).toString('utf8'));
+  } finally { await file.close(); }
+}
 const execute = promisify(execFile);
 const DOCKER = '/usr/bin/docker';
 const DOCKER_PREFIX = ['--host', 'unix:///var/run/docker.sock'];
@@ -112,9 +145,10 @@ export function assertContainerBoundary(info, { work, runtime, uid, gid, network
     throw Error('Container boundary verification failed');
 }
 
-export async function createDependencySandbox(candidate) {
-  if (process.platform !== 'linux' || process.arch !== 'x64' || process.version !== `v${NODE_VERSION}` || !process.getuid?.() || !process.getgid?.())
-    throw Error(`Sandbox requires nonroot Linux x64 host Node ${NODE_VERSION}`);
+export async function createDependencySandbox(candidate, { nodeVersion = NODE_VERSION } = {}) {
+  assertCandidateNodeVersion(nodeVersion);
+  if (process.platform !== 'linux' || process.arch !== 'x64' || process.version !== `v${nodeVersion}` || !process.getuid?.() || !process.getgid?.())
+    throw Error(`Sandbox requires nonroot Linux x64 host Node ${nodeVersion}`);
   const runtime = await realpath(resolve(dirname(process.execPath), '..'));
   if (await realpath(join(runtime, 'bin/node')) !== await realpath(process.execPath)) throw Error('Unexpected trusted runtime');
   const scratch = await mkdtemp(join(tmpdir(), 'bsc70-sandbox-'));
@@ -136,7 +170,7 @@ export async function createDependencySandbox(candidate) {
     const runtimeHashes = await Promise.all(['bin/node', 'lib/node_modules/npm/bin/npm-cli.js'].map(async path => sha256(await readFile(join(runtime, path)))));
     const commands = [];
     return {
-      work, pristine, commands,
+      work, pristine, commands, expectedNodeVersion: nodeVersion,
       async run(args, { network = false, writable = true, rawNode = false, timeout = 8 * 60_000 } = {}) {
         const name = `bsc70-${randomUUID()}`;
         const nodeArgs = rawNode ? args : [NPM, ...args, '--ignore-scripts', '--strict-peer-deps', '--registry=https://registry.npmjs.org'];
@@ -148,7 +182,7 @@ export async function createDependencySandbox(candidate) {
           if (inspected.Image !== image.Id) throw Error('Sandbox image identity changed');
           assertContainerBoundary(inspected, config);
           // Record only host-verified properties, never values emitted by plugins.
-          commands.push({ container: name, image: SANDBOX_IMAGE, nodeVersion: NODE_VERSION, runtimeReadOnly: true,
+          commands.push({ container: name, image: SANDBOX_IMAGE, nodeVersion, runtimeReadOnly: true,
             privatePID: true, nonroot: true, network: network ? 'bridge' : 'none' });
           try { ({ stdout, stderr } = await docker(['start', '--attach', name], { timeout })); }
           catch (error) {

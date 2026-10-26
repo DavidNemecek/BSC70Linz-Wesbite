@@ -108,9 +108,9 @@ function parseChecksums(shasums, filename) {
   return found.groups.sha;
 }
 
-/** Selects a same-minor Node 24 LTS patch and binds it to signed SHASUMS. */
+/** Selects a newer Node 24 LTS patch/minor and binds it to signed SHASUMS. */
 export function discoverNodeRelease({ index, currentVersion, now = Date.now(), shasums, shasumsSignature,
-  tarballBytes, supportedLtsMajors = SUPPORTED_NODE_LTS_MAJORS } = {}) {
+  tarballBytes, supportedLtsMajors = SUPPORTED_NODE_LTS_MAJORS, allowMinor = true } = {}) {
   const current = asVersion(currentVersion);
   if (!current || !Array.isArray(supportedLtsMajors) || !supportedLtsMajors.includes(24)) fail('invalid current Node pin');
   const currentParts = parseStableVersion(current);
@@ -120,7 +120,7 @@ export function discoverNodeRelease({ index, currentVersion, now = Date.now(), s
     const version = typeof item?.version === 'string' ? item.version.replace(/^v/, '') : null;
     const parts = version && parseStableVersion(version);
     return { item, version, parts, date: item?.date };
-  }).filter(row => row.parts && row.parts[0] === 24 && row.parts[1] === currentParts[1] &&
+  }).filter(row => row.parts && row.parts[0] === 24 && (allowMinor || row.parts[1] === currentParts[1]) &&
     (row.item.lts === true || typeof row.item.lts === 'string') && ageOK(row.date, now));
   if (!eligible.length) fail('no eligible same-minor Node 24 LTS release');
   eligible.sort((a, b) => compareStableVersions(b.version, a.version));
@@ -145,7 +145,7 @@ export function discoverNodeRelease({ index, currentVersion, now = Date.now(), s
     supportedLtsMajors: [...SUPPORTED_NODE_LTS_MAJORS] };
 }
 
-export async function discoverNodeReleaseLive({ currentVersion, now = Date.now(), fetchImpl, supportedLtsMajors } = {}) {
+export async function discoverNodeReleaseLive({ currentVersion, now = Date.now(), fetchImpl, supportedLtsMajors, allowMinor = true } = {}) {
   const index = (await boundedFetchJson(NODE_INDEX_URL, { fetchImpl, allowedHosts: ['nodejs.org'] })).json;
   const current = asVersion(currentVersion);
   if (!current) fail('invalid current Node pin');
@@ -153,7 +153,7 @@ export async function discoverNodeReleaseLive({ currentVersion, now = Date.now()
   const candidates = index.filter(item => {
     const version = typeof item?.version === 'string' ? item.version.replace(/^v/, '') : '';
     const parts = parseStableVersion(version);
-    return parts && parts[0] === 24 && parts[1] === currentParts[1] && (item.lts === true || typeof item.lts === 'string') && ageOK(item.date, now);
+    return parts && parts[0] === 24 && (allowMinor || parts[1] === currentParts[1]) && (item.lts === true || typeof item.lts === 'string') && ageOK(item.date, now);
   });
   candidates.sort((a, b) => compareStableVersions(b.version.replace(/^v/, ''), a.version.replace(/^v/, '')));
   const latest = candidates[0];
@@ -389,7 +389,7 @@ function integrationNotes() {
     'Root .nvmrc governs the trusted controller and worker; coordinate the Docker sandbox NODE_VERSION immutable constant through a reviewed trusted-parent change.',
     'Keep .github/qa/.nvmrc at the reviewed Node pin so baseline metadata cannot drift across runtime updates.',
     'Worker must coordinate the immutable Node pin and verify the official Linux x64 SHA-256/SRI before runtime setup.',
-    'The current policy permits same-major, same-minor Node patch updates only; a newer Node 24 LTS minor is blocked until a separately reviewed strict generator path exists.',
+    'Node updates remain within major 24; the generator accepts only newer official LTS patch/minor releases with signed SHASUMS and seven-day eligibility.',
     'Vercel engines 24.x selects a platform patch independently of .nvmrc; verifyRuntime must not assume the repository pin controls Vercel. Current exact-pin checks require a trusted compatibility adjustment before Node auto-updates.',
     'Urgent CVE handling requires an independently verified tool advisory with exact fixed metadata; model assertions never create an exemption.',
     'validateToolPlan proves deterministic bytes and metadata consistency only; the parent must independently fetch and verify every release tag, commit, Node checksum and advisory before accepting this plan.',
@@ -399,12 +399,13 @@ function integrationNotes() {
 
 /** Build exact candidate bytes from trusted base files and independently verified metadata. */
 export function generateToolchainPlan({ baseFiles, now = Date.now(), nodeIndex, shasums, shasumsSignature, nodeTarballBytes,
-  currentNodeVersion, actionReleases = {}, actionCommits = {}, researchresults, supportedLtsMajors = SUPPORTED_NODE_LTS_MAJORS } = {}) {
+  currentNodeVersion, actionReleases = {}, actionCommits = {}, researchresults, supportedLtsMajors = SUPPORTED_NODE_LTS_MAJORS,
+  allowNodeMinor = true } = {}) {
   const files = mapFiles(baseFiles), nvmrc = files.get('.nvmrc');
   if (typeof nvmrc !== 'string') fail('trusted base .nvmrc is missing');
   const current = nvmrc.trim().replace(/^v/, '');
   if (currentNodeVersion !== undefined && currentNodeVersion !== current) fail('current Node metadata does not match trusted .nvmrc');
-  const node = discoverNodeRelease({ index: nodeIndex, currentVersion: current, now, shasums, shasumsSignature, tarballBytes: nodeTarballBytes, supportedLtsMajors });
+  const node = discoverNodeRelease({ index: nodeIndex, currentVersion: current, now, shasums, shasumsSignature, tarballBytes: nodeTarballBytes, supportedLtsMajors, allowMinor: allowNodeMinor });
   const refs = discoverWorkflowActionRefs(files);
   const actions = [...new Set(refs.map(ref => ref.action))];
   if (actions.some(action => !officialAction(action))) fail('workflow contains an action outside the allowlist');
@@ -448,7 +449,7 @@ export function generateToolchainPlan({ baseFiles, now = Date.now(), nodeIndex, 
 }
 
 /** Recompute all candidate bytes and reject substituted metadata or harness edits. */
-export function validateToolPlan(baseFiles, plan, { now = Date.now(), supportedLtsMajors = SUPPORTED_NODE_LTS_MAJORS } = {}) {
+export function validateToolPlan(baseFiles, plan, { now = Date.now(), supportedLtsMajors = SUPPORTED_NODE_LTS_MAJORS, allowNodeMinor = false } = {}) {
   const errors = [];
   let files;
   try { files = mapFiles(baseFiles); } catch (error) { return result([error.message]); }

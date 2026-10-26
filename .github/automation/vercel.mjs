@@ -82,6 +82,39 @@ function checkedHostname(value) {
   return value.toLowerCase();
 }
 
+function runtimeVersion(value, label = 'Node version') {
+  if (typeof value !== 'string' || !/^24\.\d+\.\d+$/.test(value)) throw new VercelError(`${label} must be a Node 24 stable version`);
+  const parts = value.split('.').map(Number);
+  if (!parts.every(Number.isSafeInteger)) throw new VercelError(`${label} is invalid`);
+  return parts;
+}
+
+function runtimeAtLeast(actual, minimum) {
+  const left = runtimeVersion(actual, 'Vercel Node version'), right = runtimeVersion(minimum, 'Node minimum');
+  for (let index = 0; index < 3; index++) {
+    if (left[index] !== right[index]) return left[index] > right[index];
+  }
+  return true;
+}
+
+function trustedRuntimeMinimum(rootDir) {
+  let pin;
+  try { pin = readFileSync(resolve(rootDir, '.nvmrc'), 'utf8').trim(); }
+  catch { throw new VercelError('Trusted .nvmrc is unavailable'); }
+  runtimeVersion(pin, 'Trusted .nvmrc');
+  let manifest;
+  try { manifest = JSON.parse(readFileSync(resolve(rootDir, 'package.json'), 'utf8')); }
+  catch { throw new VercelError('Trusted package.json is unavailable or invalid'); }
+  if (manifest?.engines?.node !== `>=${pin} <25`)
+    throw new VercelError('Trusted package Node engine does not match the .nvmrc minimum');
+  return pin;
+}
+
+/** Read the trusted repository Node minimum without contacting Vercel. */
+export function getTrustedRuntimeMinimum({ rootDir = ROOT } = {}) {
+  return trustedRuntimeMinimum(rootDir);
+}
+
 function pathPart(value) {
   return encodeURIComponent(value).replaceAll('%2F', '/');
 }
@@ -194,32 +227,37 @@ export function parseNodeVersion(rawLogs) {
   return [...versions][0];
 }
 
-/** Verify the trusted root pin and the concrete Node version emitted by Vercel. */
-export async function verifyRuntime({ deploymentId, rootDir = ROOT, ...options } = {}) {
+/** Verify Node 24 emitted by Vercel. An explicit minimum is supplied only by
+ * the controller after it has read the authenticated target/restore tree; it
+ * may be older than the current checkout during protected recovery. */
+export async function verifyRuntime({ deploymentId, rootDir = ROOT, minimumNodeVersion, ...options } = {}) {
   const { fetchImpl, env, config: cfg } = optionsOf(options);
-  const pin = readFileSync(resolve(rootDir, '.nvmrc'), 'utf8').trim();
-  if (!/^24\.\d+\.\d+$/.test(pin)) throw new VercelError('Root .nvmrc is not pinned to Node 24');
+  const pin = trustedRuntimeMinimum(rootDir);
+  const minimum = minimumNodeVersion === undefined ? pin : minimumNodeVersion;
+  runtimeVersion(minimum, 'Requested Node minimum');
   const rawLogs = await apiRequest(`/v3/deployments/${pathPart(checkedId(deploymentId, 'deploymentId'))}/events`, {
     query: { follow: 0, limit: -1, teamId: cfg.teamId }, fetchImpl, env,
   });
   const nodeVersion = parseNodeVersion(rawLogs);
-  if (!nodeVersion || nodeVersion !== pin) throw new VercelError('Vercel build Node version differs from the trusted .nvmrc pin');
-  return Object.freeze({ pinnedNodeVersion: pin, nodeVersion, deploymentId });
+  if (!nodeVersion) throw new VercelError('Vercel build Node version is missing or ambiguous');
+  runtimeVersion(nodeVersion, 'Vercel build Node version');
+  if (!runtimeAtLeast(nodeVersion, minimum)) throw new VercelError('Vercel selected a Node 24 patch older than the trusted minimum');
+  return Object.freeze({ pinnedNodeVersion: pin, minimumNodeVersion: minimum, nodeVersion,
+    platformNodeVersion: nodeVersion, pinControlsPlatform: false, deploymentId });
 }
 
 /** Check project ownership, trusted runtime configuration and optional deployment identity. */
-export async function preflight({ deploymentId, rootDir = ROOT, verifyRuntime: checkRuntime = true, ...options } = {}) {
+export async function preflight({ deploymentId, rootDir = ROOT, minimumNodeVersion, verifyRuntime: checkRuntime = true, ...options } = {}) {
   const opts = optionsOf(options);
   const { config: cfg, fetchImpl, env } = opts;
   const project = await apiRequest(`/v9/projects/${pathPart(cfg.projectId)}`, { query: { teamId: cfg.teamId }, fetchImpl, env });
   const ownerId = project.teamId ?? project.accountId;
   if (project.id !== cfg.projectId || ownerId !== cfg.teamId)
     throw new VercelError('Vercel project/team identity mismatch');
-  const pinnedNodeVersion = readFileSync(resolve(rootDir, '.nvmrc'), 'utf8').trim();
-  if (!/^24\.\d+\.\d+$/.test(pinnedNodeVersion)) throw new VercelError('Root .nvmrc is not pinned to Node 24');
-  const runtime = deploymentId && checkRuntime ? await verifyRuntime({ deploymentId, rootDir, fetchImpl, env }) : null;
+  const pinnedNodeVersion = trustedRuntimeMinimum(rootDir);
+  const runtime = deploymentId && checkRuntime ? await verifyRuntime({ deploymentId, rootDir, minimumNodeVersion, fetchImpl, env }) : null;
   return Object.freeze({ projectId: cfg.projectId, teamId: cfg.teamId, updatesHostname: cfg.updatesHostname,
-    productionHostname: cfg.productionHostname, pinnedNodeVersion, ...(runtime ?? {}) });
+    productionHostname: cfg.productionHostname, pinnedNodeVersion, minimumNodeVersion: pinnedNodeVersion, ...(runtime ?? {}) });
 }
 
 /** Resolve the deployment currently serving the trusted production hostname. */

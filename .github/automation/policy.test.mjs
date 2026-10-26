@@ -85,14 +85,14 @@ test('manifest allows only dependency upgrades and preserves scripts/metadata/pe
   }
 });
 
-test('explicit supported same-line Node patch can update engines; no other metadata changes', () => {
+test('explicit supported Node 24 patch or LTS minor can update engines; no other metadata changes', () => {
   const base = manifest(), head = structuredClone(base);
-  const nodePatch = { from: base.engines.node, to: '>=24.22.2 <25', supportedLtsMajors: [24] };
-  head.engines.node = nodePatch.to;
-  assert.equal(validatePackageUpgrade(base, head, { nodePatch }).ok, true);
-  assert.equal(validateNodePatch({ ...nodePatch, supportedLtsMajors: [22] }).ok, false);
-  assert.equal(validateNodePatch({ ...nodePatch, to: '>=24.23.0 <25' }).ok, false);
-  head.engines.npm = '>=99'; assert.equal(validatePackageUpgrade(base, head, { nodePatch }).ok, false);
+  const approvedNodePatch = { from: base.engines.node, to: '>=24.22.2 <25', supportedLtsMajors: [24] };
+  head.engines.node = approvedNodePatch.to;
+  assert.equal(validatePackageUpgrade(base, head, { approvedNodePatch }).ok, true);
+  assert.equal(validateNodePatch({ ...approvedNodePatch, supportedLtsMajors: [22] }).ok, false);
+  assert.equal(validateNodePatch({ ...approvedNodePatch, to: '>=24.23.0 <25' }).ok, true);
+  head.engines.npm = '>=99'; assert.equal(validatePackageUpgrade(base, head, { approvedNodePatch }).ok, false);
 });
 
 test('agent diff blocks workflows, policy, tests, QA, deploy/access and path disguises', () => {
@@ -122,7 +122,8 @@ test('deterministic pin helpers update only exact allowlisted actions or Node pa
   const withScript = `${source}      - run: |\n          - uses: actions/checkout@v6\n`;
   assert.equal(updateActionRefs(withScript, { 'actions/checkout': sha }, ['actions/checkout']), withScript.replace('checkout@v6', `checkout@${sha}`));
   assert.equal(updateNodePin('v24.22.1\n', '24.22.2', [24]), 'v24.22.2\n');
-  for (const version of ['24.22.0', '24.23.0', '26.0.0', '24.22.2-beta']) assert.throws(() => updateNodePin('24.22.1', version, [24]));
+  assert.equal(updateNodePin('24.22.1', '24.23.0', [24]), '24.23.0');
+  for (const version of ['24.22.0', '23.23.0', '26.0.0', '24.22.2-beta']) assert.throws(() => updateNodePin('24.22.1', version, [24]));
 });
 
 const context = { baseSHA: 'a'.repeat(40), headSHA: 'b'.repeat(40), currentMainSHA: 'a'.repeat(40), deploymentID: 'synthetic-deploy-123' };

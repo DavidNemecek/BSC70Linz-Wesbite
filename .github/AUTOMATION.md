@@ -40,6 +40,13 @@ erhalten ebenfalls eine KI-Prüfung, werden aber nicht automatisch gemergt.
 Major-Upgrades dürfen diesen Ablauf durchlaufen. Kleine notwendige
 Kompatibilitätskorrekturen sind begrenzt; eine KI darf weder Sicherheitsregeln
 noch Workflows, Tests oder den Browser-Prüfer nach Belieben umschreiben.
+Node-24-LTS-Updates und die freigegebenen offiziellen GitHub Actions laufen
+als eigener Wartungskandidat durch denselben Ablauf. Ihre Änderungen werden
+aus unabhängig geladenen Herstellerdaten bytegenau erzeugt und geprüft.
+Node-Pin, Engine, Lockfile und isolierte Laufzeit werden gemeinsam angepasst;
+der Browser behält seine eigene feste Prüflaufzeit. Ein notwendiger npm-CVE-Fix
+überspringt diese zusätzliche Wartung. Ein neuer Node-Hauptzweig benötigt eine
+gesonderte Plattformmigration.
 Nicht zuordenbare Änderungen auf `updates` werden niemals überschrieben.
 Unterbrochene eigene Läufe werden nur anhand authentifizierter GitHub-Nachweise
 wiederaufgenommen.
@@ -85,6 +92,12 @@ fachfremde PRs müssen keine Dependency-Promotion simulieren.
 - **scan** führt bei aktivierter Variable den vollständigen Ablauf aus.
 - **Independent PR review** kann mit einer offenen PR-Nummer manuell gestartet
   werden. Bot-erstellte PRs werden vom Controller ausdrücklich angestoßen.
+- KI-Freigaben benötigen das unveränderliche Review-Artefakt des passenden
+  abgeschlossenen Workflow-Laufs. Ein Bot-Kommentar allein gilt nicht als Beleg.
+- **Trusted application checks** bindet den Anwendungscheck an PR und Head-SHA.
+  Nur die exakte Wiederherstellung eines bereits von Vercel zurückgerollten
+  Standes darf frühere Audit-Befunde behalten; diese werden protokolliert. Neue
+  Update-Kandidaten müssen beide Audits ohne Befunde bestehen.
 - Controller-Artefakte heißen `dependency-controller-<run-id>` und bleiben 90
   Tage erhalten. Worker-Artefakte enthalten gebundene Prüfergebnisse,
   Screenshot-Hashes und vollständige Browserberichte und bleiben 30 Tage erhalten.

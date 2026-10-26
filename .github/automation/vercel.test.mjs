@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   DEFAULT_PROJECT_ID, DEFAULT_TEAM_ID, preflight, waitForDeployment,
-  verifyAlias, rollback, parseNodeVersion, getProductionDeployment, VercelError, VercelTimeoutError,
+  verifyAlias, verifyRuntime, rollback, parseNodeVersion, getProductionDeployment, VercelError, VercelTimeoutError,
 } from './vercel.mjs';
 
 const env = { VERCEL_TOKEN: 'test-token' };
@@ -37,6 +37,43 @@ test('parseNodeVersion requires one concrete version', () => {
   assert.equal(parseNodeVersion([{ text: 'v24.22.1\n' }]), '24.22.1');
   assert.equal(parseNodeVersion([{ payload: { text: 'Using Node.js 24.22.1' } }]), '24.22.1');
   assert.equal(parseNodeVersion([{ payload: { text: 'Node.js 22.0.0 then Node.js 24.22.1' } }]), null);
+});
+
+test('verifyRuntime accepts a newer Vercel Node 24 patch and records the minimum', async () => {
+  const r = routes();
+  const fetchImpl = async (url, init) => {
+    if (new URL(url).pathname.startsWith('/v3/deployments/')) return response([{ payload: { text: 'Using Node.js 24.22.2' } }]);
+    return r.fetch(url, init);
+  };
+  const runtime = await verifyRuntime({ deploymentId: 'dpl_failed', env, fetchImpl });
+  assert.equal(runtime.minimumNodeVersion, '24.22.1');
+  assert.equal(runtime.nodeVersion, '24.22.2');
+  assert.equal(runtime.platformNodeVersion, '24.22.2');
+  assert.equal(runtime.pinControlsPlatform, false);
+});
+
+test('verifyRuntime rejects an older or different-major Vercel runtime', async () => {
+  for (const version of ['24.22.0', '25.0.0']) {
+    const r = routes();
+    const fetchImpl = async (url, init) => {
+      if (new URL(url).pathname.startsWith('/v3/deployments/')) return response([{ payload: { text: `Using Node.js ${version}` } }]);
+      return r.fetch(url, init);
+    };
+    await assert.rejects(verifyRuntime({ deploymentId: 'dpl_failed', env, fetchImpl }), VercelError);
+  }
+});
+
+test('verifyRuntime applies an explicit trusted candidate minimum', async () => {
+  const r = routes();
+  const fetchImpl = async (url, init) => {
+    if (new URL(url).pathname.startsWith('/v3/deployments/')) return response([{ payload: { text: 'Using Node.js 24.23.0' } }]);
+    return r.fetch(url, init);
+  };
+  const runtime = await verifyRuntime({ deploymentId: 'dpl_failed', minimumNodeVersion: '24.22.2', env, fetchImpl });
+  assert.equal(runtime.minimumNodeVersion, '24.22.2');
+  await assert.rejects(verifyRuntime({ deploymentId: 'dpl_failed', minimumNodeVersion: '24.23.1', env, fetchImpl }), VercelError);
+  const recovery = await verifyRuntime({ deploymentId: 'dpl_failed', minimumNodeVersion: '24.22.0', env, fetchImpl });
+  assert.equal(recovery.minimumNodeVersion, '24.22.0');
 });
 
 test('production accepts Vercel null redirects and rejects actual redirects', async () => {

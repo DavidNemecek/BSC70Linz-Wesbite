@@ -255,7 +255,7 @@ export function preflightLockUpdate({ baseLock, headLock, metadata, proofs = [],
   if (!isRecord(metadata) || !isRecord(advisories) || !Array.isArray(proofs) || !Number.isFinite(now)) return result(['invalid research/proof input'], { lifecycleChanges, exemptions });
   for (const key of new Set([...Object.keys(baseLock), ...Object.keys(headLock)]))
     if (key !== 'packages' && !isDeepStrictEqual(baseLock[key], headLock[key])) errors.push(`protected lock metadata: ${key}`);
-  errors.push(...validatePackageUpgrade(baseLock.packages[''], headLock.packages[''], { nodePatch: toolchain.nodePatch }).errors);
+  errors.push(...validatePackageUpgrade(baseLock.packages[''], headLock.packages[''], { approvedNodePatch: toolchain.approvedNodePatch }).errors);
   errors.push(...validateLockResolutions(headLock, toolchain.semver).errors);
   const changes = changedLockEntries(baseLock, headLock);
   const changedPaths = new Set(changes.map(change => change.path));

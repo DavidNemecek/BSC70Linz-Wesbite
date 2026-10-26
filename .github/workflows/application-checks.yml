@@ -39,6 +39,7 @@ jobs:
       head_sha: ${{ steps.authorize.outputs.head_sha }}
       head_repository: ${{ steps.authorize.outputs.head_repository }}
       trusted_sha: ${{ steps.authorize.outputs.trusted_sha }}
+      candidate_node_version: ${{ steps.authorize.outputs.candidate_node_version }}
     steps:
       - name: Checkout exact trusted workflow revision only
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -72,10 +73,10 @@ jobs:
           ref: ${{ needs.authorize.outputs.trusted_sha }}
           path: trusted
           persist-credentials: false
-      - name: Set up trusted Node
+      - name: Set up exact authorized candidate Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version-file: trusted/.nvmrc
+          node-version: ${{ needs.authorize.outputs.candidate_node_version }}
           package-manager-cache: false
       - name: Checkout authorized candidate as data without credentials
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
