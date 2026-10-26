@@ -277,7 +277,7 @@ test('one strict correction repairs unsupported canonical citations using only a
   assert.deepEqual(schemas.required,['package0','package1']);
   assert.deepEqual(schemas.properties.package0.properties.evidence.items.enum,[viteSource,registry]);
   assert.deepEqual(schemas.properties.package1.properties.evidence.items.enum,[reactSource]);
-  assert.ok(!JSON.stringify(format.schema).includes(unknown));
+  assert.equal(JSON.stringify(format.schema).indexOf(unknown),-1);
   assert.deepEqual(payload.untrustedInput.packages[0].originalAssessment,original.packages[0]);
   // Strict OpenAI schemas require every property to be required, recursively.
   function strict(schema) {

@@ -347,7 +347,7 @@ test('model text is bounded and cannot inject mentions, links, HTML or dedupe ma
   const body = f.writes()[1].body.body;
   assert.ok(!body.includes('@owner'));
   assert.ok(!body.includes('<script>'));
-  assert.ok(!body.includes('https://attacker.invalid'));
+  assert.equal(body.indexOf('https://attacker.invalid'), -1);
   assert.equal(body.match(/<!-- bsc70-ai-review/g).length, 1);
   const many = fixture({ ai: () => ({ ...verdict(), findings: Array(200).fill({ ...finding('low'), message: 'x'.repeat(12000) }) }) });
   await many.run();

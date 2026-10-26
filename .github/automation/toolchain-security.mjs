@@ -184,7 +184,7 @@ async function fetchActionProofs(target, { fetchImpl, semver, now, token }) {
         // The fix must be exactly the exclusive upper endpoint of the affected
         // interval containing the current pin, not any later patched release.
         const branches = range.split('||').filter(branch => semver.satisfies(version(target.version), branch));
-        if (!branches.length || branches.some(branch => !new RegExp(`<\\s*${fixed.replace(/\./g, '\\.')}($|\\s)`).test(branch)))
+        if (!branches.length || branches.some(branch => !new RegExp(`<\\s*${fixed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|\\s)`).test(branch)))
           fail('Actions patched version is not the exact affected interval endpoint');
         proofs.push(proofFor(target, fixed, advisory.cve_id, advisory.url, range, now, advisory.ghsa_id));
       }
