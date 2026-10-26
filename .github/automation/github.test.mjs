@@ -28,7 +28,8 @@ function mock(steps) {
   return () => assert.equal(index, steps.length);
 }
 const ruleset = (branch = 'main') => ({ id: 42, target: 'branch', source_type: 'Repository', source: repository,
-  enforcement: 'active', bypass_actors: [], conditions: { ref_name: { include: [`refs/heads/${branch}`], exclude: [] } },
+  enforcement: 'active', bypass_actors: [], current_user_can_bypass: 'never',
+  conditions: { ref_name: { include: [`refs/heads/${branch}`], exclude: [] } },
   rules: [
     { type: 'required_status_checks', parameters: { strict_required_status_checks_policy: true,
       required_status_checks: [...REQUIRED_SECURITY_CHECKS, 'security/review'].map(context => ({ context, integration_id: 15368 })) } },
@@ -45,7 +46,8 @@ const ruleReads = (value = ruleset(), branch = 'main') => [
 const protection = () => ({ required_status_checks: { strict: true,
   contexts: [...REQUIRED_SECURITY_CHECKS, 'security/review'],
   checks: [...REQUIRED_SECURITY_CHECKS, 'security/review'].map(context => ({ context, app_id: 15368 })) },
-  enforce_admins: { enabled: true }, allow_force_pushes: { enabled: false }, allow_deletions: { enabled: false },
+  current_user_can_bypass: 'never', enforce_admins: { enabled: true },
+  allow_force_pushes: { enabled: false }, allow_deletions: { enabled: false },
   required_pull_request_reviews: { required_approving_review_count: 0, dismiss_stale_reviews: true,
     require_code_owner_reviews: false, require_last_push_approval: false,
     bypass_pull_request_allowances: { users: [], teams: [], apps: [] } } });
@@ -177,6 +179,18 @@ test('ruleset reads normalize legacy fields and assertion uses the same read-onl
   }
 });
 
+test('omitted actors require explicit caller non-bypass and leave administrator bypass unknown', async () => {
+  for (const branch of ['main', 'updates']) {
+    for (const read of [readProtection, assertProtection]) {
+      const value = ruleset(branch); delete value.bypass_actors;
+      const expected = protection(); expected.enforce_admins.enabled = null;
+      expected.required_pull_request_reviews.bypass_pull_request_allowances = null;
+      const done = mock(ruleReads(value, branch));
+      assert.deepEqual(await read(branch), expected); done();
+    }
+  }
+});
+
 test('effective policy requires each rule, strict updates, all universal checks and a zero-review PR rule', async () => {
   const mutations = [
     ...['required_status_checks', 'non_fast_forward', 'deletion', 'pull_request'].map(type => p => { p.rules = p.rules.filter(rule => rule.type !== type); }),
@@ -189,15 +203,19 @@ test('effective policy requires each rule, strict updates, all universal checks 
     p => { delete p.rules[3].parameters.required_approving_review_count; },
     p => { p.rules[3].parameters.required_approving_review_count = '0'; },
   ];
-  for (const mutate of mutations) {
-    const value = ruleset(); mutate(value);
-    const done = mock(ruleReads(value));
-    await assert.rejects(assertProtection('main')); done();
+  for (const visible of [true, false]) {
+    for (const mutate of mutations) {
+      const value = ruleset(); mutate(value);
+      if (!visible) delete value.bypass_actors;
+      const done = mock(ruleReads(value));
+      await assert.rejects(assertProtection('main')); done();
+    }
   }
   const empty = ruleset(); empty.rules = [];
   let done = mock(ruleReads(empty));
   const absent = await readProtection('main');
   assert.equal(absent.required_status_checks.strict, false);
+  assert.equal(absent.current_user_can_bypass, null);
   assert.equal(absent.enforce_admins.enabled, false);
   assert.equal(absent.allow_force_pushes.enabled, true);
   assert.equal(absent.allow_deletions.enabled, true);
@@ -205,10 +223,11 @@ test('effective policy requires each rule, strict updates, all universal checks 
   done = mock(ruleReads(empty)); await assert.rejects(assertProtection('main'), /protection is missing/); done();
 });
 
-test('universal checks must be pinned to the verified GitHub Actions integration', async () => {
+test('universal checks must be pinned to the verified GitHub Actions integration even with hidden actors', async () => {
   for (const context of REQUIRED_SECURITY_CHECKS) {
     for (const integration of [undefined, null, -1, 0, 123, '15368']) {
       const value = ruleset();
+      delete value.bypass_actors;
       const check = value.rules[0].parameters.required_status_checks.find(check => check.context === context);
       if (integration === undefined) delete check.integration_id;
       else check.integration_id = integration;
@@ -218,14 +237,26 @@ test('universal checks must be pinned to the verified GitHub Actions integration
   }
 });
 
-test('missing bypass visibility and every actor type or bypass mode fail closed', async () => {
-  for (const bypass of [undefined, null, {}, 'none', ...['OrganizationAdmin', 'RepositoryRole', 'Integration', 'User', 'Team', 'DeployKey']
+test('malformed visible actors and every actor type or bypass mode fail even when caller cannot bypass', async () => {
+  for (const bypass of [null, {}, 'none', false, 0, ...['OrganizationAdmin', 'RepositoryRole', 'Integration', 'User', 'Team', 'DeployKey']
     .flatMap(actor_type => ['always', 'pull_request', 'exempt'].map(bypass_mode => [{ actor_type, actor_id: 1, bypass_mode }]))]) {
     const value = ruleset();
-    if (bypass === undefined) delete value.bypass_actors;
-    else value.bypass_actors = bypass;
+    value.bypass_actors = bypass;
     const done = mock(ruleReads(value));
     await assert.rejects(assertProtection('main'), /bypass actors/); done();
+  }
+});
+
+test('caller bypass must be exactly never even with a visible empty actor list', async () => {
+  for (const visible of [true, false]) {
+    for (const bypass of [undefined, null, '', false, 0, {}, [], 'always', 'pull_requests_only', 'exempt', 'unknown', 'Never', 'never ']) {
+      const value = ruleset();
+      if (!visible) delete value.bypass_actors;
+      if (bypass === undefined) delete value.current_user_can_bypass;
+      else value.current_user_can_bypass = bypass;
+      const done = mock(ruleReads(value));
+      await assert.rejects(assertProtection('main'), /current caller bypass/); done();
+    }
   }
 });
 
@@ -240,7 +271,7 @@ test('disabled, evaluate, foreign, tag and unscoped rulesets cannot forge effect
     p => { p.conditions.ref_name.exclude = ['refs/heads/*']; },
     p => { delete p.conditions.ref_name.exclude; }, p => { delete p.rules; }];
   for (const mutate of mutations) {
-    const steps = ruleReads(); mutate(steps[1].response);
+    const steps = ruleReads(); delete steps[1].response.bypass_actors; mutate(steps[1].response);
     const done = mock(steps);
     await assert.rejects(readProtection('main'), /ruleset scope/); done();
   }
@@ -262,7 +293,7 @@ test('ruleset definitions must match the effective rules, and cannot supply abse
   for (const mutate of [p => { p.rules[0].parameters.strict_required_status_checks_policy = false; },
     p => { p.rules[0].parameters.required_status_checks[0].integration_id = 123; },
     p => { p.rules.shift(); }, p => { p.rules.push(structuredClone(p.rules[0])); }]) {
-    const steps = ruleReads(); mutate(steps[1].response);
+    const steps = ruleReads(); delete steps[1].response.bypass_actors; mutate(steps[1].response);
     const done = mock(steps);
     await assert.rejects(readProtection('main'), /differs from ruleset/); done();
   }
@@ -280,6 +311,30 @@ test('effective rules can combine multiple verified rulesets but one bypass inva
     if (bypass) await assert.rejects(assertProtection('main'), /bypass actors/);
     else assert.deepEqual(await assertProtection('main'), protection());
     done();
+  }
+});
+
+test('each contributing ruleset needs caller non-bypass and hidden actors keep combined administrator bypass unknown', async () => {
+  for (const failure of [null, 'always', 'pull_requests_only', 'exempt', 'missing', 'actors']) {
+    for (const hiddenId of [42, 43]) {
+      const first = ruleset(), second = ruleset(); second.id = 43;
+      second.rules = first.rules.splice(2);
+      const hidden = hiddenId === 42 ? first : second;
+      delete hidden.bypass_actors;
+      if (failure === 'missing') delete second.current_user_can_bypass;
+      else if (failure === 'actors') second.bypass_actors = [{ actor_type: 'RepositoryRole', actor_id: 5, bypass_mode: 'always' }];
+      else if (failure) second.current_user_can_bypass = failure;
+      const done = mock([{ path: '/rules/branches/main?per_page=100&page=1', response: [...effectiveRules(first), ...effectiveRules(second)] },
+        { path: '/rulesets/42', response: first }, { path: '/rulesets/43', response: second }]);
+      if (failure) await assert.rejects(assertProtection('main'), /bypass/);
+      else {
+        const actual = await assertProtection('main');
+        assert.equal(actual.current_user_can_bypass, 'never');
+        assert.equal(actual.enforce_admins.enabled, null);
+        assert.equal(actual.required_pull_request_reviews.bypass_pull_request_allowances, null);
+      }
+      done();
+    }
   }
 });
 
@@ -305,6 +360,17 @@ test('merge preserves expected head guard and checks enforced protection before 
   assert.equal(await mergePR(7, HEAD, BASE), MERGE); done();
 });
 
+test('merge with hidden actors requires server-confirmed caller non-bypass on both protected branches', async () => {
+  for (const branch of ['main', 'updates']) {
+    const value = pr(); value.base.ref = branch;
+    const settings = ruleset(branch); delete settings.bypass_actors;
+    const done = mock([{ path: '/pulls/7', response: value }, { path: `/git/ref/heads/${branch}`, response: { object: { sha: BASE } } },
+      ...ruleReads(settings, branch),
+      { path: '/pulls/7/merge', method: 'PUT', body: { sha: HEAD, merge_method: 'merge' }, response: { merged: true, sha: MERGE } }]);
+    assert.equal(await mergePR(7, HEAD, BASE), MERGE); done();
+  }
+});
+
 test('merge blocks stale, foreign, closed and draft PRs without writing or approving reviews', async () => {
   for (const mutate of [p => { p.head.sha = MERGE; }, p => { p.base.sha = MERGE; }, p => { p.state = 'closed'; },
     p => { p.head.repo.full_name = 'evil/repo'; }, p => { p.base.repo.full_name = 'evil/repo'; }, p => { p.draft = true; }]) {
@@ -327,12 +393,14 @@ test('merge fails closed without protection and respects a strict server rejecti
   await assert.rejects(mergePR(7, HEAD, BASE), /405/); done();
 });
 
-test('merge never writes when bypass visibility or effective rules are unavailable, including updates', async () => {
+test('merge never writes when caller bypass or effective rules are unverified, including updates', async () => {
   for (const branch of ['main', 'updates']) {
-    for (const failure of ['empty', 'hidden-bypass', 'api-denied']) {
+    for (const failure of ['empty', 'hidden-unverified', 'always', 'pull_requests_only', 'exempt', 'api-denied']) {
       const value = pr(); value.base.ref = branch;
       const settings = ruleset(branch);
-      if (failure === 'hidden-bypass') delete settings.bypass_actors;
+      delete settings.bypass_actors;
+      if (failure === 'hidden-unverified') delete settings.current_user_can_bypass;
+      if (['always', 'pull_requests_only', 'exempt'].includes(failure)) settings.current_user_can_bypass = failure;
       const reads = failure === 'empty' ? [{ path: `/rules/branches/${branch}?per_page=100&page=1`, response: [] }] : ruleReads(settings, branch);
       if (failure === 'api-denied') { reads[1].status = 403; reads[1].response = {}; }
       const done = mock([{ path: '/pulls/7', response: value },

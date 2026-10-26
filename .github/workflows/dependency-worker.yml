@@ -36,16 +36,24 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     env:
-      PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/bsc70-browsers
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.bsc70-browsers
     steps:
       - name: Checkout trusted harness
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up trusted runtime
+      - name: Set up trusted dependency runtime
+        if: inputs.phase != 'browser' && inputs.phase != 'capture'
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
+          # Coordinate trusted .nvmrc updates with dependency-sandbox NODE_VERSION.
           node-version-file: .nvmrc
+          package-manager-cache: false
+      - name: Set up pinned independent browser runtime
+        if: inputs.phase == 'browser' || inputs.phase == 'capture'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .github/qa/.nvmrc
           package-manager-cache: false
       - name: Checkout candidate without credentials
         if: inputs.phase != 'browser' && inputs.phase != 'capture'
@@ -70,6 +78,14 @@ jobs:
           pattern: dependency-worker-*
           path: previous-evidence
           merge-multiple: true
+      - name: Pull reviewed immutable dependency sandbox base
+        if: inputs.phase != 'browser' && inputs.phase != 'capture'
+        run: docker pull docker.io/library/ubuntu@sha256:a2d43bffc46670d7108bb3c0468c67c5557c4c92e83e1e34cbff1322ad1b94dc
+      - name: Verify hostile dependency container isolation (secretless)
+        if: inputs.phase != 'browser' && inputs.phase != 'capture'
+        run: |
+          node --test .github/automation/dependency-sandbox.test.mjs
+          node .github/automation/sandbox-integration.mjs
       - name: Run isolated checks
         env:
           WORKER_PHASE: ${{ inputs.phase }}

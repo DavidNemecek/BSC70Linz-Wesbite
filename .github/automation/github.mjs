@@ -126,9 +126,12 @@ export async function openPR({ base, head, title, body }) {
 
 /** Read effective rules using Metadata read, not the legacy protection API's
  * Administration read. The parent owns configuration. Ruleset details expose
- * bypass_actors only to callers with write access to the ruleset; an omitted
- * property cannot establish that administrators or this app lack a bypass.
+ * bypass_actors only to callers with write access to the ruleset. When omitted,
+ * current_user_can_bypass must explicitly confirm 'never' for this credential;
+ * administrator bypass and review allowances remain unknown in the result.
  * https://docs.github.com/en/rest/repos/rules#get-a-repository-ruleset
+ * The official repository-ruleset OpenAPI schema defines the caller bypass enum:
+ * https://github.com/github/rest-api-description/blob/main/descriptions/api.github.com/api.github.com.json
  * Scope verification deliberately accepts explicit refs or ~ALL with no
  * exclusions. Configure refs/heads/main (or updates) rather than glob patterns.
  */
@@ -157,7 +160,9 @@ export async function readProtection(branch) {
           !Array.isArray(scope?.include) || !scope.include.some(ref => ref === `refs/heads/${branch}` || ref === '~ALL') ||
           !Array.isArray(scope.exclude) || scope.exclude.length !== 0 ||
           !Array.isArray(ruleset.rules)) throw Error('Unverified active branch ruleset scope');
-      if (!Array.isArray(ruleset.bypass_actors) || ruleset.bypass_actors.length !== 0) throw Error('Ruleset bypass actors are present or unavailable');
+      if (Object.hasOwn(ruleset, 'bypass_actors') &&
+          (!Array.isArray(ruleset.bypass_actors) || ruleset.bypass_actors.length !== 0)) throw Error('Ruleset bypass actors are present or malformed');
+      if (ruleset.current_user_can_bypass !== 'never') throw Error('Ruleset current caller bypass is permitted or unverified');
       rulesets.set(rule.ruleset_id, ruleset);
     }
     const definitions = rulesets.get(rule.ruleset_id).rules.filter(definition => definition?.type === rule.type);
@@ -174,12 +179,14 @@ export async function readProtection(branch) {
   const reviewRules = relevant.filter(rule => rule.type === 'pull_request');
   if (reviewRules.some(rule => !Number.isSafeInteger(rule.parameters?.required_approving_review_count) ||
       rule.parameters.required_approving_review_count < 0 || rule.parameters.required_approving_review_count > 6)) throw Error('Invalid pull request rule');
+  const bypassActorsVisible = rulesets.size > 0 && [...rulesets.values()].every(ruleset => Array.isArray(ruleset.bypass_actors));
   return {
     required_status_checks: {
       strict: statusRules.some(rule => rule.parameters.strict_required_status_checks_policy && rule.parameters.required_status_checks.length > 0),
       contexts: [...new Set(checks.map(check => check.context))], checks,
     },
-    enforce_admins: { enabled: relevant.length > 0 },
+    current_user_can_bypass: rulesets.size > 0 ? 'never' : null,
+    enforce_admins: { enabled: rulesets.size === 0 ? false : bypassActorsVisible ? true : null },
     allow_force_pushes: { enabled: !relevant.some(rule => rule.type === 'non_fast_forward') },
     allow_deletions: { enabled: !relevant.some(rule => rule.type === 'deletion') },
     required_pull_request_reviews: reviewRules.length ? {
@@ -187,7 +194,7 @@ export async function readProtection(branch) {
       dismiss_stale_reviews: reviewRules.some(rule => rule.parameters.dismiss_stale_reviews_on_push === true),
       require_code_owner_reviews: reviewRules.some(rule => rule.parameters.require_code_owner_review === true),
       require_last_push_approval: reviewRules.some(rule => rule.parameters.require_last_push_approval === true),
-      bypass_pull_request_allowances: { users: [], teams: [], apps: [] },
+      bypass_pull_request_allowances: bypassActorsVisible ? { users: [], teams: [], apps: [] } : null,
     } : null,
   };
 }
@@ -196,7 +203,7 @@ export async function readProtection(branch) {
 export async function assertProtection(branch) {
   const protection = await readProtection(branch);
   const checks = protection?.required_status_checks;
-  if (checks?.strict !== true || protection.enforce_admins?.enabled !== true ||
+  if (checks?.strict !== true || protection.current_user_can_bypass !== 'never' ||
       protection.allow_force_pushes?.enabled !== false || protection.allow_deletions?.enabled !== false ||
       protection.required_pull_request_reviews?.required_approving_review_count !== 0 ||
       REQUIRED_SECURITY_CHECKS.some(context => !checks.checks.some(check => check.context === context && check.app_id === GITHUB_ACTIONS_APP_ID))) throw Error('Strict required security branch protection is missing');

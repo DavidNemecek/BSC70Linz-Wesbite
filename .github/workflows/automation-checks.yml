@@ -30,6 +30,10 @@ jobs:
         run: npm ci --prefix .github/qa --ignore-scripts --no-fund --no-audit
       - name: Test independent QA support
         run: node --test .github/qa/support.test.mjs
+      - name: Prove dependency isolation with a hostile fixture
+        run: |
+          docker pull docker.io/library/ubuntu@sha256:a2d43bffc46670d7108bb3c0468c67c5557c4c92e83e1e34cbff1322ad1b94dc
+          node .github/automation/sandbox-integration.mjs
 
   application:
     name: Application lint, build and audit
