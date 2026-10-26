@@ -17,9 +17,10 @@ import {
   generateToolchainPlan, researchToolchainTargets, validateResearchResults,
   validateToolPlan,
 } from './toolchain.mjs';
+import { fetchPrimarySecurityProofs, releaseAgeEligible, validatePrimaryWaivers } from './toolchain-security.mjs';
 import {
   compareStableVersions, isRecord, parseStableVersion,
-  publicationEligibility, result, timestamp,
+  result, timestamp,
 } from './policy.mjs';
 
 export { ALLOWED_ACTIONS } from './toolchain.mjs';
@@ -40,8 +41,6 @@ const WORKFLOW = /^\.github\/workflows\/[^/]+\.ya?ml$/;
 const VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 const SAFE_PATH = /^(?:[\w.-]+\/)*[\w.-]+$/;
 const ROOT = '.github/automation/dependency-sandbox.mjs';
-const OFFICIAL_NODE = new Set(['nodejs.org']);
-const OFFICIAL_ACTIONS = new Set(['github.com', 'api.github.com']);
 
 const fail = message => { throw new TypeError(message); };
 const sha256 = value => createHash('sha256').update(value).digest('hex');
@@ -159,77 +158,34 @@ function coordinateNodeFiles(baseFiles, toolPlan) {
   return output;
 }
 
-function officialSource(target, source) {
-  try {
-    const url = new URL(source);
-    if (target.kind === 'node') return url.protocol === 'https:' && OFFICIAL_NODE.has(url.hostname);
-    return url.protocol === 'https:' && OFFICIAL_ACTIONS.has(url.hostname) &&
-      (url.hostname === 'api.github.com' ? url.pathname.startsWith('/repos/') || url.pathname.startsWith('/advisories') : url.pathname.startsWith(`/${target.name}/`));
-  } catch { return false; }
-}
+/** Fetch-authenticated proof contract; targets must describe the actual used pins.
+ * `semver` is the trusted runtime's npm-bundled instance, never a new dependency.
+ * Saved proofs must be fetched again and passed as `securityProofs` to validators.
+ */
+export const fetchOfficialSecurityMetadata = fetchPrimarySecurityProofs;
+export const validateCveWaivers = validatePrimaryWaivers;
 
-function advisoryFirstFix(advisory) {
-  return advisory?.firstFixedVersion ?? advisory?.firstFixedLine ?? advisory?.fixedVersion;
-}
-
-/** Validate one independent urgent CVE exception; AI output cannot satisfy it. */
-export function validateCveWaivers(waivers, { targets = [], now = Date.now() } = {}) {
-  const errors = [];
-  if (!Array.isArray(waivers)) return result(['CVE waivers must be an array']);
-  const targetKeys = new Set(targets.map(target => `${target.kind}:${target.name}@${target.version}`));
-  const seen = new Set();
-  for (const waiver of waivers) {
-    const target = waiver?.target, key = target && `${target.kind}:${target.name}@${target.version}`;
-    if (!targetKeys.has(key) || seen.has(key)) { errors.push('CVE waiver target is missing, unknown or duplicated'); continue; }
-    seen.add(key);
-    const advisory = waiver.advisory;
-    const fixed = advisoryFirstFix(advisory);
-    const fetched = timestamp(waiver.fetchedAt ?? advisory?.fetchedAt);
-    const source = advisory?.source ?? waiver.source;
-    const normalizedFixed = typeof fixed === 'string' ? fixed.replace(/^v/, '') : null;
-    const normalizedTarget = typeof target.version === 'string' ? target.version.replace(/^v/, '') : null;
-    if (waiver.scope || waiver.blanket === true) errors.push(`blanket CVE waiver rejected: ${key}`);
-    if (!isRecord(advisory) || typeof advisory.id !== 'string' || !advisory.id.trim() ||
-        waiver.independent !== true || typeof waiver.fromVersion !== 'string' || waiver.fromVersion === target.version ||
-        typeof fixed !== 'string' || !exactVersion(normalizedFixed) && target.kind === 'node' ||
-        typeof advisory.affectedRange !== 'string' || !advisory.affectedRange.trim() ||
-        !officialSource(target, source) || !Number.isFinite(fetched) || fetched > now || normalizedFixed !== normalizedTarget) {
-      errors.push(`independent exact CVE metadata is incomplete: ${key}`); continue;
-    }
-    if (target.kind === 'action' && !Array.isArray(advisory.aliases)) errors.push(`Actions advisory aliases are missing: ${key}`);
-    if (target.kind === 'action' && !advisory.aliases.some(alias => /^CVE-\d{4}-\d{4,}$/i.test(alias))) errors.push(`Actions advisory has no CVE alias: ${key}`);
-    if (advisory.firstFixedVersion && advisory.firstFixedVersion !== target.version && advisory.firstFixedVersion !== `v${target.version}`)
-      errors.push(`CVE first fix does not exactly match target: ${key}`);
-    if (advisory.package && advisory.package !== target.name) errors.push(`CVE package does not match target: ${key}`);
+export function usedToolchainTargets(baseFiles) {
+  const base = requireBaseFiles(baseFiles), refs = discoverWorkflowActionRefs(base);
+  const targets = [{ kind: 'node', name: 'node', version: base.get('.nvmrc').trim().replace(/^v/, '') }];
+  for (const action of [...new Set(refs.map(ref => ref.action))].sort()) {
+    const local = refs.filter(ref => ref.action === action);
+    if (!ALLOWED_ACTIONS.includes(action) || new Set(local.map(ref => ref.ref)).size !== 1 ||
+        new Set(local.map(ref => ref.commentTag)).size !== 1 || !local[0].commentTag || !/^[a-f0-9]{40}$/.test(local[0].ref))
+      fail(`ambiguous current action pin: ${action}`);
+    targets.push({ kind: 'action', name: action, version: local[0].commentTag, sha: local[0].ref });
   }
-  return result(errors, { covered: [...seen].sort() });
+  return targets;
 }
 
-/** Fetch independent GHSA records for Actions. Node advisories are supplied by
- * the Node security metadata adapter because Node's public index has no CVE
- * range field; an absent adapter deliberately blocks an urgent exception. */
-export async function fetchOfficialSecurityMetadata({ targets = [], fetchImpl, token } = {}) {
-  const output = [];
-  for (const target of targets) {
-    if (target.kind !== 'action') continue;
-    const headers = { accept: 'application/vnd.github+json' };
-    if (typeof token === 'string' && token) headers.authorization = `Bearer ${token}`;
-    const url = `https://api.github.com/advisories?ecosystem=actions&affects=${encodeURIComponent(target.name)}%40${encodeURIComponent(target.version)}&per_page=100`;
-    const response = await boundedFetchJson(url, { fetchImpl, headers, allowedHosts: ['api.github.com'], maxBytes: 2 * 1024 * 1024 });
-    if (!Array.isArray(response.json)) fail(`GitHub advisory response for ${target.name} is malformed`);
-    output.push({ target, source: url, advisories: response.json });
-  }
-  return output;
-}
-
-async function fetchNodeMetadata({ currentVersion, now, fetchImpl }) {
+async function fetchNodeMetadata({ currentVersion, now, fetchImpl, securityProofs }) {
   const indexResponse = await boundedFetchJson(NODE_INDEX_URL, { fetchImpl, allowedHosts: ['nodejs.org'] });
   if (!Array.isArray(indexResponse.json)) fail('Node release index is malformed');
   const current = parseStableVersion(currentVersion);
   const eligible = indexResponse.json.filter(item => {
     const version = String(item?.version ?? '').replace(/^v/, '');
     const parsed = parseStableVersion(version);
-    return parsed && current && parsed[0] === 24 && (item.lts === true || typeof item.lts === 'string') && publicationEligibility(item.date, now).ok;
+    return parsed && current && parsed[0] === 24 && (item.lts === true || typeof item.lts === 'string') && (version === currentVersion || releaseAgeEligible(item.date, { kind: 'node', name: 'node', version, fromVersion: currentVersion, now, securityProofs }));
   }).sort((a, b) => compareStableVersions(String(b.version).replace(/^v/, ''), String(a.version).replace(/^v/, '')));
   const latest = eligible[0], version = latest && String(latest.version).replace(/^v/, '');
   if (!version) return { index: indexResponse.json, shasums: '', shasumsSignature: '', source: NODE_INDEX_URL };
@@ -244,16 +200,17 @@ async function fetchNodeMetadata({ currentVersion, now, fetchImpl }) {
 }
 
 /** Fetch current release metadata and resolve each selected action tag to SHA. */
-export async function fetchTrustedToolchainMetadata({ baseFiles, now = Date.now(), fetchImpl = globalThis.fetch, token } = {}) {
+export async function fetchTrustedToolchainMetadata({ baseFiles, now = Date.now(), fetchImpl = globalThis.fetch, token, securityProofs = [] } = {}) {
   const base = requireBaseFiles(baseFiles), current = base.get('.nvmrc').trim().replace(/^v/, '');
   if (!exactVersion(current) || parseStableVersion(current)[0] !== 24) fail('trusted .nvmrc is not Node 24');
-  const node = await fetchNodeMetadata({ currentVersion: current, now, fetchImpl });
+  const node = await fetchNodeMetadata({ currentVersion: current, now, fetchImpl, securityProofs });
   const refs = discoverWorkflowActionRefs(base), actions = [...new Set(refs.map(ref => ref.action))].sort();
   if (actions.some(action => !ALLOWED_ACTIONS.includes(action))) fail('workflow action is outside the trusted four-repository allowlist');
   const actionReleases = {}, actionCommits = {}, sources = [node.source];
   for (const action of actions) {
-    const release = await discoverActionReleaseLive({ action, fetchImpl, token, now });
-    actionReleases[action] = [release];
+    const currentRef = refs.find(ref => ref.action === action);
+    const release = await discoverActionReleaseLive({ action, fetchImpl, token, now, currentTag: currentRef.commentTag, currentSha: currentRef.ref, securityProofs });
+    actionReleases[action] = [{ ...release, tag_name: release.selectedTag, ref: { object: { type: 'commit', sha: release.selectedSha } } }];
     actionCommits[action] = release.selectedSha;
     sources.push(release.source, release.releaseUrl);
   }
@@ -267,10 +224,10 @@ function targetsForToolPlan(toolPlan) {
     : { kind: 'action', name: release.action, version: release.tag });
 }
 
-function deriveTargets(base, upstream, now, supportedLtsMajors) {
+function deriveTargets(base, upstream, now, supportedLtsMajors, securityProofs) {
   const current = base.get('.nvmrc').trim().replace(/^v/, '');
   const node = discoverNodeRelease({ currentVersion: current, now, index: upstream.nodeIndex,
-    shasums: upstream.shasums, shasumsSignature: upstream.shasumsSignature, supportedLtsMajors, allowMinor: true });
+    shasums: upstream.shasums, shasumsSignature: upstream.shasumsSignature, supportedLtsMajors, allowMinor: true, securityProofs });
   const refs = discoverWorkflowActionRefs(base);
   const actions = [...new Set(refs.map(ref => ref.action))].sort();
   const releases = actions.map(action => {
@@ -281,7 +238,7 @@ function deriveTargets(base, upstream, now, supportedLtsMajors) {
     const supplied = upstream.actionReleases?.[action];
     const selected = Array.isArray(supplied) ? supplied : supplied?.releases ?? supplied;
     const release = discoverActionRelease({ action, releases: selected, now,
-      commitSha: upstream.actionCommits?.[action], currentTag: currentTag[0], currentSha: currentSha[0] });
+      commitSha: upstream.actionCommits?.[action], currentTag: currentTag[0], currentSha: currentSha[0], securityProofs });
     return { kind: 'action', name: action, version: release.tag };
   });
   return [{ kind: 'node', name: 'node', version: node.to }, ...releases];
@@ -297,19 +254,28 @@ function planChanges(base, files) {
 
 /** Construct the complete deterministic maintenance contract. */
 export async function createMaintenancePlan({ baseFiles, fetchFiles, metadata, now = Date.now(), ai, researchresults,
-  security = [], token, fetchImpl = globalThis.fetch, supportedLtsMajors = SUPPORTED_NODE_LTS_MAJORS } = {}) {
+  security = [], semver, token, fetchImpl = globalThis.fetch, supportedLtsMajors = SUPPORTED_NODE_LTS_MAJORS } = {}) {
   const snapshot = baseFiles ? { files: copyMap(requireBaseFiles(baseFiles)) } : await snapshotTrustedBase({ fetchFiles });
   const base = snapshot.files;
-  const upstream = metadata ?? await fetchTrustedToolchainMetadata({ baseFiles: base, now, fetchImpl, token });
-  const targets = deriveTargets(base, upstream, now, supportedLtsMajors);
+  // Neither caller release fixtures nor AI/caller "security" fields bypass this fetch.
+  if (!Array.isArray(security) || security.length) fail('caller-authored security waivers are not accepted');
+  const securityProofs = await fetchOfficialSecurityMetadata({ targets: usedToolchainTargets(base), semver, now, fetchImpl, token });
+  const upstream = metadata ?? await fetchTrustedToolchainMetadata({ baseFiles: base, now, fetchImpl, token, securityProofs });
+  const targets = deriveTargets(base, upstream, now, supportedLtsMajors, securityProofs);
+  for (const proof of securityProofs) {
+    const selected = targets.find(target => target.kind === proof.target.kind && target.name === proof.target.name);
+    if (!selected || compareStableVersions(selected.version.replace(/^v/, ''), proof.target.version.replace(/^v/, '')) < 0)
+      fail(`primary CVE remains unresolved in selected toolchain: ${proof.advisory.id}`);
+  }
   const research = researchresults ?? (ai ? await researchToolchainTargets({ targets, ai }) : null);
   const researchCheck = validateResearchResults(research?.results ?? research, targets);
   if (!researchCheck.ok) fail(`exact toolchain research is incomplete: ${researchCheck.errors.join('; ')}`);
   // Re-run the generator with the exact research object so metadata cannot be
   // replaced between target discovery and deterministic byte generation.
-  const toolPlan = generateToolchainPlan({ baseFiles: base, now, ...upstream, supportedLtsMajors, allowNodeMinor: true, researchresults: research?.results ?? research });
+  const toolPlan = generateToolchainPlan({ baseFiles: base, now, ...upstream, supportedLtsMajors, allowNodeMinor: true, securityProofs, researchresults: research?.results ?? research });
   const coordinated = coordinateNodeFiles(base, toolPlan);
-  const waivers = Array.isArray(security) ? security : security?.waivers;
+  const waivers = securityProofs.filter(proof => targets.some(target => target.kind === proof.target.kind &&
+    target.name === proof.target.name && target.version === proof.target.version));
   const waiverCheck = validateCveWaivers(waivers ?? [], { targets, now });
   if (!waiverCheck.ok) fail(`unsupported or unproven urgent CVE exception: ${waiverCheck.errors.join('; ')}`);
   const files = planChanges(base, coordinated);
@@ -343,13 +309,13 @@ export async function createMaintenancePlan({ baseFiles, fetchFiles, metadata, n
       } : null,
     },
   };
-  const checked = validateMaintenancePlan(base, plan, { now, supportedLtsMajors });
+  const checked = validateMaintenancePlan(base, plan, { now, supportedLtsMajors, securityProofs });
   if (!checked.ok) fail(`maintenance plan failed deterministic validation: ${checked.errors.join('; ')}`);
   return Object.freeze(plan);
 }
 
 /** Validate a serialized maintenance contract without trusting its file bytes. */
-export function validateMaintenancePlan(baseFiles, plan, { now = Date.now(), supportedLtsMajors = SUPPORTED_NODE_LTS_MAJORS } = {}) {
+export function validateMaintenancePlan(baseFiles, plan, { now = Date.now(), supportedLtsMajors = SUPPORTED_NODE_LTS_MAJORS, securityProofs = plan?.toolchainPlan?.securityProofs ?? [] } = {}) {
   const errors = [];
   let base;
   try { base = requireBaseFiles(baseFiles); } catch (error) { return result([error.message]); }
@@ -363,13 +329,13 @@ export function validateMaintenancePlan(baseFiles, plan, { now = Date.now(), sup
   if (plan.integration?.workflowBytesAreGeneratorOwned !== true || plan.integration?.workerUsesOldTrustedNodeUntilPromotion !== true ||
       plan.integration?.candidateExecution !== 'controller/adapter performs no candidate execution' ||
       plan.integration?.qaNodePin !== base.get(QA_NODE_PATH).trim()) errors.push('maintenance integration contract is not trusted');
-  const toolCheck = validateToolPlan(base, plan.toolchainPlan, { now, supportedLtsMajors, allowNodeMinor: true });
+  const toolCheck = validateToolPlan(base, plan.toolchainPlan, { now, supportedLtsMajors, allowNodeMinor: true, securityProofs });
   if (!toolCheck.ok) errors.push(...toolCheck.errors.map(error => `toolchain: ${error}`));
   const targets = targetsForToolPlan(plan.toolchainPlan);
   const research = plan.research?.results;
   const researchCheck = validateResearchResults(research, targets);
   if (!researchCheck.ok) errors.push(...researchCheck.errors);
-  const waiverCheck = validateCveWaivers(plan.waivers, { targets, now });
+  const waiverCheck = validateCveWaivers(plan.waivers, { targets, now, securityProofs });
   if (!waiverCheck.ok) errors.push(...waiverCheck.errors);
   let coordinated;
   try { coordinated = coordinateNodeFiles(base, plan.toolchainPlan); } catch (error) { errors.push(error.message); coordinated = new Map(); }
@@ -387,12 +353,12 @@ export function validateMaintenancePlan(baseFiles, plan, { now = Date.now(), sup
  * Exact byte gate for the parent controller.  `baseFiles` and `headFiles` are
  * complete authenticated snapshots; any omitted/added/hidden file is rejected.
  */
-export function assertCandidateBytes(baseFiles, headFiles, plan) {
+export function assertCandidateBytes(baseFiles, headFiles, plan, options = {}) {
   const errors = [];
   let base, head;
   try { base = requireBaseFiles(baseFiles); head = requireBaseFiles(headFiles); }
   catch (error) { return result([error.message]); }
-  const planCheck = validateMaintenancePlan(base, plan);
+  const planCheck = validateMaintenancePlan(base, plan, options);
   if (!planCheck.ok) errors.push(...planCheck.errors.map(error => `plan: ${error}`));
   const expected = new Map((plan?.files ?? []).map(file => [file?.path, file?.content]));
   if (expected.size !== (plan?.files ?? []).length) errors.push('candidate plan has duplicate or malformed files');

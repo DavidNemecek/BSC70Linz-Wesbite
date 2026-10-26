@@ -47,6 +47,12 @@ Node-Pin, Engine, Lockfile und isolierte Laufzeit werden gemeinsam angepasst;
 der Browser behält seine eigene feste Prüflaufzeit. Ein notwendiger npm-CVE-Fix
 überspringt diese zusätzliche Wartung. Ein neuer Node-Hauptzweig benötigt eine
 gesonderte Plattformmigration.
+Die Sofortausnahme für Node und Actions benötigt frisch geladene offizielle
+Advisories für den tatsächlich verwendeten Pin und den exakten notwendigen Fix.
+Gespeicherte oder von einer KI behauptete CVE-Nachweise genügen nicht. Bei einer
+bestätigten Rückkehr zum exakten früheren Produktionsstand darf ausschließlich
+dessen nachgewiesene alte Node-Version die inzwischen erhöhte Mindestversion
+unterschreiten.
 Nicht zuordenbare Änderungen auf `updates` werden niemals überschrieben.
 Unterbrochene eigene Läufe werden nur anhand authentifizierter GitHub-Nachweise
 wiederaufgenommen.

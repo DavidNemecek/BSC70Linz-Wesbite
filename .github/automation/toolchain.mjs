@@ -9,8 +9,9 @@
 import { createHash } from 'node:crypto';
 import { isDeepStrictEqual } from 'node:util';
 import { updateActionRefs, updateNodePin, parseStableVersion, compareStableVersions,
-  publicationEligibility, result, isRecord } from './policy.mjs';
+  result, isRecord } from './policy.mjs';
 import * as defaultAI from './ai.mjs';
+import { releaseAgeEligible, verifiedSecurityProof } from './toolchain-security.mjs';
 
 export const TOOLCHAIN_SCHEMA_VERSION = 1;
 export const SUPPORTED_NODE_LTS_MAJORS = Object.freeze([24]);
@@ -31,7 +32,6 @@ const MAX_RELEASES = 100;
 
 const fail = message => { throw new TypeError(message); };
 const asVersion = value => typeof value === 'string' && VERSION.test(value) ? value : null;
-const ageOK = (date, now) => publicationEligibility(date, now).ok;
 const officialAction = action => ALLOWED_ACTIONS.includes(action) && ACTION.test(action);
 const hexToSri = hex => `sha256-${Buffer.from(hex, 'hex').toString('base64')}`;
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -50,10 +50,10 @@ function text(value, label) {
 
 /** Bounded official HTTP transport. Tests can inject a fetch implementation. */
 export async function boundedFetch(url, { fetchImpl = globalThis.fetch, timeoutMs = 15_000,
-  maxBytes = MAX_BYTES, headers = {}, allowedHosts = [] } = {}) {
+  maxBytes = MAX_BYTES, headers = {}, allowedHosts = [], allowSearch = false } = {}) {
   let parsed;
   try { parsed = new URL(url); } catch { fail('invalid URL'); }
-  if (parsed.protocol !== 'https:' || parsed.username || parsed.password || parsed.search || parsed.hash ||
+  if (parsed.protocol !== 'https:' || parsed.username || parsed.password || parsed.port || (!allowSearch && parsed.search) || parsed.hash ||
       (allowedHosts.length && !allowedHosts.includes(parsed.hostname))) fail('untrusted upstream URL');
   if (typeof fetchImpl !== 'function' || !Number.isInteger(timeoutMs) || timeoutMs < 100 || timeoutMs > 120_000 ||
       !Number.isInteger(maxBytes) || maxBytes < 1 || maxBytes > 32 * 1024 * 1024) fail('invalid fetch options');
@@ -63,6 +63,7 @@ export async function boundedFetch(url, { fetchImpl = globalThis.fetch, timeoutM
     const response = await fetchImpl(parsed.href, { method: 'GET', redirect: 'error', headers: {
       accept: 'application/json, text/plain, */*', ...headers,
     }, signal: controller.signal });
+    if (response?.redirected || response?.url && response.url !== parsed.href) fail('untrusted upstream redirect');
     if (!response || !response.ok) fail(`upstream HTTP ${response?.status ?? 'unknown'}`);
     let bytes;
     if (response.body?.getReader) {
@@ -110,7 +111,7 @@ function parseChecksums(shasums, filename) {
 
 /** Selects a newer Node 24 LTS patch/minor and binds it to signed SHASUMS. */
 export function discoverNodeRelease({ index, currentVersion, now = Date.now(), shasums, shasumsSignature,
-  tarballBytes, supportedLtsMajors = SUPPORTED_NODE_LTS_MAJORS, allowMinor = true } = {}) {
+  tarballBytes, supportedLtsMajors = SUPPORTED_NODE_LTS_MAJORS, allowMinor = true, securityProofs = [] } = {}) {
   const current = asVersion(currentVersion);
   if (!current || !Array.isArray(supportedLtsMajors) || !supportedLtsMajors.includes(24)) fail('invalid current Node pin');
   const currentParts = parseStableVersion(current);
@@ -121,7 +122,8 @@ export function discoverNodeRelease({ index, currentVersion, now = Date.now(), s
     const parts = version && parseStableVersion(version);
     return { item, version, parts, date: item?.date };
   }).filter(row => row.parts && row.parts[0] === 24 && (allowMinor || row.parts[1] === currentParts[1]) &&
-    (row.item.lts === true || typeof row.item.lts === 'string') && ageOK(row.date, now));
+    (row.item.lts === true || typeof row.item.lts === 'string') &&
+    (row.version === current || releaseAgeEligible(row.date, { kind: 'node', name: 'node', version: row.version, fromVersion: current, now, securityProofs })));
   if (!eligible.length) fail('no eligible same-minor Node 24 LTS release');
   eligible.sort((a, b) => compareStableVersions(b.version, a.version));
   const chosen = eligible[0];
@@ -145,7 +147,7 @@ export function discoverNodeRelease({ index, currentVersion, now = Date.now(), s
     supportedLtsMajors: [...SUPPORTED_NODE_LTS_MAJORS] };
 }
 
-export async function discoverNodeReleaseLive({ currentVersion, now = Date.now(), fetchImpl, supportedLtsMajors, allowMinor = true } = {}) {
+export async function discoverNodeReleaseLive({ currentVersion, now = Date.now(), fetchImpl, supportedLtsMajors, allowMinor = true, securityProofs = [] } = {}) {
   const index = (await boundedFetchJson(NODE_INDEX_URL, { fetchImpl, allowedHosts: ['nodejs.org'] })).json;
   const current = asVersion(currentVersion);
   if (!current) fail('invalid current Node pin');
@@ -153,7 +155,7 @@ export async function discoverNodeReleaseLive({ currentVersion, now = Date.now()
   const candidates = index.filter(item => {
     const version = typeof item?.version === 'string' ? item.version.replace(/^v/, '') : '';
     const parts = parseStableVersion(version);
-    return parts && parts[0] === 24 && (allowMinor || parts[1] === currentParts[1]) && (item.lts === true || typeof item.lts === 'string') && ageOK(item.date, now);
+    return parts && parts[0] === 24 && (allowMinor || parts[1] === currentParts[1]) && (item.lts === true || typeof item.lts === 'string') && (version === current || releaseAgeEligible(item.date, { kind: 'node', name: 'node', version, fromVersion: current, now, securityProofs }));
   });
   candidates.sort((a, b) => compareStableVersions(b.version.replace(/^v/, ''), a.version.replace(/^v/, '')));
   const latest = candidates[0];
@@ -164,7 +166,7 @@ export async function discoverNodeReleaseLive({ currentVersion, now = Date.now()
     boundedFetch(`${prefix}SHASUMS256.txt`, { fetchImpl, allowedHosts: ['nodejs.org'] }),
     boundedFetch(`${prefix}SHASUMS256.txt.sig`, { fetchImpl, allowedHosts: ['nodejs.org'] }),
   ]);
-  return discoverNodeRelease({ index, currentVersion, now, shasums: checks.text, shasumsSignature: signature.text, supportedLtsMajors });
+  return discoverNodeRelease({ index, currentVersion, now, shasums: checks.text, shasumsSignature: signature.text, supportedLtsMajors, allowMinor, securityProofs });
 }
 
 function actionTag(release) { return release?.tag_name ?? release?.tag ?? release?.name; }
@@ -192,10 +194,10 @@ export function resolveActionCommit({ action, tag, ref, dereferenced, maxDepth =
 }
 
 /** Newest non-prerelease release with an immutable official repository commit. */
-export function discoverActionRelease({ action, releases, now = Date.now(), ref, dereferenced, commitSha, currentTag, currentSha } = {}) {
+export function discoverActionRelease({ action, releases, now = Date.now(), ref, dereferenced, commitSha, currentTag, currentSha, securityProofs = [] } = {}) {
   if (!officialAction(action) || !Array.isArray(releases) || !Number.isFinite(now)) fail('invalid GitHub release metadata');
   const eligible = releases.filter(release => release && release.draft !== true && release.prerelease !== true &&
-    typeof actionTag(release) === 'string' && TAG.test(actionTag(release)) && ageOK(releaseDate(release), now) &&
+    typeof actionTag(release) === 'string' && TAG.test(actionTag(release)) && (actionTag(release) === currentTag || releaseAgeEligible(releaseDate(release), { kind: 'action', name: action, version: actionTag(release), fromVersion: currentTag, fromSHA: currentSha, now, securityProofs })) &&
     repositoryOf(release, action) === action);
   if (!eligible.length) fail(`no eligible release for ${action}`);
   eligible.sort((a, b) => Date.parse(releaseDate(b)) - Date.parse(releaseDate(a)) || String(actionTag(b)).localeCompare(String(actionTag(a))));
@@ -212,32 +214,43 @@ export function discoverActionRelease({ action, releases, now = Date.now(), ref,
     source: ACTION_API_URL(action) };
 }
 
-export async function fetchGitHubReleases(action, { fetchImpl, token, now = Date.now() } = {}) {
+export async function fetchGitHubReleases(action, { fetchImpl, token, now = Date.now(), currentTag, currentSha, securityProofs = [] } = {}) {
   if (!officialAction(action)) fail('action is not allowlisted');
   const headers = { accept: 'application/vnd.github+json' };
   if (typeof token === 'string' && token) headers.authorization = `Bearer ${token}`;
   const response = await boundedFetchJson(ACTION_API_URL(action), { fetchImpl, headers, allowedHosts: ['api.github.com'], maxBytes: 4 * 1024 * 1024 });
   if (!Array.isArray(response.json) || response.json.length > MAX_RELEASES) fail('invalid GitHub releases response');
-  return response.json.map(release => ({ ...release, repository: action })).filter(release => releaseDate(release) && ageOK(releaseDate(release), now));
+  return response.json.map(release => ({ ...release, repository: action })).filter(release => releaseDate(release) &&
+    (actionTag(release) === currentTag || releaseAgeEligible(releaseDate(release), { kind: 'action', name: action, version: actionTag(release), fromVersion: currentTag, fromSHA: currentSha, now, securityProofs })));
 }
 
-export async function discoverActionReleaseLive({ action, fetchImpl, token, now = Date.now() } = {}) {
-  const releases = await fetchGitHubReleases(action, { fetchImpl, token, now });
-  if (!releases.length) fail(`no eligible release for ${action}`);
-  const chosen = [...releases].sort((a, b) => Date.parse(releaseDate(b)) - Date.parse(releaseDate(a)))[0];
-  const tag = actionTag(chosen), headers = { accept: 'application/vnd.github+json' };
+/** Fetch only this allowlisted repository's immutable release-tag identity. */
+export async function fetchActionCommitLive({ action, tag, fetchImpl, token } = {}) {
+  if (!officialAction(action) || typeof tag !== 'string' || !TAG.test(tag)) fail('invalid action ref');
+  const headers = { accept: 'application/vnd.github+json' };
   if (typeof token === 'string' && token) headers.authorization = `Bearer ${token}`;
   const refResponse = await boundedFetchJson(`https://api.github.com/repos/${action}/git/ref/tags/${encodeURIComponent(tag)}`, {
     fetchImpl, headers, allowedHosts: ['api.github.com'], maxBytes: 128 * 1024,
   });
   let dereferenced;
   if (refResponse.json?.object?.type === 'tag') {
-    const tagResponse = await boundedFetchJson(`https://api.github.com/repos/${action}/git/tags/${encodeURIComponent(refResponse.json.object.sha)}`, {
+    if (!SHA40.test(refResponse.json.object.sha ?? '')) fail('invalid annotated action tag SHA');
+    const tagResponse = await boundedFetchJson(`https://api.github.com/repos/${action}/git/tags/${refResponse.json.object.sha}`, {
       fetchImpl, headers, allowedHosts: ['api.github.com'], maxBytes: 128 * 1024,
     });
     dereferenced = tagResponse.json?.object ?? tagResponse.json;
   }
-  return discoverActionRelease({ action, releases, now, ref: refResponse.json, dereferenced });
+  return resolveActionCommit({ action, tag, ref: refResponse.json, dereferenced });
+}
+
+export async function discoverActionReleaseLive({ action, fetchImpl, token, now = Date.now(), currentTag, currentSha, securityProofs = [] } = {}) {
+  const releases = await fetchGitHubReleases(action, { fetchImpl, token, now, currentTag, currentSha, securityProofs });
+  if (!releases.length) fail(`no eligible release for ${action}`);
+  const chosen = [...releases].filter(release => !release.draft && !release.prerelease).sort((a, b) =>
+    Date.parse(releaseDate(b)) - Date.parse(releaseDate(a)) || String(actionTag(b)).localeCompare(String(actionTag(a))))[0];
+  if (!chosen) fail(`no eligible stable release for ${action}`);
+  const commitSha = await fetchActionCommitLive({ action, tag: actionTag(chosen), fetchImpl, token });
+  return discoverActionRelease({ action, releases, now, commitSha, currentTag, currentSha, securityProofs });
 }
 
 function usesLines(source) {
@@ -400,12 +413,12 @@ function integrationNotes() {
 /** Build exact candidate bytes from trusted base files and independently verified metadata. */
 export function generateToolchainPlan({ baseFiles, now = Date.now(), nodeIndex, shasums, shasumsSignature, nodeTarballBytes,
   currentNodeVersion, actionReleases = {}, actionCommits = {}, researchresults, supportedLtsMajors = SUPPORTED_NODE_LTS_MAJORS,
-  allowNodeMinor = true } = {}) {
+  allowNodeMinor = true, securityProofs = [] } = {}) {
   const files = mapFiles(baseFiles), nvmrc = files.get('.nvmrc');
   if (typeof nvmrc !== 'string') fail('trusted base .nvmrc is missing');
   const current = nvmrc.trim().replace(/^v/, '');
   if (currentNodeVersion !== undefined && currentNodeVersion !== current) fail('current Node metadata does not match trusted .nvmrc');
-  const node = discoverNodeRelease({ index: nodeIndex, currentVersion: current, now, shasums, shasumsSignature, tarballBytes: nodeTarballBytes, supportedLtsMajors, allowMinor: allowNodeMinor });
+  const node = discoverNodeRelease({ index: nodeIndex, currentVersion: current, now, shasums, shasumsSignature, tarballBytes: nodeTarballBytes, supportedLtsMajors, allowMinor: allowNodeMinor, securityProofs });
   const refs = discoverWorkflowActionRefs(files);
   const actions = [...new Set(refs.map(ref => ref.action))];
   if (actions.some(action => !officialAction(action))) fail('workflow contains an action outside the allowlist');
@@ -417,7 +430,7 @@ export function generateToolchainPlan({ baseFiles, now = Date.now(), nodeIndex, 
     if (currentSHAs.length !== 1 || currentTags.length !== 1 || !currentTags[0]) fail(`ambiguous current action pin: ${action}`);
     const supplied = Array.isArray(actionReleases[action]) ? actionReleases[action] : actionReleases[action]?.releases ?? actionReleases[action];
     if (!Array.isArray(supplied)) fail(`missing release metadata for ${action}`);
-    const release = discoverActionRelease({ action, releases: supplied, now, ref: actionReleases[action]?.ref, dereferenced: actionReleases[action]?.dereferenced, commitSha: actionCommits[action], currentTag: currentSHAs[0] && currentTags[0] ? currentTags[0] : undefined, currentSha: currentSHAs[0] });
+    const release = discoverActionRelease({ action, releases: supplied, now, ref: actionReleases[action]?.ref, dereferenced: actionReleases[action]?.dereferenced, commitSha: actionCommits[action], currentTag: currentSHAs[0] && currentTags[0] ? currentTags[0] : undefined, currentSha: currentSHAs[0], securityProofs });
     releases.push(release); finalRefs[action] = release.sha; tags[action] = release.tag;
     if (release.changed) pinUpdates[action] = release.sha;
   }
@@ -441,7 +454,7 @@ export function generateToolchainPlan({ baseFiles, now = Date.now(), nodeIndex, 
   }
   outputFiles.sort((a, b) => a.path.localeCompare(b.path));
   return {
-    schemaVersion: TOOLCHAIN_SCHEMA_VERSION, generatedAt: new Date(now).toISOString(),
+    securityProofs, schemaVersion: TOOLCHAIN_SCHEMA_VERSION, generatedAt: new Date(now).toISOString(),
     files: outputFiles, releases: [{ kind: 'node', ...node }, ...releases], nodePlan: node,
     researchresults: research, researchResults: research, pinnedactionrefs: finalRefs, pinnedActionRefs: finalRefs, actionUpdates: pinUpdates, baseNodePin: current,
     compatibilityPaths: [], integrationNotes: integrationNotes(), changedWorkflowPaths: [...changedPaths].sort(),
@@ -449,7 +462,7 @@ export function generateToolchainPlan({ baseFiles, now = Date.now(), nodeIndex, 
 }
 
 /** Recompute all candidate bytes and reject substituted metadata or harness edits. */
-export function validateToolPlan(baseFiles, plan, { now = Date.now(), supportedLtsMajors = SUPPORTED_NODE_LTS_MAJORS, allowNodeMinor = false } = {}) {
+export function validateToolPlan(baseFiles, plan, { now = Date.now(), supportedLtsMajors = SUPPORTED_NODE_LTS_MAJORS, allowNodeMinor = false, securityProofs = plan?.securityProofs ?? [] } = {}) {
   const errors = [];
   let files;
   try { files = mapFiles(baseFiles); } catch (error) { return result([error.message]); }
@@ -459,7 +472,7 @@ export function validateToolPlan(baseFiles, plan, { now = Date.now(), supportedL
   if (!isRecord(node) || node.from !== String(files.get('.nvmrc') ?? '').trim().replace(/^v/, '')) errors.push('Node plan is not bound to trusted base pin');
   if (isRecord(node) && !node.changed && node.to !== node.from) errors.push('unchanged Node plan has a different target');
   const nodeRelease = (plan.releases ?? []).find(release => release?.kind === 'node');
-  if (!isRecord(nodeRelease) || nodeRelease.version !== node?.to || nodeRelease.source !== NODE_INDEX_URL || !ageOK(nodeRelease.releaseDate, now)) errors.push('Node release metadata is missing or stale');
+  if (!isRecord(nodeRelease) || nodeRelease.version !== node?.to || nodeRelease.source !== NODE_INDEX_URL || (node?.changed && !releaseAgeEligible(nodeRelease.releaseDate, { kind: 'node', name: 'node', version: node.to, fromVersion: node.from, now, securityProofs }))) errors.push('Node release metadata is missing or stale');
   if (node?.changed) {
     try { if (updateNodePin(files.get('.nvmrc'), node.to, SUPPORTED_NODE_LTS_MAJORS) !== plan.files.find(file => file.path === '.nvmrc')?.content) errors.push('Node bytes differ from deterministic pin update'); }
     catch { errors.push('unsupported Node patch'); }
@@ -470,6 +483,15 @@ export function validateToolPlan(baseFiles, plan, { now = Date.now(), supportedL
   const refs = (() => { try { return discoverWorkflowActionRefs(files); } catch { return []; } })();
   const actions = [...new Set(refs.map(ref => ref.action))];
   if (actions.some(action => !officialAction(action))) errors.push('workflow action outside allowlist');
+  for (const proof of securityProofs) {
+    const fromVersion = proof?.target?.kind === 'node' ? node?.from : refs.find(ref => ref.action === proof?.target?.name)?.commentTag;
+    const fromSHA = proof?.target?.kind === 'action' ? refs.find(ref => ref.action === proof.target.name)?.ref : undefined;
+    if (!fromVersion || !verifiedSecurityProof(proof, { fromVersion, fromSHA, now })) errors.push('unverified or wrong-current toolchain security proof');
+    const selected = proof?.target?.kind === 'node' ? node?.to : (plan.releases ?? []).find(release => release.action === proof?.target?.name)?.tag;
+    if (!parseStableVersion(String(selected).replace(/^v/, '')) || !parseStableVersion(String(proof?.target?.version).replace(/^v/, '')) ||
+        compareStableVersions(selected.replace(/^v/, ''), proof.target.version.replace(/^v/, '')) < 0)
+      errors.push('primary CVE remains unresolved in selected toolchain');
+  }
   const finalRefs = plan.pinnedactionrefs;
   const updates = plan.actionUpdates;
   if (!isRecord(finalRefs) || !isRecord(updates)) errors.push('missing immutable action refs');
@@ -477,7 +499,7 @@ export function validateToolPlan(baseFiles, plan, { now = Date.now(), supportedL
   const releaseByAction = {};
   for (const release of plan.releases ?? []) {
     if (release.kind === 'action') {
-      if (!officialAction(release.action) || !SHA40.test(release.sha) || release.repository !== release.action || !ageOK(release.publishedAt, now) ||
+      if (!officialAction(release.action) || !SHA40.test(release.sha) || release.repository !== release.action || (release.changed && !releaseAgeEligible(release.publishedAt, { kind: 'action', name: release.action, version: release.tag, fromVersion: release.currentTag, fromSHA: release.currentSha, now, securityProofs })) ||
           release.source !== ACTION_API_URL(release.action) || typeof release.tag !== 'string' || !TAG.test(release.tag) ||
           !String(release.releaseUrl ?? '').startsWith(`https://github.com/${release.action}/`)) errors.push(`invalid action release: ${release.action}`);
       tags[release.action] = release.tag; releaseByAction[release.action] = release;

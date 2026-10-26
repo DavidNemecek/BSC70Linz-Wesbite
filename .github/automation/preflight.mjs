@@ -1,6 +1,8 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { preflight as aiPreflight, researchPackages } from './ai.mjs';
 import { preflight as vercelPreflight, getProductionDeployment, verifyRuntime } from './vercel.mjs';
+import { loadNpmSemver } from './dependencies.mjs';
+import { TRUSTED_BASE_PATHS, usedToolchainTargets, fetchOfficialSecurityMetadata } from './maintenance.mjs';
 
 const result = { startedAt: new Date().toISOString(), pass: false, checks: [] };
 await mkdir('evidence', { recursive: true });
@@ -20,6 +22,14 @@ const outcomes = await Promise.allSettled([(async () => {
   result.checks.push({ name: 'ruleset-visibility', pass: true, bypassVisible: Array.isArray(ruleset.bypass_actors),
     bypassCount: Array.isArray(ruleset.bypass_actors) ? ruleset.bypass_actors.length : null,
     currentUserCanBypass: ruleset.current_user_can_bypass ?? null });
+})(), (async () => {
+  const root = new URL('../../', import.meta.url);
+  const workflows = (await readdir(new URL('.github/workflows/', root))).filter(name=>/\.ya?ml$/.test(name));
+  const paths = [...TRUSTED_BASE_PATHS, ...workflows.map(name=>`.github/workflows/${name}`)];
+  const files = new Map(await Promise.all(paths.map(async path=>[path,await readFile(new URL(path,root),'utf8')])));
+  const targets = usedToolchainTargets(files);
+  const proofs = await fetchOfficialSecurityMetadata({ targets, semver: loadNpmSemver(), token: process.env.GITHUB_TOKEN });
+  result.checks.push({ name: 'primary-toolchain-advisories', pass: true, targets, proofs });
 })(), (async () => {
   const research = await aiPreflight();
   result.checks.push({ name: 'live-ai-web-search', pass: research.pass === true, research });

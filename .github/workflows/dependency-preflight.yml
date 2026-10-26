@@ -7,6 +7,9 @@ on:
       - .github/automation/prompts.mjs
       - .github/automation/preflight.mjs
       - .github/automation/vercel.mjs
+      - .github/automation/maintenance.mjs
+      - .github/automation/toolchain-security.mjs
+      - .github/automation/toolchain.mjs
       - .github/workflows/dependency-preflight.yml
       - .nvmrc
   workflow_dispatch:

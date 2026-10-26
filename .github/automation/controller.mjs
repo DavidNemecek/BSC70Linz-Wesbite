@@ -288,6 +288,7 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
     stage: 'starting', outcome: 'running', createdAt: new Date(now()).toISOString() };
   let sequence = 0;
   const trees = new Map();
+  const maintenanceSecurity = new Map();
   const secrets = ['GH_TOKEN', 'GITHUB_TOKEN', 'AI_API_KEY', 'AI_BASE_URL', 'VERCEL_TOKEN'].map(key => env[key]).filter(Boolean);
   function redact(value) {
     return JSON.stringify(value, (key, item) => {
@@ -471,15 +472,30 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
       (!fresh || now() - timestamp(value) <= 86400000)), 'maintenance-evidence-stale');
     return values;
   }
+  async function maintenanceProofs(baseSHA, baseFiles) {
+    const cached = maintenanceSecurity.get(baseSHA), time = now();
+    if (cached && cached.fetchedAt <= time && time - cached.fetchedAt <= 86400000) return cached.proofs;
+    const runtime = await toolchain();
+    // Saved JSON has no primary-fetch authority. Refresh against the actual
+    // original pins even when trusted main has already promoted the new pins.
+    const proofs = await maintenance.fetchOfficialSecurityMetadata({
+      targets: maintenanceAdapter.usedToolchainTargets(baseFiles), semver: runtime.semver,
+      now: time, token: env.GH_TOKEN || env.GITHUB_TOKEN,
+    });
+    maintenanceSecurity.set(baseSHA, { proofs, fetchedAt: time });
+    return proofs;
+  }
   async function maintenanceBytes(baseSHA, headSHA, plan) {
     const before = await maintenanceSnapshot(baseSHA), after = await maintenanceSnapshot(headSHA);
-    const checked = requireOK(maintenanceAdapter.validateMaintenancePlan(before, plan, { now: now() }), 'maintenance-plan-invalid');
+    const securityProofs = await maintenanceProofs(baseSHA, before);
+    const options = { now: now(), securityProofs };
+    const checked = requireOK(maintenanceAdapter.validateMaintenancePlan(before, plan, options), 'maintenance-plan-invalid');
     // The validator regenerates the bytes. Compare that independent result,
     // not just hashes or contents asserted by the serialized plan.
     for (const file of checked.expectedFiles) requireSafe(after.get(file.path) === file.content &&
       digest(before.get(file.path)) === file.fromSHA256 && digest(after.get(file.path)) === file.toSHA256,
     'maintenance-candidate-bytes-mismatch');
-    requireOK(maintenanceAdapter.assertCandidateBytes(before, after, plan), 'maintenance-candidate-bytes-blocked');
+    requireOK(maintenanceAdapter.assertCandidateBytes(before, after, plan, options), 'maintenance-candidate-bytes-blocked');
     return checked;
   }
   async function dispatched(phase, baseSHA, headSHA, extra = {}) {
@@ -888,8 +904,9 @@ export function createController({ gh = github, worker = dispatchWorker, ai = ai
       await checkpoint('maintenance-discovery');
       const baseFiles = await maintenanceSnapshot(baseSHA);
       plan = await maintenance.createMaintenancePlan({ baseFiles, now: now(), ai,
-        token: env.GH_TOKEN || env.GITHUB_TOKEN, supportedLtsMajors: runtime.supportedLtsMajors });
-      requireOK(maintenanceAdapter.validateMaintenancePlan(baseFiles, plan, { now: now() }), 'maintenance-plan-invalid');
+        semver: runtime.semver, token: env.GH_TOKEN || env.GITHUB_TOKEN, supportedLtsMajors: runtime.supportedLtsMajors });
+      const securityProofs = await maintenanceProofs(baseSHA, baseFiles);
+      requireOK(maintenanceAdapter.validateMaintenancePlan(baseFiles, plan, { now: now(), securityProofs }), 'maintenance-plan-invalid');
       maintenanceTimes(plan);
       await save('maintenance-plan', plan);
       if (!plan.files.length) plan = undefined;

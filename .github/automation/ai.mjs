@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
-import { POLICY, PREFLIGHT, RESEARCH, REVIEW, REPAIR, VISUAL } from './prompts.mjs';
+import { POLICY, PREFLIGHT, RESEARCH, RESEARCH_CITATIONS, REVIEW, REPAIR, VISUAL } from './prompts.mjs';
 
 // Protocol references checked against official OpenAI documentation:
 // https://developers.openai.com/api/reference/resources/responses/streaming-events
@@ -12,7 +12,7 @@ import { POLICY, PREFLIGHT, RESEARCH, REVIEW, REPAIR, VISUAL } from './prompts.m
 // or written. AI_BASE_URL is REQUIRED: an API root (e.g. .../v1) or .../responses.
 // AI_API_KEY is supplied by the controller's Actions secret; AI_MODEL defaults below.
 // Schemas travel in JSON input and are always validated locally. We deliberately
-// omit text.format so endpoints without structured-output support work unchanged.
+// omit text.format except for the bounded, strict research citation correction.
 // Optional second argument on every export is trusted configuration for tests/callers:
 // {baseURL,apiKey,model,timeoutMs,maxRetries,allowLoopbackForTests}.
 // Never derive configuration from PR/repository data. HTTP is permitted only for a
@@ -20,7 +20,7 @@ import { POLICY, PREFLIGHT, RESEARCH, REVIEW, REPAIR, VISUAL } from './prompts.m
 const MAX_BODY = 8 * 1024 * 1024;
 const MAX_INPUT = 12 * 1024 * 1024;
 const MAX_PACKAGES = 100;
-const CHUNK_SIZE = 4; // At most 25 calls (75 attempts including retries), sequential.
+const CHUNK_SIZE = 4; // Research: at most 25 chunks, two HTTP calls each, sequential.
 const hash = value => createHash('sha256').update(value).digest('hex');
 const fail = code => Object.assign(new Error(`AI adapter: ${code}`), { code });
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -203,10 +203,10 @@ function extract(response, cfg, search) {
  * parsing or schema failure. Provenance is adapter-derived, never model claims.
  * schema uses the fail-closed subset above. images are local base64 data URL strings.
  * No implicit provider/model fallback or response-format changes occur. */
-export async function callAI({instructions,input,schema,search=false,images=[]}, options = {}) {
+export async function callAI({instructions,input,schema,search=false,images=[],strictFormat=false}, options = {}) {
   const cfg = config(options);
   checkSchema(schema);
-  if (typeof instructions !== 'string' || !instructions.trim() || typeof search !== 'boolean') throw fail('INVALID_INPUT');
+  if (typeof instructions !== 'string' || !instructions.trim() || typeof search !== 'boolean' || typeof strictFormat !== 'boolean') throw fail('INVALID_INPUT');
   checkImages(images);
   let inputText;
   try { inputText = JSON.stringify({untrustedInput:input,outputSchema:schema}); }
@@ -216,6 +216,7 @@ export async function callAI({instructions,input,schema,search=false,images=[]},
     instructions: `${POLICY}\n\n${instructions}`,
     input:[{role:'user',content:[{type:'input_text',text:inputText},...images.map(image_url=>({type:'input_image',image_url,detail:'high'}))]}],
     max_output_tokens:16000,
+    ...(strictFormat ? {text:{format:{type:'json_schema',name:'research_citations',strict:true,schema}}} : {}),
     ...(search ? {tools:[{type:'web_search',external_web_access:true}],tool_choice:'required',include:['web_search_call.action.sources']} : {}),
   };
   const started = Date.now();
@@ -368,13 +369,18 @@ export async function researchPackages({packages,baseSHA,headSHA}, options = {})
   const results = [], provenance = [];
   for (let start=0; start<targets.length; start+=CHUNK_SIZE) {
     const chunk = targets.slice(start,start+CHUNK_SIZE);
-    const response = await callAI({instructions:RESEARCH,input:{baseSHA,headSHA,packages:chunk},schema,search:true},options);
+    // No transport retry may multiply the two-call research/correction budget.
+    const boundedOptions = {...options,maxRetries:0};
+    const response = await callAI({instructions:RESEARCH,input:{baseSHA,headSHA,packages:chunk},schema,search:true},boundedOptions);
     provenance.push(response.provenance);
     response.provenance.confirmedRedirects = [];
     response.provenance.registryRetrievals = [];
     let redirectBudget = 8;
     if (response.data.packages.length !== chunk.length || new Set(response.data.packages.map(p=>`${p.name}@${p.version}`)).size !== chunk.length ||
         response.data.packages.some(p=>!chunk.some(t=>t.name===p.name && t.version===p.version))) throw fail('PARTIAL_RESEARCH');
+    // Validate every initial verdict before attempting citation correction.
+    response.data.packages.forEach(decision);
+    const assessments = [];
     for (const target of chunk) {
       const evidence = response.provenance.searches.filter(s=>s.queries.some(q=>queryMatches(q,target)));
       const sources = new Set(evidence.flatMap(s=>s.sources));
@@ -396,16 +402,53 @@ export async function researchPackages({packages,baseSHA,headSHA}, options = {})
           }
         }
       }
-      if (!sources.size || result.evidence.some(url=>!sources.has(sourceURL(url,v=>v)) && !opened.includes(sourceURL(url,v=>v)))) {
+      const allowedURLs = [...new Set([...sources,...opened])];
+      const unsupported = result.evidence.filter(url=>!allowedURLs.includes(sourceURL(url,v=>v)));
+      let proofError;
+      if (!sources.size || unsupported.length) {
         const error = fail('PACKAGE_SEARCH_PROOF_MISSING');
         // Adapter-redacted public research metadata only; no request, provider
         // response object, configuration or authorization header is retained.
         error.researchDiagnostic = { target, searches: response.provenance.searches,
           openedURLs: response.provenance.openedURLs, citedURLs: result.evidence, matchingSearchCount: evidence.length };
-        throw error;
+        proofError = error;
       }
-      results.push({...decision(result),searches:evidence});
+      // A correction cannot rescue missing exact search or fabricated-only evidence.
+      if (!sources.size || unsupported.length === result.evidence.length) throw proofError;
+      assessments.push({target,result,searches:evidence,allowedURLs,proofError});
     }
+    if (assessments.some(a=>a.proofError)) {
+      // Per-package enums contain only actual exact-query sources, completed exact
+      // registry opens, identity-checked registry retrievals or confirmed redirects.
+      // Bound the schema below the official enum/string limits; never truncate proof.
+      const correctionFinding = {...finding,properties:{severity:finding.properties.severity,message:string,evidence:finding.properties.evidence}};
+      const properties = Object.fromEntries(assessments.map((a,i)=>{
+        if (a.allowedURLs.length > 200 || a.allowedURLs.reduce((n,url)=>n+url.length,0) > 24000) throw fail('CITATION_CORRECTION_LIMIT');
+        return [`package${i}`,{...entry,properties:{
+          name:{type:'string',enum:[a.target.name]},version:{type:'string',enum:[a.target.version]},
+          pass:{type:'boolean'},findings:{...verdict.properties.findings,items:correctionFinding},
+          evidence:{...entry.properties.evidence,items:{type:'string',enum:a.allowedURLs}},
+        }}];
+      }));
+      const correctionSchema = {type:'object',additionalProperties:false,required:['packages'],properties:{
+        packages:{type:'object',additionalProperties:false,required:Object.keys(properties),properties},
+      }};
+      const correction = await callAI({instructions:RESEARCH_CITATIONS,strictFormat:true,schema:correctionSchema,
+        input:{baseSHA,headSHA,packages:assessments.map((a,i)=>({key:`package${i}`,...a.target,
+          originalAssessment:a.result,allowedEvidenceURLs:a.allowedURLs}))}},boundedOptions);
+      response.provenance.citationCorrection = {originalPackages:response.data.packages};
+      provenance.push({...correction.provenance,purpose:'citation-correction'});
+      for (const [i,a] of assessments.entries()) {
+        const corrected = correction.data.packages[`package${i}`];
+        // Enforce monotonic assessment locally, even if the model ignores policy.
+        // Original findings (including their evidence/path/severity) survive verbatim.
+        const originalFindings = new Set(a.result.findings.map(f=>JSON.stringify(f)));
+        const findings = [...a.result.findings,...corrected.findings.filter(f=>!originalFindings.has(JSON.stringify(f)))];
+        if (findings.length > 200) throw fail('CITATION_CORRECTION_LIMIT');
+        a.result = {...corrected,pass:a.result.pass && corrected.pass,findings};
+      }
+    }
+    results.push(...assessments.map(a=>({...decision(a.result),searches:a.searches})));
   }
   const findings = results.flatMap(p=>p.findings);
   const pass = results.every(p=>p.pass);

@@ -220,21 +220,182 @@ test('completed exact registry opens supplement real searches, without replacing
   assert.equal(result.pass,true);
   assert.deepEqual(result.provenance[0].openedURLs,[url]);
   for (const [tools,expected] of [
-    [[exact],'PACKAGE_SEARCH_PROOF_MISSING'],
+    [[exact],'SCHEMA_INVALID'],
     [[exact,{...open,status:'failed'}],'SEARCH_NOT_COMPLETED'],
-    [[exact,{...open,action:{type:'open_page',url:url.replace('1.2.3','1.2.30')}}],'PACKAGE_SEARCH_PROOF_MISSING'],
-    [[exact,{...open,action:{type:'open_page',url:url.replace('registry.npmjs.org','evil.example')}}],'PACKAGE_SEARCH_PROOF_MISSING'],
+    [[exact,{...open,action:{type:'open_page',url:url.replace('1.2.3','1.2.30')}}],'SCHEMA_INVALID'],
+    [[exact,{...open,action:{type:'open_page',url:url.replace('registry.npmjs.org','evil.example')}}],'SCHEMA_INVALID'],
     [[search(['latest packages security']),open],'PACKAGE_SEARCH_PROOF_MISSING'],
     [[open],'SEARCH_PROOF_MISSING'],
   ]) {
-    const f=await fixture(t,res=>json(res,response(data,tools)));
+    const f=await fixture(t,(res,body,n)=>json(res,response(data,n===1?tools:[])));
     await assert.rejects(researchPackages(researchArgs(packages),f.options),code(expected));
+    assert.equal(f.requests.length,expected==='SCHEMA_INVALID'?2:1);
   }
   // Assistant citation annotations do not establish a web-tool retrieval.
   const annotated=response(data,[exact]);
   annotated.output.at(-1).content[0].annotations.push({type:'url_citation',url});
-  const f=await fixture(t,res=>json(res,annotated));
-  await assert.rejects(researchPackages(researchArgs(packages),f.options),code('PACKAGE_SEARCH_PROOF_MISSING'));
+  const f=await fixture(t,(res,body,n)=>json(res,n===1?annotated:response(data)));
+  await assert.rejects(researchPackages(researchArgs(packages),f.options),code('SCHEMA_INVALID'));
+});
+
+test('one strict correction repairs unsupported canonical citations using only actual per-package sources',async t=>{
+  const packages=[{name:'vite',version:'8.3.5'},{name:'react',version:'19.2.0'}];
+  const registry='https://registry.npmjs.org/vite/8.3.5';
+  const viteSource='https://github.com/vitejs/vite/releases/tag/v8.3.5';
+  const reactSource='https://react.dev/blog/react-19-2';
+  const unknown='https://github.com/vitejs/vite/security/advisories/GHSA-rq7h-c2jc-7f22';
+  const original={packages:[{...packages[0],...pass,evidence:[registry,unknown]},
+    {...packages[1],...pass,evidence:[reactSource]}]};
+  const corrected={packages:{package0:{...packages[0],...pass,evidence:[registry,viteSource]},
+    package1:{...packages[1],...pass,evidence:[reactSource]}}};
+  const f=await fixture(t,(res,body,n)=>sse(res,n===1?response(original,[
+    search(['vite 8.3.5 supply chain compromise CVE'],[viteSource]),
+    search(['react 19.2.0 supply chain compromise CVE'],[reactSource]),
+  ]):response(corrected)));
+  let retrievals=0;
+  const result=await researchPackages(researchArgs(packages),{...f.options,maxRetries:2,registryFetch:async(url,init)=>{
+    retrievals++;assert.equal(url,registry);assert.equal(init.headers,undefined);assert.equal(init.redirect,'error');
+    return new Response(JSON.stringify(packages[0]));
+  },evidenceFetch:()=>assert.fail('unknown advisory must not be fetched')});
+  assert.equal(result.pass,true);
+  assert.equal(f.requests.length,2);
+  assert.equal(retrievals,1);
+  assert.deepEqual(result.packages.map(p=>p.evidence),[corrected.packages.package0.evidence,[reactSource]]);
+  assert.deepEqual(result.provenance[0].citationCorrection.originalPackages,original.packages);
+  assert.equal(result.provenance[0].registryRetrievals[0].url,registry);
+  assert.match(result.provenance[0].registryRetrievals[0].sha256,/^[a-f0-9]{64}$/);
+  assert.deepEqual(result.provenance[1].searches,[]);
+  assert.equal(result.provenance[1].purpose,'citation-correction');
+  const body=f.requests[1].body, format=body.text.format;
+  assert.equal(body.previous_response_id,undefined);
+  assert.equal(body.tools,undefined);
+  assert.equal(body.tool_choice,undefined);
+  assert.equal(format.type,'json_schema');assert.equal(format.strict,true);
+  const payload=JSON.parse(body.input[0].content[0].text);
+  assert.deepEqual(format.schema,payload.outputSchema);
+  const schemas=format.schema.properties.packages;
+  assert.deepEqual(schemas.required,['package0','package1']);
+  assert.deepEqual(schemas.properties.package0.properties.evidence.items.enum,[viteSource,registry]);
+  assert.deepEqual(schemas.properties.package1.properties.evidence.items.enum,[reactSource]);
+  assert.ok(!JSON.stringify(format.schema).includes(unknown));
+  assert.deepEqual(payload.untrustedInput.packages[0].originalAssessment,original.packages[0]);
+  // Strict OpenAI schemas require every property to be required, recursively.
+  function strict(schema) {
+    if (schema.type==='object') {
+      assert.equal(schema.additionalProperties,false);
+      assert.deepEqual([...schema.required].sort(),Object.keys(schema.properties).sort());
+      Object.values(schema.properties).forEach(strict);
+    } else if (schema.type==='array') strict(schema.items);
+  }
+  strict(format.schema);
+});
+
+test('fabricated-only citations, wrong exact queries and model-claimed provenance cannot trigger correction',async t=>{
+  const packages=[{name:'foo',version:'1.2.3'}];
+  const unknown='https://github.com/foo/foo/security/advisories/GHSA-made-up';
+  for (const [queries,citations] of [
+    [['foo 1.2.3 supply chain'],[unknown]],
+    [['foo 1.2.30 supply chain'],[source,unknown]],
+    [['foo-extra 1.2.3 security'],[source,unknown]],
+    [['all npm latest supply chain'],[source,unknown]],
+  ]) {
+    const data={packages:[{...packages[0],...pass,evidence:citations}]};
+    const f=await fixture(t,res=>json(res,response(data,[search(queries)])));
+    await assert.rejects(researchPackages(researchArgs(packages),f.options),code('PACKAGE_SEARCH_PROOF_MISSING'));
+    assert.equal(f.requests.length,1);
+  }
+  const claims={...researched(packages),provenance:{searches:[{queries:['foo 1.2.3'],sources:[unknown]}]}};
+  const f=await fixture(t,res=>json(res,response(claims,[search()])));
+  await assert.rejects(researchPackages(researchArgs(packages),f.options),code('SCHEMA_INVALID'));
+  assert.equal(f.requests.length,1);
+});
+
+test('correction cannot remove original findings or promote any original negative assessment',async t=>{
+  const packages=[{name:'foo',version:'1.2.3'}];
+  const finding={severity:'medium',message:'Reported regression remains unresolved',
+    evidence:['https://unopened.example/regression'],path:'package.json'};
+  for (const [initialPass,severity,expected] of [[false,'medium',false],[true,'high',false],[true,'medium',true]]) {
+    const originalFinding={...finding,severity};
+    const original={packages:[{...packages[0],pass:initialPass,findings:[originalFinding,originalFinding],evidence:[source,'https://unopened.example/canonical']}]};
+    const correction={packages:{package0:{...packages[0],...pass,evidence:[source]}}};
+    const f=await fixture(t,(res,body,n)=>json(res,n===1?response(original,[search(['foo 1.2.3'])]):response(correction)));
+    const result=await researchPackages(researchArgs(packages),f.options);
+    assert.equal(result.pass,expected);
+    assert.deepEqual(result.packages[0].findings,[originalFinding,originalFinding]);
+    assert.deepEqual(result.provenance[0].citationCorrection.originalPackages,original.packages);
+    assert.equal(f.requests.length,2);
+  }
+});
+
+test('a conservative correction blocks approval and preserves additional negative findings',async t=>{
+  const packages=[{name:'foo',version:'1.2.3'}];
+  const original={packages:[{...packages[0],...pass,evidence:[source,'https://unopened.example/canonical']}]};
+  const finding={severity:'medium',message:'Retrieved sources cannot substantiate advisory assessment',evidence:[source]};
+  const corrected={packages:{package0:{...packages[0],pass:false,findings:[finding],evidence:[source]}}};
+  const f=await fixture(t,(res,body,n)=>json(res,n===1?response(original,[search(['foo 1.2.3'])]):response(corrected)));
+  const result=await researchPackages(researchArgs(packages),f.options);
+  assert.equal(result.pass,false);
+  assert.deepEqual(result.findings,[finding]);
+  assert.equal(f.requests.length,2);
+});
+
+test('correction omissions, unknown or cross-package citations, identity changes and malformed output block',async t=>{
+  const packages=[{name:'foo',version:'1.2.3'},{name:'bar',version:'2.0.0'}];
+  const other='https://bar.example/releases/2.0.0', unknown='https://unopened.example/canonical';
+  const original={packages:[{...packages[0],...pass,evidence:[source,unknown]},
+    {...packages[1],...pass,evidence:[other]}]};
+  const corrected={packages:{package0:{...packages[0],...pass,evidence:[source]},
+    package1:{...packages[1],...pass,evidence:[other]}}};
+  const replace0=patch=>({...corrected,packages:{...corrected.packages,package0:{...corrected.packages.package0,...patch}}});
+  for (const [data,expected] of [
+    [{packages:{package0:corrected.packages.package0}},'SCHEMA_INVALID'],
+    [replace0({evidence:[]}), 'SCHEMA_INVALID'],
+    [replace0({evidence:[unknown]}), 'SCHEMA_INVALID'],
+    [replace0({evidence:[other]}), 'SCHEMA_INVALID'],
+    [replace0({version:'1.2.30'}), 'SCHEMA_INVALID'],
+    [replace0({pass:'true'}), 'SCHEMA_INVALID'],
+    [replace0({pass:false,findings:[]}), 'MISSING_FINDINGS'],
+    [{...corrected,provenance:{openedURLs:[unknown]}},'SCHEMA_INVALID'],
+    ['{"packages":','MALFORMED_JSON'],
+  ]) {
+    const f=await fixture(t,(res,body,n)=>json(res,n===1?response(original,[
+      search(['foo 1.2.3'],[source]),search(['bar 2.0.0'],[other]),
+    ]):response(data)));
+    await assert.rejects(researchPackages(researchArgs(packages),{...f.options,maxRetries:2}),code(expected));
+    assert.equal(f.requests.length,2);
+  }
+});
+
+test('correction refusal, tools, schema rejection, transport errors and stalled streams stay within two calls',async t=>{
+  const packages=[{name:'foo',version:'1.2.3'}];
+  const original={packages:[{...packages[0],...pass,evidence:[source,'https://unopened.example/canonical']}]};
+  for (const [handler,expected] of [
+    [res=>json(res,{...response(),output:[{type:'message',role:'assistant',content:[{type:'refusal',refusal:'no'}]}]}),'REFUSAL'],
+    [res=>json(res,response(pass,[search(['foo 1.2.3'])])),'SEARCH_NOT_COMPLETED'],
+    [res=>json(res,{error:{message:'unsupported text.format schema'}},400),'HTTP_400'],
+    [res=>json(res,{error:'temporarily unavailable'},503),'HTTP_503'],
+    [res=>{res.writeHead(200,{'content-type':'text/event-stream'});res.write(': waiting\n\n');},'TIMEOUT'],
+  ]) {
+    const f=await fixture(t,(res,body,n)=>n===1?json(res,response(original,[search(['foo 1.2.3'])])):handler(res));
+    const start=Date.now();
+    await assert.rejects(researchPackages(researchArgs(packages),{...f.options,maxRetries:2,timeoutMs:100}),code(expected));
+    assert.equal(f.requests.length,2);
+    assert.ok(Date.now()-start<1000);
+  }
+  const firstFailure=await fixture(t,res=>json(res,{error:'temporarily unavailable'},503));
+  await assert.rejects(researchPackages(researchArgs(packages),{...firstFailure.options,maxRetries:2}),code('HTTP_503'));
+  assert.equal(firstFailure.requests.length,1);
+});
+
+test('correction schema size is bounded before a second call',async t=>{
+  const packages=[{name:'foo',version:'1.2.3'}];
+  const data={packages:[{...packages[0],...pass,evidence:[source,'https://unopened.example/canonical']}]};
+  for (const sources of [[source,...Array.from({length:200},(_,i)=>`https://source.example/${i}`)],
+    [source,...Array.from({length:8},(_,i)=>`https://source.example/${i}/${'a'.repeat(3100)}`)]]) {
+    const f=await fixture(t,res=>json(res,response(data,[search(['foo 1.2.3'],sources)])));
+    await assert.rejects(researchPackages(researchArgs(packages),f.options),code('CITATION_CORRECTION_LIMIT'));
+    assert.equal(f.requests.length,1);
+  }
 });
 
 test('canonical GitHub citations require a bounded independently confirmed permanent redirect',async t=>{

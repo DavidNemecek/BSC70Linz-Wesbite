@@ -147,3 +147,25 @@ test('bounded fetch rejects redirects, oversized bodies and non-HTTPS upstreams'
   await assert.rejects(() => boundedFetch('http://nodejs.org/dist/index.json', { fetchImpl: fake, allowedHosts: ['nodejs.org'] }));
   await assert.rejects(() => boundedFetch('https://evil.example/', { fetchImpl: fake, allowedHosts: ['nodejs.org'] }));
 });
+
+test('exported generator and age validator require primary-fetched exact Node selectors', async () => {
+  const { loadNpmSemver } = await import('./dependencies.mjs');
+  const { fetchPrimarySecurityProofs, NODE_SECURITY_INDEX, NODE_SECURITY_FEED } = await import('./toolchain-security.mjs');
+  const securityProofs = await fetchPrimarySecurityProofs({ targets: [{ kind: 'node', name: 'node', version: '24.22.1' }],
+    now, semver: loadNpmSemver(), fetchImpl: async url => {
+      if (url === NODE_SECURITY_INDEX) return new Response(JSON.stringify({ 1: {
+        cve: ['CVE-2099-123456'], vulnerable: '24.x', patched: '^24.22.3',
+      } }));
+      assert.equal(url, NODE_SECURITY_FEED);
+      return new Response('<rss><channel></channel></rss>');
+    } });
+  const input = planInput();
+  input.shasums = `${nodeDigest}  node-v24.22.3-linux-x64.tar.gz\n`;
+  input.researchresults[0] = researchItem({ kind: 'node', name: 'node', version: '24.22.3' }, 'https://nodejs.org/en/blog/vulnerability/security');
+  const plan = generateToolchainPlan({ ...input, securityProofs });
+  assert.equal(plan.nodePlan.to, '24.22.3');
+  assert.equal(validateToolPlan(baseFiles, plan, { now }).ok, true);
+  assert.equal(validateToolPlan(baseFiles, structuredClone(plan), { now }).ok, false);
+  assert.equal(validateToolPlan(baseFiles, structuredClone(plan), { now, securityProofs }).ok, true);
+  assert.throws(() => generateToolchainPlan({ ...input, securityProofs: securityProofs.map(proof => ({ ...proof, independent: true })) }));
+});

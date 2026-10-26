@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import * as dependencies from './dependencies.mjs';
 import * as maintenanceAdapter from './maintenance.mjs';
+import { NODE_SECURITY_INDEX, NODE_SECURITY_FEED } from './toolchain-security.mjs';
 import { createController, CHECK_CONTEXTS, validateMainProtection, reviewBrowserImages, auditEvidence, confirmRepeatedRegression, regressionSignals } from './controller.mjs';
 import { reviewMarker, createReviewEvidence } from './review-evidence.mjs';
 import { authorize as authorizeApplication, auditVerdict as applicationAuditVerdict } from './recovery-checks.mjs';
@@ -98,7 +99,7 @@ function maintenanceInput(options = {}) {
   const sha = tag === 'v6.0.0' ? 'c'.repeat(40) : 'd'.repeat(40);
   const old = new Date(now - (options.youngMaintenance ? 1 : 8) * 86400000).toISOString();
   const targets = [{ kind: 'node', name: 'node', version: node }, { kind: 'action', name: 'actions/checkout', version: tag }];
-  return {
+  const input = {
     metadata: { fetchedAt: options.staleMaintenance ? new Date(now - 25 * 3600000).toISOString() : iso,
       nodeIndex: [{ version: `v${node}`, date: old, lts: 'Krypton' }],
       shasums: `${'a'.repeat(64)}  node-v${node}-linux-x64.tar.gz\n`, shasumsSignature: 'signed fixture',
@@ -111,10 +112,64 @@ function maintenanceInput(options = {}) {
         provenance: { timestamp: iso, searches: [{ queries: [`${target.name} ${target.version} official security`], sources: [source] }] } };
     }) },
   };
+  if (options.extraYoungMaintenance) {
+    input.metadata.nodeIndex.push({ version: 'v24.22.3', date: new Date(now - 3600000).toISOString(), lts: 'Krypton' });
+    input.metadata.actionReleases['actions/checkout'].push({ tag_name: 'v6.0.2', published_at: new Date(now - 3600000).toISOString(),
+      prerelease: false, draft: false, repository: { full_name: 'actions/checkout' },
+      ref: { object: { type: 'commit', sha: 'e'.repeat(40) } } });
+  }
+  return input;
+}
+
+// Synthetic primary HTTPS responses go through the production fetch adapter;
+// neither fixture objects nor serialized independent:true fields are authority.
+function primarySecurityFixture(options, calls) {
+  return async url => {
+    calls.push(url);
+    if (options.primaryUnavailable) throw Error('Synthetic primary source unavailable');
+    const withdrawn = options.withdrawToolchainCve;
+    let body;
+    if (url === NODE_SECURITY_INDEX) body = options.urgentNode && !withdrawn ? {
+      1: { cve: ['CVE-2099-123456'], vulnerable: '24.x', patched: '^24.22.2',
+        ref: 'https://nodejs.org/en/blog/vulnerability/synthetic-security' },
+    } : {};
+    else if (url === NODE_SECURITY_FEED) body = '<rss><channel></channel></rss>';
+    else if (url === 'https://api.github.com/repos/actions/checkout/security-advisories?state=published&per_page=100&page=1') {
+      body = options.urgentAction && !withdrawn ? [{
+        ghsa_id: 'GHSA-2345-2345-2345', cve_id: 'CVE-2099-123457', state: 'published', withdrawn_at: null,
+        url: 'https://api.github.com/repos/actions/checkout/security-advisories/GHSA-2345-2345-2345',
+        identifiers: [{ type: 'CVE', value: 'CVE-2099-123457' }],
+        vulnerabilities: [{ package: { ecosystem: 'actions', name: 'actions/checkout' },
+          vulnerable_version_range: '>= 6.0.0, < 6.0.1', patched_versions: '6.0.1' }],
+      }] : [];
+    } else if (url === 'https://api.github.com/repos/actions/checkout/git/ref/tags/v6.0.0') {
+      body = { object: { type: 'commit', sha: 'c'.repeat(40) } };
+    }
+    assert.notEqual(body, undefined, `Unexpected primary fixture request: ${url}`);
+    return new Response(typeof body === 'string' ? body : JSON.stringify(body), { status: 200 });
+  };
+}
+
+// Apply only maintenance's real trusted-minimum substitution to the production
+// modules in memory, so controller restore tests exercise the promoted parser.
+const applicationHarnesses = new Map();
+async function applicationHarness(version) {
+  if (!applicationHarnesses.has(version)) applicationHarnesses.set(version, (async () => {
+    const source = await readFile(new URL('./dependency-sandbox.mjs', import.meta.url), 'utf8');
+    const pin = "export const NODE_VERSION = '24.22.1';";
+    assert.equal(source.split(pin).length, 2);
+    const url = 'data:text/javascript;base64,' + Buffer.from(source.replace(pin, `export const NODE_VERSION = '${version}';`)).toString('base64');
+    const recoverySource = (await readFile(new URL('./recovery-checks.mjs', import.meta.url), 'utf8'))
+      .replace(/from '(\.\/[^']+)'/g, (_, path) => `from '${path === './dependency-sandbox.mjs' ? url : new URL(path, import.meta.url).href}'`);
+    return { sandbox: await import(url), recovery: await import('data:text/javascript;base64,' + Buffer.from(recoverySource).toString('base64')) };
+  })());
+  return applicationHarnesses.get(version);
 }
 
 function harness(options = {}) {
   const calls = [], evidence = [], issues = [], statuses = [], commits = new Map();
+  const primaryCalls = [], proofInputs = [];
+  const fetchPrimary = primarySecurityFixture(options, primaryCalls);
   const workerInputs = [], reviewInputs = [];
   const prs = new Map(), remote = new Map(), workflowRuns = new Map(), remoteArtifacts = new Map();
   const initialFiles = new Map([['package.json', JSON.stringify(manifest)], ['package-lock.json', JSON.stringify(lockFor(manifest))],
@@ -210,6 +265,15 @@ function harness(options = {}) {
           const pr = prInfo(Number(opts.body.inputs.pr_number));
           assert.equal(opts.body.inputs.head_sha, pr.head.sha);
           assert.equal(opts.body.ref, path.includes('/application-checks.yml/') ? 'main' : pr.head.ref);
+          if (options.verifyApplicationRuntime && path.includes('/application-checks.yml/')) {
+            const trustedPin = commits.get(refs.main).files.get('.nvmrc').trim();
+            const { sandbox, recovery } = await applicationHarness(trustedPin);
+            const proof = await recovery.authorize({ number: pr.number, headSHA: pr.head.sha }, { gh, production: vercel.getProductionDeployment });
+            const authorization = await recovery.recheckIdentity(proof, gh);
+            assert.equal(sandbox.assertCandidateNodeVersion(proof.candidateNodeVersion, authorization), proof.candidateNodeVersion);
+            calls.push(`application-runtime:${trustedPin}:${proof.candidateNodeVersion}:${proof.recovery ? 'recovery' : 'ordinary'}`);
+            if (proof.recovery) assert.throws(() => sandbox.assertCandidateNodeVersion(proof.candidateNodeVersion), /at least trusted Node/);
+          }
           if (options.vulnerableBaseline && path.includes('/application-checks.yml/')) {
             const proof = await authorizeApplication({ number: pr.number, headSHA: pr.head.sha }, { gh, production: vercel.getProductionDeployment });
             const current = JSON.parse(commits.get(pr.head.sha).files.get('package-lock.json'));
@@ -431,10 +495,14 @@ function harness(options = {}) {
     return createController({ gh, ai, dep, vercel, worker,
       maintenance: { createMaintenancePlan: async input => {
         calls.push('maintenance');
+        assert.equal(input.semver, runtime.semver);
         if (options.maintenanceFailure) throw Error('Unrelated maintenance adapter unavailable');
-        const plan = await maintenanceAdapter.createMaintenancePlan({ ...input, ...maintenanceInput(options) });
+        const plan = await maintenanceAdapter.createMaintenancePlan({ ...input, ...maintenanceInput(options), fetchImpl: fetchPrimary });
         if (options.tamperPlan) plan.files[0].content += '\n# forged plan\n';
-        return plan;
+        return options.serializedMaintenance ? structuredClone(plan) : plan;
+      }, fetchOfficialSecurityMetadata: async input => {
+        proofInputs.push({ ...input, runId: id });
+        return maintenanceAdapter.fetchOfficialSecurityMetadata({ ...input, fetchImpl: fetchPrimary });
       } }, now: () => clockNow, toolchain: async () => options.trustedRuntimeFromMain ? { ...runtime, nodeVersion: commits.get(refs.main).files.get('.nvmrc').trim() } : runtime, sleep: async () => {},
       env: { GITHUB_RUN_ID: id, GITHUB_SHA: activeControlSHA, AI_API_KEY: 'private-test-value' },
       loadArtifact: async id => remote.get(id), nonce: () => `synthetic-run-${id}`,
@@ -452,7 +520,8 @@ function harness(options = {}) {
     remote.set(artifactId, new Map(evidence.filter(item => item.runId === id).map(item => [item.name, Buffer.from(JSON.stringify(item.value))])));
   }
   const controller = newController();
-  return { controller, newController, uploadEvidence, calls, workerInputs, reviewInputs, refs, commits, evidence, issues, statuses, ai, worker, gh, prs, remote, workflowRuns, remoteArtifacts,
+  return { controller, newController, uploadEvidence, calls, primaryCalls, proofInputs, workerInputs, reviewInputs, refs, commits, evidence, issues, statuses, ai, worker, gh, prs, remote, workflowRuns, remoteArtifacts,
+    setNow: time => { clockNow = time; },
     get researchCalls() { return researchCalls; } };
 }
 
@@ -1012,10 +1081,46 @@ test('young maintenance targets and stale metadata never authorize a candidate',
   }
 });
 
+test('fresh primary proofs promote only the exact young Node and Action fixes through all existing gates', async () => {
+  for (const mode of [{ urgentNode: true, nodeOnly: true }, { urgentAction: true, actionOnly: true },
+    { urgentNode: true, urgentAction: true }]) {
+    const h = harness({ maintenance: true, youngMaintenance: true, extraYoungMaintenance: true, serializedMaintenance: true, ...mode });
+    const result = await h.controller.run();
+    assert.equal(result.outcome, 'promoted', `${JSON.stringify(mode)}: ${result.stage}: ${result.reason}`);
+    assert.equal(result.candidateKind, 'maintenance');
+    assert.equal(h.calls.includes('worker:resolve'), false);
+    assert.equal(h.calls.filter(call => call === 'mergePR').length, 1);
+    assert.equal(h.workerInputs.filter(input => input.phase === 'browser').length, 2);
+    assert(h.calls.includes('dispatch:application-checks.yml'));
+    assert(h.calls.includes('dispatch:pr-review.yml'));
+    const files = h.commits.get(result.headSHA).files;
+    assert.equal(files.get('.nvmrc'), mode.urgentNode ? '24.22.2\n' : '24.22.1\n');
+    assert.match(files.get('.github/workflows/fixture.yml'), mode.urgentAction ? /# v6\.0\.1\n/ : /# v6\.0\.0\n/);
+    assert.equal(files.get('.github/qa/.nvmrc'), '24.22.1\n');
+    assert.deepEqual(result.maintenance.plan.waivers.map(proof => proof.target.name).sort(),
+      [mode.urgentNode && 'node', mode.urgentAction && 'actions/checkout'].filter(Boolean).sort());
+    // Multiple byte gates share one fresh fetch per original base, never JSON authority.
+    assert.equal(h.proofInputs.length, 1);
+    assert.deepEqual(h.proofInputs[0].targets, maintenanceAdapter.usedToolchainTargets(h.commits.get(baseSHA).files));
+    assert.equal(h.proofInputs[0].semver, runtime.semver);
+    assert.equal(maintenanceAdapter.validateMaintenancePlan(h.commits.get(baseSHA).files,
+      JSON.parse(JSON.stringify(result.maintenance.plan)), { now }).ok, false);
+  }
+});
+
+test('primary toolchain source failure blocks before committing or executing candidate bytes', async () => {
+  const h = harness({ maintenance: true, primaryUnavailable: true });
+  const result = await h.controller.run();
+  assert.equal(result.outcome, 'blocked');
+  assert.equal(h.calls.includes('commit'), false);
+  assert.equal(h.calls.includes('worker:validate'), false);
+  assert.equal(h.refs.main, baseSHA);
+});
+
 test('a necessary npm CVE fix entirely bypasses unavailable or young unrelated maintenance', async () => {
   const advisory = { id: 'CVE-2026-12345', modified: iso, affected: [{ package: { ecosystem: 'npm', name: 'helper' },
     ranges: [{ type: 'SEMVER', events: [{ introduced: '0' }, { fixed: '1.0.1' }] }] }] };
-  const h = harness({ maintenance: true, maintenanceFailure: true, youngMaintenance: true, helperTarget: '1.0.1', expectUrgent: true,
+  const h = harness({ maintenance: true, maintenanceFailure: true, primaryUnavailable: true, youngMaintenance: true, helperTarget: '1.0.1', expectUrgent: true,
     records: { synthetic: registry('synthetic'), helper: registry('helper', { '1.0.0': 30, '1.0.1': 1 }) },
     advisories: { [advisory.id]: advisory }, osv: lock => lock.packages['node_modules/helper'].version === '1.0.0' ?
       [{ name: 'helper', version: '1.0.0', advisories: [{ id: advisory.id }] }] : [] });
@@ -1023,6 +1128,8 @@ test('a necessary npm CVE fix entirely bypasses unavailable or young unrelated m
   assert.equal(result.outcome, 'promoted', `${result.stage}: ${result.reason}`);
   assert.equal(result.candidateKind, 'dependencies');
   assert.equal(h.calls.includes('maintenance'), false);
+  assert.equal(h.primaryCalls.length, 0);
+  assert.equal(h.proofInputs.length, 0);
   const files = h.commits.get(result.headSHA).files;
   assert.equal(JSON.parse(files.get('package.json')).dependencies.synthetic, '1.0.0');
   assert.equal(JSON.parse(files.get('package-lock.json')).packages['node_modules/helper'].version, '1.0.1');
@@ -1085,6 +1192,77 @@ test('maintenance confirmed production regression reuses rollback and exact prot
   assert.equal(h.commits.get(h.refs.main).files.get('.nvmrc'), '24.22.1\n');
   assert.equal(h.workerInputs.filter(input => input.phase === 'capture').length, 1);
   assert.equal(h.calls.filter(call => call.startsWith('runtime:')).at(-1), 'runtime:24.22.1');
+});
+
+test('young necessary Node and Action fixes retain exact protected restore under the promoted trusted Node minimum', async () => {
+  const h = harness({ maintenance: true, youngMaintenance: true, urgentNode: true, urgentAction: true,
+    trustedRuntimeFromMain: true, verifyApplicationRuntime: true, postBehavior: 'runtime' });
+  const result = await h.controller.run();
+  assert.equal(result.reason, 'confirmed-regression-rolled-back', `${result.stage}: ${result.reason}`);
+  assert.equal(result.recoveryComplete, true);
+  assert.equal(h.calls.filter(call => call === 'rollback').length, 1);
+  assert.equal(h.calls.filter(call => call === 'mergePR').length, 2);
+  assert.deepEqual(h.commits.get(h.refs.main).files, h.commits.get(baseSHA).files);
+  assert(h.calls.includes('application-runtime:24.22.1:24.22.2:ordinary'));
+  assert(h.calls.includes('application-runtime:24.22.2:24.22.1:recovery'));
+  assert.equal(h.calls.filter(call => call === 'dispatch:application-checks.yml').length, 2);
+  assert.equal(h.calls.filter(call => call === 'dispatch:pr-review.yml').length, 2);
+  assert.equal(h.workerInputs.filter(input => input.phase === 'capture').length, 1);
+  assert.equal(h.calls.filter(call => call.startsWith('runtime:')).at(-1), 'runtime:24.22.1');
+});
+
+test('young maintenance resumption refreshes proofs for the original used pins after Node promotion', async () => {
+  const options = { maintenance: true, youngMaintenance: true, urgentNode: true, urgentAction: true,
+    trustedRuntimeFromMain: true, postInfrastructureFailure: true };
+  const h = harness(options), first = await h.controller.run();
+  assert.equal(first.stage, 'verify-production', `${first.stage}: ${first.reason}`);
+  h.uploadEvidence();
+  options.postInfrastructureFailure = false;
+  h.setNow(now + 3600000);
+  const resumed = await h.newController('901').run();
+  assert.equal(resumed.outcome, 'promoted', `${resumed.stage}: ${resumed.reason}`);
+  assert.equal(resumed.maintenance.identity, first.maintenance.identity);
+  assert.deepEqual(h.proofInputs.map(input => input.runId), ['900', '901']);
+  assert.equal(h.proofInputs[1].now, now + 3600000);
+  assert.deepEqual(h.proofInputs[1].targets, maintenanceAdapter.usedToolchainTargets(h.commits.get(baseSHA).files));
+  assert.equal(h.proofInputs[1].targets[0].version, '24.22.1');
+  assert.equal(h.commits.get(h.refs.main).files.get('.nvmrc'), '24.22.2\n');
+  assert.equal(h.calls.filter(call => call === 'maintenance').length, 1);
+  assert.equal(h.calls.filter(call => call === 'commit').length, 1);
+  assert.equal(h.workerInputs.filter(input => input.phase === 'capture').length, 1);
+});
+
+test('resumed young plans reject tampered serialized proof claims and missing fresh primary confirmation', async () => {
+  for (const tamper of ['advisory', 'fromVersion', 'fromSHA', 'withdrawn', 'unavailable']) {
+    const options = { maintenance: true, youngMaintenance: true, urgentNode: true, urgentAction: true,
+      trustedRuntimeFromMain: true, postInfrastructureFailure: true };
+    const h = harness(options), first = await h.controller.run();
+    assert.equal(first.stage, 'verify-production', `${tamper}: ${first.stage}: ${first.reason}`);
+    h.uploadEvidence();
+    const artifact = h.remote.get(9000), path = [...artifact.keys()].sort().at(-1);
+    const saved = JSON.parse(artifact.get(path));
+    // Recompute the public digest, keeping every planned byte unchanged. Only
+    // the fresh primary proof validator can reject these forged CVE claims.
+    for (const proof of [...saved.maintenance.plan.waivers, ...saved.maintenance.plan.toolchainPlan.securityProofs]) {
+      proof.independent = true;
+      if (tamper === 'advisory') proof.advisory.id = 'CVE-2099-999999';
+      if (tamper === 'fromVersion') proof.fromVersion = proof.target.kind === 'node' ? '24.22.0' : 'v5.0.0';
+      if (tamper === 'fromSHA' && proof.target.kind === 'action') proof.fromSHA = 'f'.repeat(40);
+    }
+    saved.maintenance.identity = hash(JSON.stringify(saved.maintenance.plan));
+    artifact.set(path, Buffer.from(JSON.stringify(saved)));
+    options.postInfrastructureFailure = false;
+    options.withdrawToolchainCve = tamper === 'withdrawn';
+    options.primaryUnavailable = tamper === 'unavailable';
+    const resumed = await h.newController('901').run();
+    assert.equal(resumed.outcome, 'blocked', `${tamper}: ${resumed.stage}: ${resumed.reason}`);
+    if (tamper !== 'unavailable') assert.equal(resumed.reason, 'maintenance-plan-invalid');
+    assert.equal(h.proofInputs.length, 2);
+    assert.equal(h.calls.filter(call => call === 'commit').length, 1);
+    assert.equal(h.calls.filter(call => call === 'mergePR').length, 1);
+    assert.equal(h.workerInputs.filter(input => input.phase === 'browser').length, 1);
+    assert.equal(h.calls.includes('rollback'), false);
+  }
 });
 
 test('resumed maintenance authenticates saved plan identity and recomputes bytes even under the new controller Node pin', async () => {
