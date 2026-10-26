@@ -318,7 +318,7 @@ function decision(data) {
   // only explicit, affirmative non-applicability (for example "not affected")
   // can remain informational.  All uncertainty and incomplete evidence stays
   // blocking for the deterministic controller.
-  const unresolved = /\b(?:unresolved|uncertain|unknown|unclear|incomplete|contradict(?:ory|ion)|missing|not\s+(?:established|assessed|verified|available)|unassessed|ambiguous|insufficient|cannot\s+(?:confirm|determine|establish)|unable\s+to|requires\s+(?:investigation|further|review)|blocked|not\s+proven)\b/i;
+  const unresolved = /\b(?:unresolved|uncertain|unknown|unclear|incomplete|contradict(?:ory|ion)|conflict(?:ing)?|missing|pending|not\s+(?:established|assessed|verified|available|reconciled|proven)|unassessed|ambiguous|insufficient|cannot\s+(?:confirm|determine|establish)|unable\s+to|requires\s+(?:investigation|further|review)|blocked|not\s+proven|yet\s+to\s+be|not\s+been|unverified|unsubstantiated)\b/i;
   const blocking = data.findings.some(f => ['high','critical'].includes(f.severity) ||
     (['medium','low'].includes(f.severity) && unresolved.test(f.message)));
   return {...data,pass:data.pass && !blocking};
@@ -442,6 +442,7 @@ function verifiedScannerEvidence(value, targets) {
         report.protectiveToken !== report.matchedToken ||
         ![JSON.stringify(report.matchedToken), `'${report.matchedToken}'`].some(quoted => typeof report.protectiveCode === 'string' && report.protectiveCode.includes(quoted)))
       throw fail('INVALID_VERIFIED_EVIDENCE');
+    if (target.name === 'vite' && target.version !== '8.3.5') throw fail('INVALID_VERIFIED_EVIDENCE');
     if (target.name === 'vite' && target.version === '8.3.5' &&
         (JSON.stringify(report) !== JSON.stringify(Object.fromEntries(Object.keys(scannerProperties)
           .map(key => [key, VERIFIED_SCANNER_EVIDENCE[0][key]]))) ||
@@ -508,12 +509,20 @@ function scannerDecision(data,target,allowedURLs,verifiedReports = []) {
 function nonCanonicalNpmURL(value) {
   try {
     const url = new URL(value);
-    return url.hostname === 'www.npmjs.com' && /^\/package\/\//.test(url.pathname);
+    if (!['www.npmjs.com','npmjs.com'].includes(url.hostname)) return false;
+    return /^\/package\/\//.test(url.pathname) || /^\/package\/\//.test(decodeURIComponent(url.pathname));
   } catch { return false; }
 }
 
+function exactQueryToken(query, token) {
+  const text = query.toLowerCase();
+  const needle = token.toLowerCase();
+  if (needle.startsWith('http')) return text.includes(needle);
+  const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return new RegExp(`(^|[^a-z0-9])${escaped}(?=$|[^a-z0-9])`,'i').test(query);
+}
+
 function requiredResearchSearches(result, target, searches) {
-  const queries = searches.flatMap(search => search.queries).map(query => query.toLowerCase());
   const text = JSON.stringify({ findings: result.findings, evidence: result.evidence }).toLowerCase();
   const required = [];
   for (const match of text.matchAll(/\b(?:ghsa|cve)-[a-z0-9-]+\b/gi)) required.push(match[0].toLowerCase());
@@ -527,7 +536,45 @@ function requiredResearchSearches(result, target, searches) {
     // when the provider returned them.
     required.push('package.json');
   }
-  return [...new Set(required)].filter(token => !queries.some(query => query.includes(token)));
+  const tokens = [...new Set(required)];
+  return tokens.filter(token => {
+    // A citation that never appeared in an independently retrieved search
+    // result is handled as an unsupported citation and may be removed by the
+    // bounded correction call.  Once a provider returned that exact URL, its
+    // identifier must be present in the corresponding query.
+    if (token.startsWith('http') && !searches.some(search => search.sources.some(source => source.toLowerCase() === token))) return false;
+    if (/^(?:ghsa|cve)-/i.test(token) && !searches.some(search => search.sources.some(source => source.toLowerCase().includes(token)))) return false;
+    const matching = searches.filter(search => search.queries.some(query => {
+      const matches = tokens.filter(other => exactQueryToken(query, other));
+      return exactQueryToken(query, token) && matches.length === 1;
+    }));
+    if (!matching.length) return true;
+    // Identifier/source claims must be source-bound to the query that names
+    // them; broad package searches cannot donate citations to a narrower claim.
+    if (token.startsWith('http')) return !matching.some(search => search.sources.some(source => source.toLowerCase() === token));
+    return false;
+  });
+}
+
+function missingSearchSourceBindings(result, target, searches) {
+  const missing = [];
+  for (const cited of result.evidence) {
+    const relevant = searches.filter(search => search.sources.includes(cited));
+    // A citation absent from every independently retrieved source is an
+    // unsupported citation; mixed assessments may repair it using the real
+    // per-package sources.  If a provider did return that URL, however, its
+    // query must carry the exact advisory/issue/manifest identity.
+    if (!relevant.length) continue;
+    const advisory = cited.match(/(?:GHSA|CVE)-[a-z0-9-]+/i)?.[0];
+    const issue = cited.match(/\/issues\/(\d+)/i)?.[1];
+    const manifest = /\/blob\/v[^/]+\/.*(?:package\.json|package-lock\.json)/i.test(cited);
+    const bound = relevant.some(search => search.queries.some(query => queryMatches(query,target) &&
+      (advisory ? exactQueryToken(query,advisory) : issue ? exactQueryToken(query,`issues/${issue}`) : manifest ? exactQueryToken(query,'package.json') : true)));
+    if ((advisory || issue || manifest) && !bound) {
+      missing.push(`source:${cited}`);
+    }
+  }
+  return missing;
 }
 
 function missingExactSourceCitations(result, target, sources) {
@@ -599,8 +646,10 @@ export async function researchPackages({packages,baseSHA,headSHA}, options = {})
       const allowedURLs = [...new Set([...sources,...opened])].filter(url => !nonCanonicalNpmURL(url));
       const unsupported = result.evidence.filter(url=>nonCanonicalNpmURL(url) || !allowedURLs.includes(sourceURL(url,v=>v)));
       const missingSearches = [...requiredResearchSearches(result,target,evidence),
+        ...missingSearchSourceBindings(result,target,evidence),
         ...missingExactSourceCitations(result,target,sources)];
       let proofError;
+      const proofBlocksCorrection = missingSearches.length > 0;
       if (!sources.size || unsupported.length || missingSearches.length) {
         const error = fail('PACKAGE_SEARCH_PROOF_MISSING');
         // Adapter-redacted public research metadata only; no request, provider
@@ -613,7 +662,7 @@ export async function researchPackages({packages,baseSHA,headSHA}, options = {})
       // A correction cannot rescue missing exact search or fabricated-only evidence.
       if (!sources.size || unsupported.length === result.evidence.length) throw proofError;
       const contextualResult = {...result, findings: contextualizeCompatibilityFindings(result.findings, applicationContext)};
-      assessments.push({target,result:scannerDecision(contextualResult,target,[...sources],verifiedEvidence),searches:evidence,allowedURLs,proofError});
+      assessments.push({target,result:scannerDecision(contextualResult,target,[...sources],verifiedEvidence),searches:evidence,allowedURLs,proofError,proofBlocksCorrection});
     }
     if (assessments.some(a=>a.proofError)) {
       // Per-package enums contain only actual exact-query sources, completed exact
@@ -651,7 +700,7 @@ export async function researchPackages({packages,baseSHA,headSHA}, options = {})
         const originalReports=new Set(a.result.scannerFindings.map(r=>JSON.stringify(r)));
         const reports=[...a.result.scannerFindings,...corrected.scannerFindings.filter(r=>!originalReports.has(JSON.stringify(r)))];
         if (reports.length>30) throw fail('CITATION_CORRECTION_LIMIT');
-        a.result = scannerDecision({...corrected,pass:a.result.pass && corrected.pass,findings,scannerFindings:reports},
+        a.result = scannerDecision({...corrected,pass:a.result.pass && corrected.pass && !a.proofBlocksCorrection,findings,scannerFindings:reports},
           a.target,a.searches.flatMap(s=>s.sources),verifiedEvidence);
       }
     }
