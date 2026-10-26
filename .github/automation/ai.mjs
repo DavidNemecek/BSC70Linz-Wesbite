@@ -213,7 +213,7 @@ export async function callAI({instructions,input,schema,search=false,images=[]},
     instructions: `${POLICY}\n\n${instructions}`,
     input:[{role:'user',content:[{type:'input_text',text:inputText},...images.map(image_url=>({type:'input_image',image_url,detail:'high'}))]}],
     max_output_tokens:16000,
-    ...(search ? {tools:[{type:'web_search',external_web_access:true}],tool_choice:'required',include:['web_search_call.action.sources'],max_tool_calls:12} : {}),
+    ...(search ? {tools:[{type:'web_search',external_web_access:true}],tool_choice:'required',include:['web_search_call.action.sources']} : {}),
   };
   const started = Date.now();
   for (let attempt = 0; attempt <= cfg.maxRetries; attempt++) {
