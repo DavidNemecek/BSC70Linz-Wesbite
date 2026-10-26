@@ -48,6 +48,17 @@ test('candidate .nvmrc reader rejects links, directories, FIFOs, oversized files
   await writeFile(pin, newerMinor + '\n'); assert.equal(await readCandidateNodeVersion(root), newerMinor);
 });
 
+test('candidate flags and serialized lookalike proof cannot waive the sandbox minimum', async () => {
+  const version = `24.${minor}.${patch - 1}`;
+  for (const recoveryNodeAuthorization of [undefined, true, { allowDowngrade: true },
+    { candidateNodeVersion: version, recovery: { nodeVersion: version } }]) {
+    assert.throws(() => parseCandidateNodeVersion(version, recoveryNodeAuthorization), /at least trusted Node/);
+    await assert.rejects(createDependencySandbox('/not-read', {
+      nodeVersion: version, allowDowngrade: true, recoveryNodeAuthorization,
+    }), /at least trusted Node/);
+  }
+});
+
 test('host worker binds candidate file through selection and rejects env tampering or actual runtime mismatch before Docker', async t => {
   const root = await mkdtemp(join(tmpdir(), 'bsc70-worker-node-'));
   t.after(() => rm(root, { recursive: true, force: true }));

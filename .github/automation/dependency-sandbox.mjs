@@ -30,23 +30,49 @@ export const SANDBOX_IMAGE = 'docker.io/library/ubuntu@sha256:a2d43bffc46670d710
 export const NODE_VERSION = '24.22.1';
 // This remains the trusted-main minimum/default. A candidate can only select
 // an exact stable release on the same Node 24 LTS line, never a setup-node range,
-// alias, URI, alternate distribution, prerelease or downgrade.
-export function assertCandidateNodeVersion(version) {
+// alias, URI, alternate distribution, prerelease or ordinary downgrade.
+const recoveryNodeAuthorizations = new WeakMap();
+
+// HOST ONLY: called by the trusted recovery authorizer AFTER independently
+// checking GitHub and serving production (or rechecking its trusted job output).
+// This process-local capability is never deserialized from candidate input.
+export function bindRecoveryNodeAuthorization(proof) {
+  const r = proof?.recovery, sha = value => typeof value === 'string' && /^[a-f0-9]{40}$/.test(value);
+  if (proof?.version !== 1 || !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(proof.repository) ||
+    proof.headRepository !== proof.repository || proof.baseRef !== 'main' ||
+    !/^automation\/restore-[a-zA-Z0-9-]+$/.test(proof.headRef) ||
+    !Number.isSafeInteger(proof.number) || proof.number <= 0 ||
+    ![proof.headSHA, proof.baseSHA, proof.treeSHA, r?.originalSHA, r?.nodeBlobSHA].every(sha) ||
+    r.failedSHA !== proof.baseSHA || r.originalSHA === r.failedSHA || r.treeSHA !== proof.treeSHA ||
+    proof.parents?.length !== 1 || proof.parents[0] !== r.failedSHA ||
+    r.nodeVersion !== proof.candidateNodeVersion ||
+    [r.deploymentId, r.projectId, r.hostname].some(value => typeof value !== 'string' || !value.length))
+    throw Error('Invalid bound recovery runtime proof');
+  const authorization = Object.freeze({});
+  recoveryNodeAuthorizations.set(authorization, proof.candidateNodeVersion);
+  // Even recovery cannot select a range, another major, or an unstable build.
+  assertCandidateNodeVersion(proof.candidateNodeVersion, authorization);
+  return authorization;
+}
+
+export function assertCandidateNodeVersion(version, recoveryNodeAuthorization) {
   if (typeof version !== 'string' || version.length > 64 || /\s/.test(version) || !/^24\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(version))
     throw Error('Candidate Node must be an exact stable Node 24 version');
   const parts = version.split('.').map(Number), minimum = NODE_VERSION.split('.').map(Number);
-  if (!parts.every(Number.isSafeInteger) || parts[1] < minimum[1] || (parts[1] === minimum[1] && parts[2] < minimum[2]))
+  if (!parts.every(Number.isSafeInteger)) throw Error('Candidate Node must be an exact stable Node 24 version');
+  if ((parts[1] < minimum[1] || (parts[1] === minimum[1] && parts[2] < minimum[2])) &&
+    recoveryNodeAuthorizations.get(recoveryNodeAuthorization) !== version)
     throw Error(`Candidate Node must be at least trusted Node ${NODE_VERSION}`);
   return version;
 }
 
-export function parseCandidateNodeVersion(content) {
+export function parseCandidateNodeVersion(content, recoveryNodeAuthorization) {
   if (typeof content !== 'string' || content.length > 64)
     throw Error('Candidate .nvmrc must contain only one exact stable Node 24 version');
-  return assertCandidateNodeVersion(content.replace(/\r?\n$/, ''));
+  return assertCandidateNodeVersion(content.replace(/\r?\n$/, ''), recoveryNodeAuthorization);
 }
 
-export async function readCandidateNodeVersion(candidate) {
+export async function readCandidateNodeVersion(candidate, recoveryNodeAuthorization) {
   if (!(await lstat(candidate)).isDirectory()) throw Error('Candidate must be a regular directory');
   // No candidate code has run yet. NOFOLLOW/NONBLOCK also reject symlinks and
   // prevent a hostile FIFO/device from hanging the host's version selection.
@@ -57,7 +83,7 @@ export async function readCandidateNodeVersion(candidate) {
     const bytes = Buffer.alloc(65);
     const { bytesRead } = await file.read(bytes, 0, bytes.length, 0);
     if (bytesRead !== stat.size) throw Error('Candidate .nvmrc changed while reading');
-    return parseCandidateNodeVersion(bytes.subarray(0, bytesRead).toString('utf8'));
+    return parseCandidateNodeVersion(bytes.subarray(0, bytesRead).toString('utf8'), recoveryNodeAuthorization);
   } finally { await file.close(); }
 }
 const execute = promisify(execFile);
@@ -145,8 +171,8 @@ export function assertContainerBoundary(info, { work, runtime, uid, gid, network
     throw Error('Container boundary verification failed');
 }
 
-export async function createDependencySandbox(candidate, { nodeVersion = NODE_VERSION } = {}) {
-  assertCandidateNodeVersion(nodeVersion);
+export async function createDependencySandbox(candidate, { nodeVersion = NODE_VERSION, recoveryNodeAuthorization } = {}) {
+  assertCandidateNodeVersion(nodeVersion, recoveryNodeAuthorization);
   if (process.platform !== 'linux' || process.arch !== 'x64' || process.version !== `v${nodeVersion}` || !process.getuid?.() || !process.getgid?.())
     throw Error(`Sandbox requires nonroot Linux x64 host Node ${nodeVersion}`);
   const runtime = await realpath(resolve(dirname(process.execPath), '..'));

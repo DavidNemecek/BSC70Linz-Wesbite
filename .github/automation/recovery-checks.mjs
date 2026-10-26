@@ -28,7 +28,7 @@ import { promisify, isDeepStrictEqual } from 'node:util';
 import * as github from './github.mjs';
 import { getProductionDeployment } from './vercel.mjs';
 import { auditCommandPlans, inspectNpmAudit } from './dependencies.mjs';
-import { createDependencySandbox, sourceSnapshot, assertSourceUnchanged, parseCandidateNodeVersion, readCandidateNodeVersion } from './dependency-sandbox.mjs';
+import { createDependencySandbox, sourceSnapshot, assertSourceUnchanged, parseCandidateNodeVersion, readCandidateNodeVersion, bindRecoveryNodeAuthorization } from './dependency-sandbox.mjs';
 
 export const APPLICATION_CONTEXT = 'Application lint, build and audit';
 const SHA = /^[a-f0-9]{40}$/;
@@ -64,7 +64,7 @@ async function commit(gh, sha) {
   return value;
 }
 
-async function githubCandidateNodeVersion(gh, repository, treeSHA) {
+async function githubNodePin(gh, repository, treeSHA) {
   // Contents API follows symlinks. Inspect the exact commit's root Git tree
   // instead and accept only a regular-file blob, including for fork PRs.
   const prefix = `/repos/${repository}/git`;
@@ -79,7 +79,7 @@ async function githubCandidateNodeVersion(gh, repository, treeSHA) {
     /^[A-Za-z0-9+/=\r\n]+$/.test(blob.content), 'Invalid candidate .nvmrc blob');
   const bytes = Buffer.from(blob.content, 'base64');
   requireThat(bytes.length === blob.size, 'Candidate .nvmrc blob length mismatch');
-  return parseCandidateNodeVersion(bytes.toString('utf8'));
+  return { content: bytes.toString('utf8'), blobSHA: blob.sha };
 }
 
 async function githubIdentity(request, gh) {
@@ -91,10 +91,9 @@ async function githubIdentity(request, gh) {
   const baseSHA = checkedSHA(pr.base.sha);
   requireThat(await gh.ref(pr.base.ref) === baseSHA, 'Current base changed');
   const head = await commit(gh, headSHA);
-  const candidateNodeVersion = await githubCandidateNodeVersion(gh, pr.head.repo.full_name, head.tree.sha);
   return { pr, head, identity: { version: 1, repository: gh.repository, number, headRepository: pr.head.repo.full_name,
     headRef: pr.head.ref, headSHA, baseRef: pr.base.ref, baseSHA, treeSHA: head.tree.sha,
-    parents: head.parents.map(parent => parent.sha), candidateNodeVersion } };
+    parents: head.parents.map(parent => parent.sha) } };
 }
 
 // No caller-supplied allowFindings/recovery flag exists. A malformed/forged
@@ -103,7 +102,10 @@ export async function authorize(request, { gh = github, production = getProducti
   const { pr, head, identity } = await githubIdentity(request, gh);
   const markers = [...(typeof pr.body === 'string' ? pr.body.matchAll(MARKER) : [])];
   const hint = markers.length > 0 || pr.head.ref?.startsWith('automation/restore-');
-  if (!hint) return { ...identity, recovery: null };
+  if (!hint) {
+    const pin = await githubNodePin(gh, identity.headRepository, identity.treeSHA);
+    return { ...identity, candidateNodeVersion: parseCandidateNodeVersion(pin.content), recovery: null };
+  }
   requireThat(markers.length === 1 && pr.user?.login === 'github-actions[bot]' && pr.user?.type === 'Bot' &&
     pr.head.repo.full_name === gh.repository && /^automation\/restore-[a-zA-Z0-9-]+$/.test(pr.head.ref) &&
     pr.base.ref === 'main', 'Unverified restore PR identity');
@@ -120,11 +122,21 @@ export async function authorize(request, { gh = github, production = getProducti
   requireThat(serving.sha === originalSHA && serving.branch === 'main' && serving.readyState === 'READY' &&
     typeof serving.id === 'string' && typeof serving.projectId === 'string' && typeof serving.hostname === 'string',
   'Actual Vercel production has not rolled back to original main');
-  // Re-read refs after external reads; no stale proof if the PR/main moved.
+  // Only now read the independently fetched original commit's regular Git blob.
+  // The restore has exactly that tree, so this binds setup to the original pin;
+  // no request/body/candidate flag can choose a runtime below trusted main.
+  const pin = await githubNodePin(gh, gh.repository, original.tree.sha);
+  // Re-read identities after external/blob reads; no stale proof if PR/main moved.
   const fresh = await githubIdentity(request, gh);
-  requireThat(isDeepStrictEqual(identity, fresh.identity), 'PR/base changed during authorization');
-  return { ...identity, recovery: { originalSHA, failedSHA, treeSHA: original.tree.sha, deploymentId: serving.id,
-    projectId: serving.projectId, hostname: serving.hostname } };
+  requireThat(isDeepStrictEqual(identity, fresh.identity) && pr.body === fresh.pr.body &&
+    pr.user?.login === fresh.pr.user?.login && pr.user?.type === fresh.pr.user?.type, 'PR/base changed during authorization');
+  await assertOnlyRestorePR(identity, gh);
+  const candidateNodeVersion = pin.content.replace(/\r?\n$/, '');
+  const proof = { ...identity, candidateNodeVersion,
+    recovery: { originalSHA, failedSHA, treeSHA: original.tree.sha, deploymentId: serving.id,
+      projectId: serving.projectId, hostname: serving.hostname, nodeVersion: candidateNodeVersion, nodeBlobSHA: pin.blobSHA } };
+  parseCandidateNodeVersion(pin.content, bindRecoveryNodeAuthorization(proof));
+  return proof;
 }
 
 // Required contexts are SHA-scoped, not PR-scoped. Never publish a recovery
@@ -145,16 +157,16 @@ async function assertOnlyRestorePR(proof, gh) {
 
 export async function recheckIdentity(proof, gh = github) {
   requireThat(proof?.version === 1 && proof.repository === gh.repository, 'Untrusted authorization output');
-  const { identity, pr, head } = await githubIdentity(proof, gh);
-  const { recovery, ...expected } = proof;
-  requireThat(isDeepStrictEqual(identity, expected), 'Authorized PR/head/base/tree changed');
-  if (recovery !== null) {
-    requireThat(recovery && recovery.failedSHA === proof.baseSHA && recovery.treeSHA === head.tree.sha &&
-      head.parents.length === 1 && head.parents[0].sha === proof.baseSHA && pr.user?.login === 'github-actions[bot]' &&
-      pr.user?.type === 'Bot' && pr.head.repo.full_name === gh.repository && proof.baseRef === 'main', 'Invalid recovery output');
-    checkedSHA(recovery.originalSHA);
-    await assertOnlyRestorePR(proof, gh);
-  }
+  // Job output is trusted, but re-prove all GitHub relationships and the
+  // independently fetched original runtime before minting a local capability.
+  // The secretless build cannot query Vercel; initial/final jobs do so for real.
+  const r = proof.recovery;
+  const fresh = await authorize(proof, { gh, production: async () => ({
+    sha: r?.originalSHA, branch: 'main', readyState: 'READY', id: r?.deploymentId,
+    projectId: r?.projectId, hostname: r?.hostname,
+  }) });
+  requireThat(isDeepStrictEqual(fresh, proof), 'Authorized PR/head/base/tree/runtime changed');
+  return r === null ? undefined : bindRecoveryNodeAuthorization(fresh);
 }
 
 // inspectNpmAudit distinguishes valid vulnerability findings from network errors,
@@ -186,11 +198,11 @@ export async function validateApplication({ proof, candidate, evidence, gh = git
   await mkdir(evidence, { recursive: true });
   let sandbox, before;
   try {
-    await recheckIdentity(proof, gh);
+    const recoveryNodeAuthorization = await recheckIdentity(proof, gh);
     await verifyLocal(candidate, proof);
-    requireThat(await readCandidateNodeVersion(candidate) === proof.candidateNodeVersion, 'Local candidate .nvmrc differs from authorization');
+    requireThat(await readCandidateNodeVersion(candidate, recoveryNodeAuthorization) === proof.candidateNodeVersion, 'Local candidate .nvmrc differs from authorization');
     before = await sourceSnapshot(candidate);
-    sandbox = await sandboxFactory(candidate, { nodeVersion: proof.candidateNodeVersion });
+    sandbox = await sandboxFactory(candidate, { nodeVersion: proof.candidateNodeVersion, recoveryNodeAuthorization });
     const lock = JSON.parse(await readFile(resolve(candidate, 'package-lock.json'), 'utf8'));
     // Immutable npm, read-only workspace, before candidate plugins. Save both
     // complete reports even if the first contains ordinary blocking findings.
@@ -288,4 +300,4 @@ async function cli() {
   }
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await cli();
+if (import.meta.url.startsWith('file:') && process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await cli();

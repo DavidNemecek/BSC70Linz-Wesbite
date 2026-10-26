@@ -73,6 +73,9 @@ jobs:
           ref: ${{ needs.authorize.outputs.trusted_sha }}
           path: trusted
           persist-credentials: false
+      # Authorizer output binds the runtime to the exact PR/head/tree. A lower
+      # pin is emitted only after proving the exact serving-production restore.
+      # Validation rechecks that proof and the regular-file pin before sandboxing.
       - name: Set up exact authorized candidate Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:

@@ -4,7 +4,7 @@ import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promis
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { authorize, resolveRequest, recheckIdentity, auditVerdict, validateApplication, finalize, APPLICATION_CONTEXT } from './recovery-checks.mjs';
-import { NODE_VERSION } from './dependency-sandbox.mjs';
+import { NODE_VERSION, assertCandidateNodeVersion } from './dependency-sandbox.mjs';
 
 // Synthetic identities/advisory only; no live API/deployment or vulnerability.
 const original = '1'.repeat(40), failed = '2'.repeat(40), head = '3'.repeat(40);
@@ -62,7 +62,7 @@ test('actual rolled-back production + exact old tree + one failed-main parent au
   const f = fixture();
   const proof = await authorize(request, f);
   assert.deepEqual(proof.recovery, { originalSHA: original, failedSHA: failed, treeSHA: oldTree,
-    deploymentId: 'dpl_previous', projectId: 'prj_fixed', hostname: 'www.example.org' });
+    deploymentId: 'dpl_previous', projectId: 'prj_fixed', hostname: 'www.example.org', nodeVersion: nodePin, nodeBlobSHA: nodeBlob });
   assert.equal(proof.headSHA, head);
   assert.equal(proof.baseSHA, failed);
   assert.equal(proof.treeSHA, oldTree);
@@ -91,7 +91,7 @@ test('GitHub runtime authorization rejects downgrade, URI, ranges, other major a
   for (const nodeContent of ['24.x', '^' + nodePin, 'v' + nodePin, '25.0.0', `24.${minor - 1}.999`,
     `24.${minor}.${patch - 1}`, nodePin + '-rc.1', 'https://nodejs.org/dist/' + nodePin,
     nodePin + '\n\n', nodePin + '\nnode_version=25.0.0']) {
-    const f = fixture(); f.state.nodeContent = nodeContent;
+    const f = fixture(); f.state.nodeContent = nodeContent; f.state.pr.body = ''; f.state.pr.head.ref = 'feature';
     await assert.rejects(authorize({ ...request, candidateNodeVersion: nodePin }, f));
   }
   for (const change of [
@@ -213,7 +213,9 @@ async function validationFixture(t, { recovery = true, findings = true, failComm
   const result = await validateApplication({ proof, candidate: root, evidence, gh: f.gh,
     verifyLocal: async () => { localChecks++; },
     sandboxFactory: async (candidate, options) => {
-      assert.equal(candidate, root); assert.deepEqual(options, { nodeVersion: proof.candidateNodeVersion });
+      assert.equal(candidate, root); assert.equal(options.nodeVersion, proof.candidateNodeVersion);
+      assert.equal(Boolean(options.recoveryNodeAuthorization), recovery);
+      assert.equal(assertCandidateNodeVersion(options.nodeVersion, options.recoveryNodeAuthorization), proof.candidateNodeVersion);
       return ({
       run: async (args, options) => {
         const name = args[0] === 'run' ? args[1] : args[0]; calls.push({ name, args, options });
@@ -317,4 +319,135 @@ test('workflow keeps the required context out of candidate jobs and secrets out 
   assert(!auth.includes('path: candidate') && !auth.includes('npm ci') && auth.includes('secrets.VERCEL_TOKEN'));
   const final = workflow.split('\n  finalize:\n')[1];
   assert(!final.includes('download-artifact') && !final.includes('path: candidate') && final.includes('secrets.VERCEL_TOKEN'));
+});
+
+// Load the actual promoted trusted modules in memory, changing ONLY the same
+// minimum constant that maintenance.mjs coordinates with .nvmrc/engines. Imports
+// are rebound to that shared module instance, so the authorizer and real sandbox
+// parser use the promoted minimum. No hypothetical Node binary is downloaded or
+// executed, and command/API/deployment results below remain synthetic.
+async function promotedHarness() {
+  const source = await readFile(new URL('./dependency-sandbox.mjs', import.meta.url), 'utf8');
+  const pin = `export const NODE_VERSION = '${NODE_VERSION}';`;
+  assert.equal(source.split(pin).length, 2);
+  const url = 'data:text/javascript;base64,' + Buffer.from(source.replace(pin, "export const NODE_VERSION = '24.22.2';")).toString('base64');
+  const recoverySource = (await readFile(new URL('./recovery-checks.mjs', import.meta.url), 'utf8'))
+    .replace(/from '(\.\/[^']+)'/g, (_, path) => `from '${path === './dependency-sandbox.mjs' ? url : new URL(path, import.meta.url).href}'`);
+  return { sandbox: await import(url), recovery: await import('data:text/javascript;base64,' + Buffer.from(recoverySource).toString('base64')) };
+}
+
+test('promoted 24.22.2 trusted harness authorizes exact rolled-back 24.22.1 through actual local/sandbox parser and final publish', async t => {
+  const { sandbox, recovery } = await promotedHarness(), f = fixture();
+  assert.equal(sandbox.NODE_VERSION, '24.22.2');
+  f.state.nodeContent = '24.22.1\n';
+  const proof = await recovery.authorize({ ...request, candidateNodeVersion: '24.0.0', allowDowngrade: true }, f);
+  assert.equal(proof.candidateNodeVersion, '24.22.1');
+  assert.equal(proof.recovery.nodeVersion, '24.22.1');
+  assert.equal(proof.recovery.nodeBlobSHA, nodeBlob);
+  assert.equal(f.productionReads(), 1);
+  const originalRead = f.state.calls.indexOf(`/git/commits/${original}`);
+  assert(originalRead >= 0 && originalRead < f.state.calls.indexOf(`/repos/${repository}/git/trees/${oldTree}`));
+  const authorization = await recovery.recheckIdentity(JSON.parse(JSON.stringify(proof)), f.gh);
+  assert.throws(() => sandbox.parseCandidateNodeVersion('24.22.1\n'), /at least trusted Node 24.22.2/);
+  assert.equal(sandbox.parseCandidateNodeVersion('24.22.1\n', authorization), '24.22.1');
+  for (const forged of [true, { allowDowngrade: true }, proof, proof.recovery, JSON.parse(JSON.stringify(authorization))])
+    assert.throws(() => sandbox.parseCandidateNodeVersion('24.22.1\n', forged), /at least trusted Node/);
+  for (const version of ['24.22.0', '24.21.9', '25.0.0', '24.x', '24.22.1-rc.1', 'https://example.org/node'])
+    assert.throws(() => sandbox.parseCandidateNodeVersion(version, authorization));
+
+  const root = await mkdtemp(join(tmpdir(), 'bsc70-promoted-recovery-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const candidate = join(root, 'candidate'); await mkdir(candidate);
+  await writeFile(join(candidate, '.nvmrc'), '24.22.1\n');
+  await writeFile(join(candidate, 'package.json'), '{}');
+  await writeFile(join(candidate, 'package-lock.json'), JSON.stringify(lock()));
+  await assert.rejects(sandbox.readCandidateNodeVersion(candidate), /at least trusted Node/);
+  assert.equal(await sandbox.readCandidateNodeVersion(candidate, authorization), '24.22.1');
+  const calls = []; let sandboxBoundaryCalls = 0;
+  const result = await recovery.validateApplication({ proof, candidate, evidence: join(root, 'evidence'), gh: f.gh,
+    verifyLocal: async () => {}, // GitHub tree/head are real authorizer checks; local checkout is synthetic.
+    sandboxFactory: async (path, options) => {
+      sandboxBoundaryCalls++;
+      assert.equal(path, candidate); assert.equal(options.nodeVersion, '24.22.1');
+      assert.equal(sandbox.assertCandidateNodeVersion(options.nodeVersion, options.recoveryNodeAuthorization), '24.22.1');
+      // Exercise createDependencySandbox itself, stopping at the intentionally
+      // missing source directory before any Docker call/candidate execution.
+      const missing = join(root, 'intentionally-missing');
+      await assert.rejects(sandbox.createDependencySandbox(missing, { nodeVersion: options.nodeVersion }), /at least trusted Node/);
+      await assert.rejects(sandbox.createDependencySandbox(missing, options), error => {
+        // A different actual host runtime/platform also stops before Docker.
+        assert(error.code === 'ENOENT' || /^Sandbox requires nonroot Linux x64 host Node 24.22.1$/.test(error.message));
+        return true;
+      });
+      return { run: async args => {
+        const name = args[0] === 'run' ? args[1] : args[0]; calls.push(name);
+        return { code: name === 'audit' ? 1 : 0, stdout: name === 'audit' ? JSON.stringify(audit(true)) : '', stderr: '' };
+      }, verify: async () => ({}), close: async () => {} };
+    } });
+  assert.equal(result.pass, true, result.error); assert.equal(sandboxBoundaryCalls, 1);
+  assert.equal(result.expectedNodeVersion, '24.22.1'); assert.equal(result.nodeVersion, process.version);
+  assert.deepEqual(calls, ['audit', 'audit', 'ci', 'ls', 'lint', 'build']);
+  assert(result.audits.every(audit => !audit.clean && audit.acceptedBaselineFindings));
+  assert.equal(await recovery.finalize({ proof, checkId: 123, buildResult: 'success', ...f }), true);
+  assert.equal(f.state.mutations.at(-1).body.conclusion, 'success');
+  f.state.serving.sha = failed;
+  assert.equal(await recovery.finalize({ proof, checkId: 123, buildResult: 'success', ...f }), false);
+  assert.equal(f.state.mutations.at(-1).body.conclusion, 'failure');
+});
+
+test('promoted harness preserves ordinary minimum and rejects unproven old-runtime recovery before selecting a pin', async t => {
+  const { sandbox, recovery } = await promotedHarness();
+  for (const version of ['24.22.2', '24.22.3', '24.23.0']) {
+    const f = fixture(); f.state.pr.body = ''; f.state.pr.head.ref = 'updates'; f.state.nodeContent = version + '\n';
+    assert.equal((await recovery.authorize(request, f)).candidateNodeVersion, version);
+  }
+  const ordinary = fixture(); ordinary.state.pr.body = ''; ordinary.state.pr.head.ref = 'feature'; ordinary.state.nodeContent = '24.22.1\n';
+  await assert.rejects(recovery.authorize({ ...request, allowDowngrade: true, recovery: {}, candidateNodeVersion: '24.22.2' }, ordinary), /at least trusted Node 24.22.2/);
+  await assert.rejects(sandbox.createDependencySandbox('/not-read', { nodeVersion: '24.22.1', allowDowngrade: true,
+    recoveryNodeAuthorization: { nodeVersion: '24.22.1' } }), /at least trusted Node/);
+  const changes = {
+    'forged human restore': f => { f.state.pr.user.type = 'User'; },
+    'fork restore': f => { f.state.pr.head.repo.full_name = 'fork/site'; },
+    'wrong exact tree': f => { f.state.commits[head].tree.sha = other; },
+    'wrong failed parent': f => { f.state.commits[failed].parents[0].sha = other; },
+    'wrong head parent': f => { f.state.commits[head].parents = [{ sha: original }]; },
+    'main moved': f => { f.state.main = other; },
+    'wrong production SHA despite same tree': f => { f.state.serving.sha = other; },
+    'production still failed': f => { f.state.serving.sha = failed; },
+    'shared head': f => { f.state.pulls = [f.state.pr, { ...f.state.pr, number: 4 }]; },
+  };
+  for (const [name, change] of Object.entries(changes)) await t.test(name, async () => {
+    const f = fixture(); f.state.nodeContent = '24.22.1\n'; change(f);
+    await assert.rejects(recovery.authorize(request, f));
+    assert(!f.state.calls.some(path => path.includes('/git/blobs/')));
+  });
+  for (const change of [{ nodeMode: '120000' }, { nodeMode: '160000' }, { treeOverride: { truncated: true } },
+    { blobOverride: { sha: other } }, { blobOverride: { size: 65 } },
+    ...['25.0.0', '24.x', '24.22.1-rc.1', '24.22.1\n\n', 'https://example.org/node'].map(nodeContent => ({ nodeContent }))]) {
+    const f = fixture(); Object.assign(f.state, change); await assert.rejects(recovery.authorize(request, f));
+  }
+});
+
+test('promoted runtime proof remains bound across recheck, local file parsing and final authorization', async t => {
+  const { sandbox, recovery } = await promotedHarness(), f = fixture(); f.state.nodeContent = '24.22.1\n';
+  const proof = await recovery.authorize(request, f);
+  for (const mutate of [p => { p.candidateNodeVersion = '24.22.0'; }, p => { p.recovery.nodeVersion = '24.22.0'; },
+    p => { p.recovery.nodeBlobSHA = other; }, p => { p.recovery.originalSHA = other; }, p => { p.treeSHA = other; },
+    p => { p.baseSHA = other; }, p => { p.number = 4; }]) {
+    const changed = structuredClone(proof); mutate(changed);
+    await assert.rejects(recovery.recheckIdentity(changed, f.gh));
+  }
+  for (const mutate of [f => { f.state.pr.body = ''; }, f => { f.state.nodeMode = '120000'; },
+    f => { f.state.nodeContent = '24.22.0\n'; }, f => { f.state.commits[failed].parents[0].sha = other; },
+    f => { f.state.serving.id = 'dpl_changed'; }, f => { f.state.pulls = [f.state.pr, { ...f.state.pr, number: 4 }]; }]) {
+    const changed = fixture(); changed.state.nodeContent = '24.22.1\n'; mutate(changed);
+    assert.equal(await recovery.finalize({ proof, checkId: 123, buildResult: 'success', ...changed }), false);
+  }
+  const root = await mkdtemp(join(tmpdir(), 'bsc70-promoted-pin-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const authorization = await recovery.recheckIdentity(proof, f.gh), pin = join(root, '.nvmrc');
+  await writeFile(pin, '24.22.0\n'); await assert.rejects(sandbox.readCandidateNodeVersion(root, authorization), /at least trusted Node/);
+  await rm(pin); await symlink('/etc/passwd', pin); await assert.rejects(sandbox.readCandidateNodeVersion(root, authorization));
+  // Rechecks of restored job output independently fetch the original regular blob.
+  f.state.nodeMode = '120000'; await assert.rejects(recovery.recheckIdentity(proof, f.gh), /regular Git file/);
 });
