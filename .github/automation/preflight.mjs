@@ -4,20 +4,20 @@ import { preflight as vercelPreflight, getProductionDeployment, verifyRuntime } 
 
 const result = { startedAt: new Date().toISOString(), pass: false, checks: [] };
 await mkdir('evidence', { recursive: true });
-try {
+const outcomes = await Promise.allSettled([(async () => {
   await vercelPreflight();
   const production = await getProductionDeployment();
   const runtime = await verifyRuntime({ deploymentId: production.id });
   result.checks.push({ name: 'vercel', pass: true, production, runtime });
+})(), (async () => {
   const research = await aiPreflight();
   result.checks.push({ name: 'live-ai-web-search', pass: research.pass === true, research });
   if (!research.pass) throw Error('AI live search preflight did not pass');
-  result.pass = true;
-} catch (error) {
-  // Adapter errors are deliberately generic; never serialize request/response objects.
-  result.error = error.message;
-}
+})()]);
+result.pass = outcomes.every(outcome => outcome.status === 'fulfilled');
+// Adapter errors are deliberately generic; never serialize request/response objects.
+result.errors = outcomes.flatMap(outcome => outcome.status === 'rejected' ? [outcome.reason.message] : []);
 result.completedAt = new Date().toISOString();
 await writeFile('evidence/preflight.json', JSON.stringify(result, null, 2));
-console.log(JSON.stringify({ pass: result.pass, checks: result.checks.map(({name,pass}) => ({name,pass})), error: result.error }));
+console.log(JSON.stringify({ pass: result.pass, checks: result.checks.map(({name,pass}) => ({name,pass})), errors: result.errors }));
 if (!result.pass) process.exitCode = 1;

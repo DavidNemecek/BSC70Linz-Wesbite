@@ -228,7 +228,7 @@ export async function getProductionDeployment(options = {}) {
   const { config: cfg } = opts;
   const alias = await getAliases(cfg.productionHostname, opts);
   const deployment = await getDeployment(alias.deploymentId, opts);
-  if (alias.redirect !== undefined || deployment.info.readyState !== 'READY' || deployment.raw.target !== 'production')
+  if (alias.redirect != null || deployment.info.readyState !== 'READY' || deployment.raw.target !== 'production')
     throw new VercelError('Current production deployment is not READY production');
   return Object.freeze({ ...deployment.info, hostname: cfg.productionHostname });
 }
