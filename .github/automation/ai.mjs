@@ -33,6 +33,16 @@ const finding = { type: 'object', additionalProperties: false,
   } };
 const verdict = { type: 'object', additionalProperties: false, required: ['pass', 'findings'],
   properties: { pass: { type: 'boolean' }, findings: { type: 'array', maxItems: 200, items: finding } } };
+const scannerProperties = {
+  scannerURL:string, scannerStatus:string, scannerFinding:string,
+  severity:finding.properties.severity, matchedToken:string, artifactSHA256:string,
+  upstreamURL:string, upstreamVersion:string, protectiveToken:string, protectiveCode:string,
+  classification:{type:'string',enum:['protective-denylist','unresolved','credential-read-or-exfiltration']},
+  credentialReadEvidence:{type:'string',enum:['absent','present','unknown']},
+  exfiltrationEvidence:{type:'string',enum:['absent','present','unknown']}, rationale:string,
+};
+const scannerFindings = {type:'array',maxItems:30,items:{type:'object',additionalProperties:false,
+  required:Object.keys(scannerProperties),properties:scannerProperties}};
 
 function config(options) {
   const raw = options.baseURL ?? process.env.AI_BASE_URL;
@@ -353,6 +363,31 @@ function exactVersion(version) {
     (!match[4] || match[4].split('.').every(v=>!/^\d+$/.test(v) || /^(0|[1-9]\d*)$/.test(v))));
 }
 
+// This can only make a model assessment more conservative. Source semantics and
+// artifact identity remain the fresh researcher's responsibility, not a string
+// match safety proof. Both citations retain the existing exact-query provenance.
+function scannerDecision(data,target,allowedURLs) {
+  const findings=[...data.findings];
+  for (const report of data.scannerFindings) {
+    const cited = url => sourceURL(url,v=>v) === url && new URL(url).protocol === 'https:' &&
+      allowedURLs.includes(url) && data.evidence.includes(url);
+    const token=report.matchedToken;
+    if (report.classification !== 'protective-denylist' || report.severity !== 'low' ||
+        report.scannerStatus !== 'Review' || !/^[a-zA-Z0-9._/-]{1,200}$/.test(token) ||
+        report.scannerFinding !== `Credential file access: matched ${JSON.stringify(token)}` ||
+        report.protectiveToken !== token ||
+        ![JSON.stringify(token),`'${token}'`].some(quoted=>report.protectiveCode.includes(quoted)) ||
+        report.upstreamVersion !== target.version || !/^[a-f0-9]{64}$/.test(report.artifactSHA256) ||
+        report.scannerURL === report.upstreamURL || !cited(report.scannerURL) || !cited(report.upstreamURL) ||
+        report.credentialReadEvidence !== 'absent' || report.exfiltrationEvidence !== 'absent') {
+      findings.push(blocked('Credential scanner report remains unresolved or unsafe',
+        [report.scannerFinding,report.scannerURL,report.rationale]));
+    }
+  }
+  if (findings.length>200) throw fail('SCHEMA_INVALID');
+  return decision({...data,findings});
+}
+
 /** packages: [{name,version}] exact npm semver targets, <=100 unique pairs. Returns
  * {pass,findings,packages,baseSHA,headSHA,timestamp,provenance:[]} or throws; never
  * returns an approval for partial coverage. Independently fetched advisory evidence
@@ -363,8 +398,8 @@ export async function researchPackages({packages,baseSHA,headSHA}, options = {})
       !/^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/.test(p.name) || p.name.length > 214 || !exactVersion(p.version))) throw fail('INVALID_PACKAGES');
   const targets = packages.map(({name,version})=>({name,version}));
   if (new Set(targets.map(p=>`${p.name}@${p.version}`)).size !== targets.length) throw fail('INVALID_PACKAGES');
-  const entry = {type:'object',additionalProperties:false,required:['name','version','pass','findings','evidence'],properties:{
-    name:string,version:string,...verdict.properties,evidence:{type:'array',minItems:1,maxItems:30,items:string}}};
+  const entry = {type:'object',additionalProperties:false,required:['name','version','pass','findings','evidence','scannerFindings'],properties:{
+    name:string,version:string,...verdict.properties,evidence:{type:'array',minItems:1,maxItems:30,items:string},scannerFindings}};
   const schema = {type:'object',additionalProperties:false,required:['packages'],properties:{packages:{type:'array',minItems:1,maxItems:CHUNK_SIZE,items:entry}}};
   const results = [], provenance = [];
   for (let start=0; start<targets.length; start+=CHUNK_SIZE) {
@@ -415,7 +450,7 @@ export async function researchPackages({packages,baseSHA,headSHA}, options = {})
       }
       // A correction cannot rescue missing exact search or fabricated-only evidence.
       if (!sources.size || unsupported.length === result.evidence.length) throw proofError;
-      assessments.push({target,result,searches:evidence,allowedURLs,proofError});
+      assessments.push({target,result:scannerDecision(result,target,[...sources]),searches:evidence,allowedURLs,proofError});
     }
     if (assessments.some(a=>a.proofError)) {
       // Per-package enums contain only actual exact-query sources, completed exact
@@ -428,6 +463,7 @@ export async function researchPackages({packages,baseSHA,headSHA}, options = {})
           name:{type:'string',enum:[a.target.name]},version:{type:'string',enum:[a.target.version]},
           pass:{type:'boolean'},findings:{...verdict.properties.findings,items:correctionFinding},
           evidence:{...entry.properties.evidence,items:{type:'string',enum:a.allowedURLs}},
+          scannerFindings,
         }}];
       }));
       const correctionSchema = {type:'object',additionalProperties:false,required:['packages'],properties:{
@@ -445,7 +481,12 @@ export async function researchPackages({packages,baseSHA,headSHA}, options = {})
         const originalFindings = new Set(a.result.findings.map(f=>JSON.stringify(f)));
         const findings = [...a.result.findings,...corrected.findings.filter(f=>!originalFindings.has(JSON.stringify(f)))];
         if (findings.length > 200) throw fail('CITATION_CORRECTION_LIMIT');
-        a.result = {...corrected,pass:a.result.pass && corrected.pass,findings};
+        // Citation correction cannot remove or rewrite an original scanner report.
+        const originalReports=new Set(a.result.scannerFindings.map(r=>JSON.stringify(r)));
+        const reports=[...a.result.scannerFindings,...corrected.scannerFindings.filter(r=>!originalReports.has(JSON.stringify(r)))];
+        if (reports.length>30) throw fail('CITATION_CORRECTION_LIMIT');
+        a.result = scannerDecision({...corrected,pass:a.result.pass && corrected.pass,findings,scannerFindings:reports},
+          a.target,a.searches.flatMap(s=>s.sources));
       }
     }
     results.push(...assessments.map(a=>({...decision(a.result),searches:a.searches})));

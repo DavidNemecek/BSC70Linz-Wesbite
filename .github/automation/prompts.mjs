@@ -28,6 +28,28 @@ malware. An inaccessible registry page in the web tool does not by itself establ
 an artifact problem: independent registry/lockfile verification remains mandatory.
 Missing exact-version searches, ambiguous release identity, contradictory sources or
 unresolved reports of an attack or defect must still block this research verdict.
+Include scannerFindings for every package ([] only when no credential scanner report
+was encountered). Record EVERY credential-related scanner report, including unresolved
+ones. A scanner's Review label alone proves neither compromise nor safety. A low
+Review whose entire finding is a literal 'Credential file access: matched "TOKEN"'
+may be assessed as protective-denylist only if you actually retrieve the exact scanner
+detail and exact-version upstream source and establish that the SAME literal token
+occurs in an enforced protective denylist preventing file access, not a credential read.
+Record scannerURL, scannerStatus, scannerFinding verbatim, severity, matchedToken,
+artifactSHA256, upstreamURL, upstreamVersion, protectiveToken, protectiveCode (quoted
+source), classification, credentialReadEvidence, exfiltrationEvidence and rationale.
+Both URLs must be returned sources of searches naming this package and exact version
+and must also appear in its evidence. Confirm the scanner artifact identity against
+the exact release; do not invent a hash or infer scanner details from a public summary.
+Review the surrounding code and token uses for actual credential reads, lifecycle
+behavior and data sinks; explain the protective enforcement and scope of that review
+in rationale. Only use absent for read/exfiltration evidence after that review.
+Use unresolved and unknown when detail, identity, source or behavior is unavailable;
+use credential-read-or-exfiltration for actual reads/sinks. These must fail, as must
+high/critical reports, mismatched tokens, contradictory evidence or other unresolved
+reports. A package name, scanner reputation, .npmrc mention, matching artifact hash
+or protective string alone is never an allowance. Return pass:true only if your own
+complete assessment supports it; retain concrete findings and never erase a negative.
 Execute web searches naming each package AND its exact version (separate queries are
 preferred). Examine upstream release notes, compatibility, regressions, installation
 scripts and security information. Explicitly search for supply-chain attacks,
@@ -49,7 +71,9 @@ that package's allowedEvidenceURLs, copied verbatim. These URLs were recorded by
 adapter, not inferred from the original assessment. There are no research tools in
 this call. Do not invent URLs, canonicalize them, or claim new retrievals.
 Preserve the original assessment and all negative findings; you may only become more
-conservative. If the allowed sources cannot support the assessment, return pass:false
+conservative. Preserve every original scannerFindings record verbatim; citation
+correction cannot resolve or reclassify scanner evidence. If the allowed sources
+cannot support the assessment, return pass:false
 with a concrete finding. Missing advisory evidence does not prove an advisory absent.
 Return all package entries using the supplied strict schema.`;
 

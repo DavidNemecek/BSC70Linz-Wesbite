@@ -206,13 +206,101 @@ test('preflight requires real search query containing current UTC date',async t=
   await assert.rejects(preflight(wrong.options),code('PREFLIGHT_QUERY_MISSING'));
 });
 
-function researched(packages) {return {packages:packages.map(p=>({...p,...pass,evidence:[source]}))};}
+function researched(packages) {return {packages:packages.map(p=>({...p,...pass,scannerFindings:[],evidence:[source]}))};}
 const researchArgs=packages=>({...SHA,packages});
+
+// Synthetic scanner/source responses: these test the contract, not live Vite safety.
+const scannerURL='https://scanner.example/npm/vite/8.3.5';
+const protectiveURL='https://upstream.example/vite/8.3.5/server.ts';
+const scannerReport={scannerURL,scannerStatus:'Review',scannerFinding:'Credential file access: matched ".npmrc"',
+  severity:'low',matchedToken:'.npmrc',artifactSHA256:'c'.repeat(64),upstreamURL:protectiveURL,upstreamVersion:'8.3.5',
+  protectiveToken:'.npmrc',protectiveCode:"fs: { deny: ['.npmrc'] }",classification:'protective-denylist',
+  credentialReadEvidence:'absent',exfiltrationEvidence:'absent',
+  rationale:'Exact artifact and surrounding token uses reviewed: enforced file-serving denylist; no credential read or sink found.'};
+const scannerPackage={name:'vite',version:'8.3.5',...pass,evidence:[scannerURL,protectiveURL],scannerFindings:[scannerReport]};
+const scannerSearch=()=>search(['vite 8.3.5 credential supply chain security'],[scannerURL,protectiveURL]);
+
+test('exact low credential token in protective source leaves only a fresh model pass eligible',async t=>{
+  const f=await fixture(t,res=>json(res,response({packages:[scannerPackage]},[scannerSearch()])));
+  const result=await researchPackages(researchArgs([scannerPackage]),f.options);
+  assert.equal(result.pass,true);
+  assert.deepEqual(result.packages[0].scannerFindings,[scannerReport]);
+  assert.equal(f.requests.length,1);
+  assert.match(f.requests[0].body.instructions,/actually retrieve the exact scanner/);
+  assert.match(f.requests[0].body.instructions,/unresolved and unknown/);
+  assert.match(f.requests[0].body.instructions,/never an allowance/);
+});
+
+test('incomplete scanner evidence and omitted fields fail the strict research schema',async t=>{
+  for (const field of Object.keys(scannerReport)) {
+    const report={...scannerReport};delete report[field];
+    const f=await fixture(t,res=>json(res,response({packages:[{...scannerPackage,scannerFindings:[report]}]},[scannerSearch()])));
+    await assert.rejects(researchPackages(researchArgs([scannerPackage]),f.options),code('SCHEMA_INVALID'));
+    assert.equal(f.requests.length,1);
+  }
+  const entry={...scannerPackage};delete entry.scannerFindings;
+  const f=await fixture(t,res=>json(res,response({packages:[entry]},[scannerSearch()])));
+  await assert.rejects(researchPackages(researchArgs([scannerPackage]),f.options),code('SCHEMA_INVALID'));
+});
+
+test('wrong token, absent source, credential reads/sinks, unknowns and high reports block even model pass',async t=>{
+  for (const patch of [
+    {protectiveToken:'.env'}, {matchedToken:'.npm'},
+    {scannerFinding:'Credential file access: matched ".env"'},
+    {protectiveCode:"fs: { deny: ['.npmrc.backup'] }"},
+    {upstreamURL:'https://unretrieved.example/source'}, {upstreamVersion:'8.3.50'},
+    {artifactSHA256:'unknown'}, {scannerStatus:'unknown'}, {scannerFinding:'Credential access detected'},
+    {classification:'unresolved'}, {classification:'credential-read-or-exfiltration'},
+    {credentialReadEvidence:'present',protectiveCode:"readFileSync('.npmrc')"},
+    {exfiltrationEvidence:'present'}, {credentialReadEvidence:'unknown'}, {exfiltrationEvidence:'unknown'},
+    {severity:'medium'}, {severity:'high'}, {severity:'critical'},
+  ]) {
+    const entry={...scannerPackage,scannerFindings:[{...scannerReport,...patch}]};
+    const f=await fixture(t,res=>json(res,response({packages:[entry]},[scannerSearch()])));
+    const result=await researchPackages(researchArgs([scannerPackage]),f.options);
+    assert.equal(result.pass,false,JSON.stringify(patch));
+    assert.ok(result.findings.some(f=>f.severity==='high'));
+    assert.equal(f.requests.length,1);
+  }
+});
+
+test('scanner source needs exact-query provenance and a package citation',async t=>{
+  for (const entry of [
+    {...scannerPackage,evidence:[scannerURL]},
+    {...scannerPackage,scannerFindings:[{...scannerReport,upstreamURL:source}]},
+  ]) {
+    const f=await fixture(t,res=>json(res,response({packages:[entry]},[
+      scannerSearch(),search(['other 1.0.0'],[source]),
+      {type:'web_search_call',status:'completed',action:{type:'open_page',url:source}},
+    ])));
+    assert.equal((await researchPackages(researchArgs([scannerPackage]),f.options)).pass,false);
+    assert.equal(f.requests.length,1);
+  }
+});
+
+test('protective context never overrides original negatives or high findings, including citation correction',async t=>{
+  const negative={severity:'low',message:'Credential report is unresolved',evidence:[scannerURL]};
+  for (const entry of [
+    {...scannerPackage,pass:false,findings:[negative]},
+    {...scannerPackage,findings:[{...negative,severity:'high'}]},
+    {...scannerPackage,findings:[{...negative,severity:'critical'}]},
+    {...scannerPackage,scannerFindings:[{...scannerReport,classification:'unresolved'}]},
+  ]) {
+    const original={...entry,evidence:[...entry.evidence,'https://unopened.example/citation']};
+    const f=await fixture(t,(res,body,n)=>json(res,n===1?response({packages:[original]},[scannerSearch()]):
+      response({packages:{package0:scannerPackage}})));
+    const result=await researchPackages(researchArgs([scannerPackage]),f.options);
+    assert.equal(result.pass,false);
+    for (const finding of entry.findings) assert.ok(result.findings.some(f=>JSON.stringify(f)===JSON.stringify(finding)));
+    for (const report of entry.scannerFindings) assert.ok(result.packages[0].scannerFindings.some(r=>JSON.stringify(r)===JSON.stringify(report)));
+    assert.equal(f.requests.length,2);
+  }
+});
 
 test('completed exact registry opens supplement real searches, without replacing them',async t=>{
   const packages=[{name:'@scope/pkg',version:'1.2.3'}];
   const url='https://registry.npmjs.org/@scope%2Fpkg/1.2.3';
-  const data={packages:[{...packages[0],...pass,evidence:[source,url]}]};
+  const data={packages:[{...packages[0],...pass,scannerFindings:[],evidence:[source,url]}]};
   const open={type:'web_search_call',status:'completed',action:{type:'open_page',url}};
   const exact=search(['@scope/pkg 1.2.3 supply chain attacks']);
   const good=await fixture(t,res=>json(res,response(data,[exact,open])));
@@ -244,10 +332,10 @@ test('one strict correction repairs unsupported canonical citations using only a
   const viteSource='https://github.com/vitejs/vite/releases/tag/v8.3.5';
   const reactSource='https://react.dev/blog/react-19-2';
   const unknown='https://github.com/vitejs/vite/security/advisories/GHSA-rq7h-c2jc-7f22';
-  const original={packages:[{...packages[0],...pass,evidence:[registry,unknown]},
-    {...packages[1],...pass,evidence:[reactSource]}]};
-  const corrected={packages:{package0:{...packages[0],...pass,evidence:[registry,viteSource]},
-    package1:{...packages[1],...pass,evidence:[reactSource]}}};
+  const original={packages:[{...packages[0],...pass,scannerFindings:[],evidence:[registry,unknown]},
+    {...packages[1],...pass,scannerFindings:[],evidence:[reactSource]}]};
+  const corrected={packages:{package0:{...packages[0],...pass,scannerFindings:[],evidence:[registry,viteSource]},
+    package1:{...packages[1],...pass,scannerFindings:[],evidence:[reactSource]}}};
   const f=await fixture(t,(res,body,n)=>sse(res,n===1?response(original,[
     search(['vite 8.3.5 supply chain compromise CVE'],[viteSource]),
     search(['react 19.2.0 supply chain compromise CVE'],[reactSource]),
@@ -299,7 +387,7 @@ test('fabricated-only citations, wrong exact queries and model-claimed provenanc
     [['foo-extra 1.2.3 security'],[source,unknown]],
     [['all npm latest supply chain'],[source,unknown]],
   ]) {
-    const data={packages:[{...packages[0],...pass,evidence:citations}]};
+    const data={packages:[{...packages[0],...pass,scannerFindings:[],evidence:citations}]};
     const f=await fixture(t,res=>json(res,response(data,[search(queries)])));
     await assert.rejects(researchPackages(researchArgs(packages),f.options),code('PACKAGE_SEARCH_PROOF_MISSING'));
     assert.equal(f.requests.length,1);
@@ -316,8 +404,8 @@ test('correction cannot remove original findings or promote any original negativ
     evidence:['https://unopened.example/regression'],path:'package.json'};
   for (const [initialPass,severity,expected] of [[false,'medium',false],[true,'high',false],[true,'medium',true]]) {
     const originalFinding={...finding,severity};
-    const original={packages:[{...packages[0],pass:initialPass,findings:[originalFinding,originalFinding],evidence:[source,'https://unopened.example/canonical']}]};
-    const correction={packages:{package0:{...packages[0],...pass,evidence:[source]}}};
+    const original={packages:[{...packages[0],pass:initialPass,findings:[originalFinding,originalFinding],scannerFindings:[],evidence:[source,'https://unopened.example/canonical']}]};
+    const correction={packages:{package0:{...packages[0],...pass,scannerFindings:[],evidence:[source]}}};
     const f=await fixture(t,(res,body,n)=>json(res,n===1?response(original,[search(['foo 1.2.3'])]):response(correction)));
     const result=await researchPackages(researchArgs(packages),f.options);
     assert.equal(result.pass,expected);
@@ -329,9 +417,9 @@ test('correction cannot remove original findings or promote any original negativ
 
 test('a conservative correction blocks approval and preserves additional negative findings',async t=>{
   const packages=[{name:'foo',version:'1.2.3'}];
-  const original={packages:[{...packages[0],...pass,evidence:[source,'https://unopened.example/canonical']}]};
+  const original={packages:[{...packages[0],...pass,scannerFindings:[],evidence:[source,'https://unopened.example/canonical']}]};
   const finding={severity:'medium',message:'Retrieved sources cannot substantiate advisory assessment',evidence:[source]};
-  const corrected={packages:{package0:{...packages[0],pass:false,findings:[finding],evidence:[source]}}};
+  const corrected={packages:{package0:{...packages[0],pass:false,findings:[finding],scannerFindings:[],evidence:[source]}}};
   const f=await fixture(t,(res,body,n)=>json(res,n===1?response(original,[search(['foo 1.2.3'])]):response(corrected)));
   const result=await researchPackages(researchArgs(packages),f.options);
   assert.equal(result.pass,false);
@@ -342,10 +430,10 @@ test('a conservative correction blocks approval and preserves additional negativ
 test('correction omissions, unknown or cross-package citations, identity changes and malformed output block',async t=>{
   const packages=[{name:'foo',version:'1.2.3'},{name:'bar',version:'2.0.0'}];
   const other='https://bar.example/releases/2.0.0', unknown='https://unopened.example/canonical';
-  const original={packages:[{...packages[0],...pass,evidence:[source,unknown]},
-    {...packages[1],...pass,evidence:[other]}]};
-  const corrected={packages:{package0:{...packages[0],...pass,evidence:[source]},
-    package1:{...packages[1],...pass,evidence:[other]}}};
+  const original={packages:[{...packages[0],...pass,scannerFindings:[],evidence:[source,unknown]},
+    {...packages[1],...pass,scannerFindings:[],evidence:[other]}]};
+  const corrected={packages:{package0:{...packages[0],...pass,scannerFindings:[],evidence:[source]},
+    package1:{...packages[1],...pass,scannerFindings:[],evidence:[other]}}};
   const replace0=patch=>({...corrected,packages:{...corrected.packages,package0:{...corrected.packages.package0,...patch}}});
   for (const [data,expected] of [
     [{packages:{package0:corrected.packages.package0}},'SCHEMA_INVALID'],
@@ -368,7 +456,7 @@ test('correction omissions, unknown or cross-package citations, identity changes
 
 test('correction refusal, tools, schema rejection, transport errors and stalled streams stay within two calls',async t=>{
   const packages=[{name:'foo',version:'1.2.3'}];
-  const original={packages:[{...packages[0],...pass,evidence:[source,'https://unopened.example/canonical']}]};
+  const original={packages:[{...packages[0],...pass,scannerFindings:[],evidence:[source,'https://unopened.example/canonical']}]};
   for (const [handler,expected] of [
     [res=>json(res,{...response(),output:[{type:'message',role:'assistant',content:[{type:'refusal',refusal:'no'}]}]}),'REFUSAL'],
     [res=>json(res,response(pass,[search(['foo 1.2.3'])])),'SEARCH_NOT_COMPLETED'],
@@ -389,7 +477,7 @@ test('correction refusal, tools, schema rejection, transport errors and stalled 
 
 test('correction schema size is bounded before a second call',async t=>{
   const packages=[{name:'foo',version:'1.2.3'}];
-  const data={packages:[{...packages[0],...pass,evidence:[source,'https://unopened.example/canonical']}]};
+  const data={packages:[{...packages[0],...pass,scannerFindings:[],evidence:[source,'https://unopened.example/canonical']}]};
   for (const sources of [[source,...Array.from({length:200},(_,i)=>`https://source.example/${i}`)],
     [source,...Array.from({length:8},(_,i)=>`https://source.example/${i}/${'a'.repeat(3100)}`)]]) {
     const f=await fixture(t,res=>json(res,response(data,[search(['foo 1.2.3'],sources)])));
@@ -402,7 +490,7 @@ test('canonical GitHub citations require a bounded independently confirmed perma
   const packages=[{name:'foo',version:'1.2.3'}];
   const from='https://github.com/old/foo/releases/tag/v1.2.3';
   const to='https://github.com/new/foo/releases/tag/v1.2.3';
-  const data={packages:[{...packages[0],...pass,evidence:[to]}]};
+  const data={packages:[{...packages[0],...pass,scannerFindings:[],evidence:[to]}]};
   for (const [status,location,allowed] of [[301,to,true],[308,to,true],[302,to,false],[200,to,false],[301,'https://evil.example/',false]]) {
     const f=await fixture(t,res=>json(res,response(data,[search(['foo 1.2.3 security'],[from])])));
     let calls=0;
@@ -423,7 +511,7 @@ test('canonical GitHub citations require a bounded independently confirmed perma
 
 test('unopened exact registry metadata requires independent bounded identity-checked retrieval',async t=>{
   const packages=[{name:'foo',version:'1.2.3'}], url='https://registry.npmjs.org/foo/1.2.3';
-  const data={packages:[{...packages[0],...pass,evidence:[url]}]};
+  const data={packages:[{...packages[0],...pass,scannerFindings:[],evidence:[url]}]};
   for (const [body,allowed] of [[JSON.stringify(packages[0]),true],[JSON.stringify({name:'bar',version:'1.2.3'}),false],['invalid',false],['x'.repeat(512*1024+1),false]]) {
     const f=await fixture(t,res=>json(res,response(data,[search(['foo 1.2.3 supply chain'])])));
     const options={...f.options,registryFetch:async (address,init)=>{
