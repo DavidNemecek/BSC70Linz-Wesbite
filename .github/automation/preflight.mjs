@@ -29,5 +29,6 @@ result.pass = outcomes.every(outcome => outcome.status === 'fulfilled');
 result.errors = outcomes.flatMap(outcome => outcome.status === 'rejected' ? [outcome.reason.message] : []);
 result.completedAt = new Date().toISOString();
 await writeFile('evidence/preflight.json', JSON.stringify(result, null, 2));
-console.log(JSON.stringify({ pass: result.pass, checks: result.checks.map(({name,pass}) => ({name,pass})), errors: result.errors }));
+console.log(JSON.stringify({ pass: result.pass, checks: result.checks.map(({name,pass}) => ({name,pass})),
+  rulesetVisibility: result.checks.find(check => check.name === 'ruleset-visibility'), errors: result.errors }));
 if (!result.pass) process.exitCode = 1;

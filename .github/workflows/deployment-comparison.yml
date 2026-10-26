@@ -2,7 +2,17 @@ name: Deployment comparison acceptance
 on:
   push:
     branches: [automation/dependency-pipeline]
+    paths:
+      - .github/qa/**
+      - .github/automation/controller.mjs
+      - .github/automation/ai.mjs
+      - .github/automation/prompts.mjs
+      - .github/automation/browser-acceptance.mjs
+      - .github/workflows/deployment-comparison.yml
   workflow_dispatch:
+concurrency:
+  group: deployment-comparison-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -10,7 +20,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/bsc70-browsers
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.bsc70-browsers
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
