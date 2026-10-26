@@ -329,7 +329,14 @@ export async function researchPackages({packages,baseSHA,headSHA}, options = {})
       const evidence = response.provenance.searches.filter(s=>s.queries.some(q=>queryMatches(q,target)));
       const sources = new Set(evidence.flatMap(s=>s.sources));
       const result = response.data.packages.find(p=>p.name===target.name && p.version===target.version);
-      if (!sources.size || result.evidence.some(url=>!sources.has(sourceURL(url,v=>v)))) throw fail('PACKAGE_SEARCH_PROOF_MISSING');
+      if (!sources.size || result.evidence.some(url=>!sources.has(sourceURL(url,v=>v)))) {
+        const error = fail('PACKAGE_SEARCH_PROOF_MISSING');
+        // Adapter-redacted public research metadata only; no request, provider
+        // response object, configuration or authorization header is retained.
+        error.researchDiagnostic = { target, searches: response.provenance.searches,
+          citedURLs: result.evidence, matchingSearchCount: evidence.length };
+        throw error;
+      }
       results.push({...decision(result),searches:evidence});
     }
   }

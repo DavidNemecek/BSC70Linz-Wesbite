@@ -34,6 +34,8 @@ const outcomes = await Promise.allSettled([(async () => {
 result.pass = outcomes.every(outcome => outcome.status === 'fulfilled');
 // Adapter errors are deliberately generic; never serialize request/response objects.
 result.errors = outcomes.flatMap(outcome => outcome.status === 'rejected' ? [outcome.reason.message] : []);
+result.researchDiagnostics = outcomes.flatMap(outcome => outcome.status === 'rejected' &&
+  outcome.reason.code === 'PACKAGE_SEARCH_PROOF_MISSING' ? [outcome.reason.researchDiagnostic] : []);
 result.completedAt = new Date().toISOString();
 await writeFile('evidence/preflight.json', JSON.stringify(result, null, 2));
 console.log(JSON.stringify({ pass: result.pass, checks: result.checks.map(({name,pass}) => ({name,pass})),
