@@ -29,15 +29,15 @@ function fixture(options = {}) {
       if (result !== undefined) return result;
     }
     if (request.method === 'POST') {
-      if (path === '/pulls/7/reviews') reviews = [...reviews, { ...request.body, user: previous().user, state: 'COMMENTED' }];
+      if (path === `/pulls/${pr.number}/reviews`) reviews = [...reviews, { ...request.body, user: previous().user, state: 'COMMENTED' }];
       return { id: 1 };
     }
     if (path === '') return { default_branch: 'main', full_name: repository };
     if (path === '/pulls?state=open&base=main&per_page=100&page=1') return pr.state === 'open' && pr.base.ref === 'main' ? [structuredClone(pr)] : [];
-    if (path === '/pulls/7' && request.diff) return options.diff ?? diff;
-    if (path === '/pulls/7') return structuredClone(pr);
-    if (path.startsWith('/pulls/7/reviews?')) return structuredClone(reviews);
-    if (path === '/pulls/7/files?per_page=100&page=1') return options.files ?? [structuredClone(file)];
+    if (path === `/pulls/${pr.number}` && request.diff) return options.diff ?? diff;
+    if (path === `/pulls/${pr.number}`) return structuredClone(pr);
+    if (path.startsWith(`/pulls/${pr.number}/reviews?`)) return structuredClone(reviews);
+    if (path === `/pulls/${pr.number}/files?per_page=100&page=1`) return options.files ?? [structuredClone(file)];
     throw Error(`Unexpected test request: ${path}`);
   };
   const ai = async (input, config) => {
@@ -186,12 +186,11 @@ test('every open main PR sharing a head requires its own exact PASS record', asy
 
 test('simultaneous different-base PRs at one head use independent markers and status contexts', async () => {
   const main = fixture();
-  const other = fixture();
-  other.pr.base.ref = 'updates';
-  other.pr.base.sha = otherSHA;
   const f = fixture({ ai: input => ({ ...verdict(), baseSHA: input.baseSHA }) });
-  f.pr.base = other.pr.base;
-  const results = await Promise.all([main.run(), f.run()]);
+  f.pr.number = 8;
+  f.pr.base.ref = 'updates';
+  f.pr.base.sha = otherSHA;
+  const results = await Promise.all([main.run(), f.run({ number: 8 })]);
   assert.deepEqual(results.map(result => result.outcome), ['pass', 'pass']);
   for (const [lane, context] of [[main, CONTEXT], [f, OTHER_CONTEXT]]) {
     assert.equal(lane.calls.length, 1);
@@ -205,7 +204,7 @@ test('incomplete open-main inventory and sibling review history cannot publish s
   for (const kind of ['pulls', 'reviews']) {
     const sibling = { ...pull(), number: 8 };
     const f = fixture({ intercept: (path, request, pr) => {
-      if (path.startsWith('/pulls?')) return kind === 'pulls' ? Array(100).fill(structuredClone(pr)) : [pr, sibling];
+      if (path.startsWith('/pulls?')) return kind === 'pulls' ? Array(100).fill({ ...pr, head: { sha: otherSHA } }) : [pr, sibling];
       if (path.startsWith('/pulls/8/reviews?')) return Array(100).fill({ ...previous(), body: 'untrusted' });
     } });
     assert.equal((await f.run()).outcome, 'error');

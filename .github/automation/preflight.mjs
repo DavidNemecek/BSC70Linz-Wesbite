@@ -10,6 +10,16 @@ const outcomes = await Promise.allSettled([(async () => {
   const runtime = await verifyRuntime({ deploymentId: production.id });
   result.checks.push({ name: 'vercel', pass: true, production, runtime });
 })(), (async () => {
+  if (!process.env.GITHUB_TOKEN) return;
+  const response = await fetch('https://api.github.com/repos/DavidNemecek/BSC70Linz-Wesbite/rulesets/25886164', {
+    redirect: 'error', signal: AbortSignal.timeout(30000),
+    headers: { authorization: `Bearer ${process.env.GITHUB_TOKEN}`, accept: 'application/vnd.github+json' },
+  });
+  if (!response.ok) throw Error(`Ruleset visibility probe failed (${response.status})`);
+  const ruleset = await response.json();
+  result.checks.push({ name: 'ruleset-visibility', pass: true, bypassVisible: Array.isArray(ruleset.bypass_actors),
+    bypassCount: Array.isArray(ruleset.bypass_actors) ? ruleset.bypass_actors.length : null });
+})(), (async () => {
   const research = await aiPreflight();
   result.checks.push({ name: 'live-ai-web-search', pass: research.pass === true, research });
   if (!research.pass) throw Error('AI live search preflight did not pass');
