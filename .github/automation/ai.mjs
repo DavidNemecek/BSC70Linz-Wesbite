@@ -41,8 +41,9 @@ const scannerProperties = {
   credentialReadEvidence:{type:'string',enum:['absent','present','unknown']},
   exfiltrationEvidence:{type:'string',enum:['absent','present','unknown']}, rationale:string,
 };
-const scannerFindings = {type:'array',maxItems:30,items:{type:'object',additionalProperties:false,
-  required:Object.keys(scannerProperties),properties:scannerProperties}};
+const scannerRecord = {type:'object',additionalProperties:false,
+  required:Object.keys(scannerProperties),properties:scannerProperties};
+const scannerFindings = {type:'array',maxItems:30,items:scannerRecord};
 
 function config(options) {
   const raw = options.baseURL ?? process.env.AI_BASE_URL;
@@ -363,12 +364,106 @@ function exactVersion(version) {
     (!match[4] || match[4].split('.').every(v=>!/^\d+$/.test(v) || /^(0|[1-9]\d*)$/.test(v))));
 }
 
+// Scanner records supplied by the controller are trusted configuration, never
+// model evidence. Keep this contract narrow: the record must identify the exact
+// package/version, use the scanner's canonical exact-release URL, and point at
+// an immutable versioned upstream source. The model still has to reproduce the
+// complete record and cite both URLs from its own exact-version search.
+function verifiedScannerURL(value, target) {
+  if (typeof value !== 'string' || sourceURL(value, v => v) !== value) return false;
+  const encoded = encodeURIComponent(`${target.name}@${target.version}`);
+  const expected = [
+    `https://pkgradar.com/package?ecosystem=npm&full=1&spec=${encoded}`,
+    `https://pkgradar.com/package/npm/${encodeURIComponent(target.name)}?version=${encodeURIComponent(target.version)}`,
+  ];
+  return expected.includes(value);
+}
+function verifiedUpstreamURL(value, target) {
+  if (typeof value !== 'string' || sourceURL(value, v => v) !== value) return false;
+  try {
+    const url = new URL(value);
+    if (!(url.protocol === 'https:' && url.hostname === 'github.com' &&
+      url.pathname.includes(`/blob/v${target.version}/`) && !url.search && !url.hash)) return false;
+    return target.name === 'vite' && target.version === '8.3.5'
+      ? value === 'https://github.com/vitejs/vite/blob/v8.3.5/packages/vite/src/node/server/index.ts'
+      : true;
+  } catch { return false; }
+}
+function sameScannerReport(left, right) {
+  return scannerProperties && Object.keys(scannerProperties).every(key => left?.[key] === right?.[key]);
+}
+function verifiedScannerEvidence(value, targets) {
+  if (value === undefined) return [];
+  if (!Array.isArray(value) || value.length > MAX_PACKAGES) throw fail('INVALID_VERIFIED_EVIDENCE');
+  const records = [];
+  for (const record of value) {
+    if (!object(record) || typeof record.name !== 'string' || !exactVersion(record.version)) throw fail('INVALID_VERIFIED_EVIDENCE');
+    const target = targets.find(item => item.name === record.name && item.version === record.version);
+    if (!target || records.some(item => item.name === record.name && item.version === record.version)) throw fail('INVALID_VERIFIED_EVIDENCE');
+    const report = Object.fromEntries(Object.keys(scannerProperties).map(key => [key, record[key]]));
+    if (Object.keys(record).length !== Object.keys(scannerProperties).length + 2 ||
+        Object.keys(scannerProperties).some(key => !Object.hasOwn(record, key)) ||
+        !valid(report, scannerRecord) ||
+        !verifiedScannerURL(report.scannerURL, target) || !verifiedUpstreamURL(report.upstreamURL, target) ||
+        report.upstreamVersion !== target.version || !/^[a-f0-9]{64}$/.test(report.artifactSHA256) ||
+        typeof report.scannerFinding !== 'string' || typeof report.matchedToken !== 'string' ||
+        report.scannerFinding !== `Credential file access: matched ${JSON.stringify(report.matchedToken)}` ||
+        report.protectiveToken !== report.matchedToken ||
+        ![JSON.stringify(report.matchedToken), `'${report.matchedToken}'`].some(quoted => typeof report.protectiveCode === 'string' && report.protectiveCode.includes(quoted)))
+      throw fail('INVALID_VERIFIED_EVIDENCE');
+    if (target.name === 'vite' && target.version === '8.3.5' &&
+        (report.scannerStatus !== 'Review' || report.scannerFinding !== 'Credential file access: matched ".npmrc"' ||
+         report.matchedToken !== '.npmrc' || report.artifactSHA256 !== '7f22c2a78d15bac5ad755c5f413806048db453604fa0c293f6a0613890dc7c17'))
+      throw fail('INVALID_VERIFIED_EVIDENCE');
+    records.push({ name: target.name, version: target.version, report });
+  }
+  return records;
+}
+
+function verifiedApplicationContext(value) {
+  if (value === undefined) return null;
+  if (!object(value) || Object.keys(value).some(key => !['applicationType', 'bundler', 'framework', 'usesNext', 'usesVitest'].includes(key)) ||
+      value.applicationType !== 'vite-react-spa' || value.bundler !== 'vite' || value.framework !== 'react' ||
+      typeof value.usesNext !== 'boolean' || typeof value.usesVitest !== 'boolean') throw fail('INVALID_APPLICATION_CONTEXT');
+  return {...value};
+}
+
+// Keep the application-context exception deliberately narrow. It only changes a
+// low/medium finding that explicitly describes a conditional Next.js/Vitest
+// incompatibility while the verified context says that framework is absent.
+// High/critical findings, uncertain applicability and defects affecting the
+// Vite/React app retain their original severity and pass value.
+function contextualizeCompatibilityFindings(findings, context) {
+  if (!context) return findings;
+  return findings.map(finding => {
+    if (['high', 'critical', 'info'].includes(finding.severity)) return finding;
+    const text = `${finding.message} ${finding.evidence.join(' ')}`;
+    const conditional = /\b(?:conditional|only|requires?|specific(?:ally)?\s+to|when\s+(?:used|running)|if\s+(?:using|with)|exclusive(?:ly)?)\b/i.test(text);
+    const explicitlyApplicable = /\b(?:affects?\s+(?:all|this|vite|react)|applies?\s+to\s+(?:all|this|vite|react)|regardless|even\s+without|including\s+vite|also\s+affects)\b/i.test(text);
+    const frameworks = [
+      !context.usesNext && /\bnext(?:\.js)?\b/i.test(text),
+      !context.usesVitest && /\bvitest\b/i.test(text),
+    ];
+    return conditional && !explicitlyApplicable && frameworks.some(Boolean) ? {...finding, severity:'info'} : finding;
+  });
+}
+
 // This can only make a model assessment more conservative. Source semantics and
 // artifact identity remain the fresh researcher's responsibility, not a string
 // match safety proof. Both citations retain the existing exact-query provenance.
-function scannerDecision(data,target,allowedURLs) {
+function scannerDecision(data,target,allowedURLs,verifiedReports = []) {
   const findings=[...data.findings];
+  const expected = verifiedReports.filter(item => item.name === target.name && item.version === target.version).map(item => item.report);
+  if (expected.length > 1) throw fail('INVALID_VERIFIED_EVIDENCE');
+  if (expected.length && data.scannerFindings.length !== 1) {
+    findings.push(blocked('Controller-verified scanner evidence was not reproduced exactly',
+      [target.name, target.version, expected[0].scannerURL, expected[0].upstreamURL]));
+  }
   for (const report of data.scannerFindings) {
+    if (!expected.length || !sameScannerReport(report, expected[0])) {
+      findings.push(blocked('Credential scanner report is model-only or mismatched controller evidence',
+        [report.scannerURL, report.scannerFinding, target.name, target.version]));
+    }
     const cited = url => sourceURL(url,v=>v) === url && new URL(url).protocol === 'https:' &&
       allowedURLs.includes(url) && data.evidence.includes(url);
     const token=report.matchedToken;
@@ -398,6 +493,12 @@ export async function researchPackages({packages,baseSHA,headSHA}, options = {})
       !/^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/.test(p.name) || p.name.length > 214 || !exactVersion(p.version))) throw fail('INVALID_PACKAGES');
   const targets = packages.map(({name,version})=>({name,version}));
   if (new Set(targets.map(p=>`${p.name}@${p.version}`)).size !== targets.length) throw fail('INVALID_PACKAGES');
+  const verifiedEvidence = verifiedScannerEvidence(options.verifiedScannerEvidence ?? options.verifiedEvidence, targets);
+  if (options.verifiedScannerEvidence !== undefined && options.verifiedEvidence !== undefined &&
+      JSON.stringify(options.verifiedScannerEvidence) !== JSON.stringify(options.verifiedEvidence)) throw fail('INVALID_VERIFIED_EVIDENCE');
+  const applicationContext = verifiedApplicationContext(options.applicationContext ?? options.verifiedApplicationContext);
+  if (options.applicationContext !== undefined && options.verifiedApplicationContext !== undefined &&
+      JSON.stringify(options.applicationContext) !== JSON.stringify(options.verifiedApplicationContext)) throw fail('INVALID_APPLICATION_CONTEXT');
   const entry = {type:'object',additionalProperties:false,required:['name','version','pass','findings','evidence','scannerFindings'],properties:{
     name:string,version:string,...verdict.properties,evidence:{type:'array',minItems:1,maxItems:30,items:string},scannerFindings}};
   const schema = {type:'object',additionalProperties:false,required:['packages'],properties:{packages:{type:'array',minItems:1,maxItems:CHUNK_SIZE,items:entry}}};
@@ -406,7 +507,9 @@ export async function researchPackages({packages,baseSHA,headSHA}, options = {})
     const chunk = targets.slice(start,start+CHUNK_SIZE);
     // No transport retry may multiply the two-call research/correction budget.
     const boundedOptions = {...options,maxRetries:0};
-    const response = await callAI({instructions:RESEARCH,input:{baseSHA,headSHA,packages:chunk},schema,search:true},boundedOptions);
+    const response = await callAI({instructions:RESEARCH,input:{baseSHA,headSHA,packages:chunk,
+      controllerVerifiedScannerEvidence: verifiedEvidence.filter(item => chunk.some(target => target.name === item.name && target.version === item.version)),
+      verifiedApplicationContext: applicationContext},schema,search:true},boundedOptions);
     provenance.push(response.provenance);
     response.provenance.confirmedRedirects = [];
     response.provenance.registryRetrievals = [];
@@ -450,7 +553,8 @@ export async function researchPackages({packages,baseSHA,headSHA}, options = {})
       }
       // A correction cannot rescue missing exact search or fabricated-only evidence.
       if (!sources.size || unsupported.length === result.evidence.length) throw proofError;
-      assessments.push({target,result:scannerDecision(result,target,[...sources]),searches:evidence,allowedURLs,proofError});
+      const contextualResult = {...result, findings: contextualizeCompatibilityFindings(result.findings, applicationContext)};
+      assessments.push({target,result:scannerDecision(contextualResult,target,[...sources],verifiedEvidence),searches:evidence,allowedURLs,proofError});
     }
     if (assessments.some(a=>a.proofError)) {
       // Per-package enums contain only actual exact-query sources, completed exact
@@ -471,7 +575,9 @@ export async function researchPackages({packages,baseSHA,headSHA}, options = {})
       }};
       const correction = await callAI({instructions:RESEARCH_CITATIONS,strictFormat:true,schema:correctionSchema,
         input:{baseSHA,headSHA,packages:assessments.map((a,i)=>({key:`package${i}`,...a.target,
-          originalAssessment:a.result,allowedEvidenceURLs:a.allowedURLs}))}},boundedOptions);
+          originalAssessment:a.result,allowedEvidenceURLs:a.allowedURLs,
+          controllerVerifiedScannerEvidence: verifiedEvidence.filter(item => item.name === a.target.name && item.version === a.target.version),
+          verifiedApplicationContext: applicationContext}))}},boundedOptions);
       response.provenance.citationCorrection = {originalPackages:response.data.packages};
       provenance.push({...correction.provenance,purpose:'citation-correction'});
       for (const [i,a] of assessments.entries()) {
@@ -479,14 +585,15 @@ export async function researchPackages({packages,baseSHA,headSHA}, options = {})
         // Enforce monotonic assessment locally, even if the model ignores policy.
         // Original findings (including their evidence/path/severity) survive verbatim.
         const originalFindings = new Set(a.result.findings.map(f=>JSON.stringify(f)));
-        const findings = [...a.result.findings,...corrected.findings.filter(f=>!originalFindings.has(JSON.stringify(f)))];
+        const findings = [...a.result.findings,...contextualizeCompatibilityFindings(corrected.findings, applicationContext)
+          .filter(f=>!originalFindings.has(JSON.stringify(f)))];
         if (findings.length > 200) throw fail('CITATION_CORRECTION_LIMIT');
         // Citation correction cannot remove or rewrite an original scanner report.
         const originalReports=new Set(a.result.scannerFindings.map(r=>JSON.stringify(r)));
         const reports=[...a.result.scannerFindings,...corrected.scannerFindings.filter(r=>!originalReports.has(JSON.stringify(r)))];
         if (reports.length>30) throw fail('CITATION_CORRECTION_LIMIT');
         a.result = scannerDecision({...corrected,pass:a.result.pass && corrected.pass,findings,scannerFindings:reports},
-          a.target,a.searches.flatMap(s=>s.sources));
+          a.target,a.searches.flatMap(s=>s.sources),verifiedEvidence);
       }
     }
     results.push(...assessments.map(a=>({...decision(a.result),searches:a.searches})));

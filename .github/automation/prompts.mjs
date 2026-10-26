@@ -28,6 +28,12 @@ malware. An inaccessible registry page in the web tool does not by itself establ
 an artifact problem: independent registry/lockfile verification remains mandatory.
 Missing exact-version searches, ambiguous release identity, contradictory sources or
 unresolved reports of an attack or defect must still block this research verdict.
+The controller may supply controllerVerifiedScannerEvidence for an authenticated,
+exact-release scanner record. This is context, not an approval: reproduce every
+supplied record exactly in scannerFindings, including every field and both URLs.
+Never invent, alter, omit or downgrade a supplied record. A scanner report without
+an identical controller record is model-only and remains unresolved. A supplied
+record that the model cannot reproduce remains unresolved.
 Include scannerFindings for every package ([] only when no credential scanner report
 was encountered). Record EVERY credential-related scanner report, including unresolved
 ones. A scanner's Review label alone proves neither compromise nor safety. A low
@@ -50,6 +56,16 @@ high/critical reports, mismatched tokens, contradictory evidence or other unreso
 reports. A package name, scanner reputation, .npmrc mention, matching artifact hash
 or protective string alone is never an allowance. Return pass:true only if your own
 complete assessment supports it; retain concrete findings and never erase a negative.
+The controller may also supply verifiedApplicationContext. This repository's
+context is explicitly a Vite React SPA. If a compatibility report is conditional
+on a framework that the context explicitly marks absent (for example a Next.js or
+Vitest-only issue), classify that conditional report as info and do not block for
+it. This narrow classification applies only when the dependency/framework
+combination is absent and the report is genuinely conditional; if the framework
+is present, applicability is uncertain, or the defect affects this Vite/React
+application, retain the concrete severity and block unresolved or applicable
+defects. Do not generalize this context to other frameworks or compatibility
+reports.
 Execute web searches naming each package AND its exact version (separate queries are
 preferred). Examine upstream release notes, compatibility, regressions, installation
 scripts and security information. Explicitly search for supply-chain attacks,

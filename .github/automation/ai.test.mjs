@@ -209,26 +209,75 @@ test('preflight requires real search query containing current UTC date',async t=
 function researched(packages) {return {packages:packages.map(p=>({...p,...pass,scannerFindings:[],evidence:[source]}))};}
 const researchArgs=packages=>({...SHA,packages});
 
-// Synthetic scanner/source responses: these test the contract, not live Vite safety.
-const scannerURL='https://scanner.example/npm/vite/8.3.5';
-const protectiveURL='https://upstream.example/vite/8.3.5/server.ts';
+// Synthetic provider responses use the exact controller evidence URLs; no live
+// scanner request is made by these tests.
+const scannerURL='https://pkgradar.com/package?ecosystem=npm&full=1&spec=vite%408.3.5';
+const protectiveURL='https://github.com/vitejs/vite/blob/v8.3.5/packages/vite/src/node/server/index.ts';
 const scannerReport={scannerURL,scannerStatus:'Review',scannerFinding:'Credential file access: matched ".npmrc"',
-  severity:'low',matchedToken:'.npmrc',artifactSHA256:'c'.repeat(64),upstreamURL:protectiveURL,upstreamVersion:'8.3.5',
+  severity:'low',matchedToken:'.npmrc',artifactSHA256:'7f22c2a78d15bac5ad755c5f413806048db453604fa0c293f6a0613890dc7c17',upstreamURL:protectiveURL,upstreamVersion:'8.3.5',
   protectiveToken:'.npmrc',protectiveCode:"fs: { deny: ['.npmrc'] }",classification:'protective-denylist',
   credentialReadEvidence:'absent',exfiltrationEvidence:'absent',
   rationale:'Exact artifact and surrounding token uses reviewed: enforced file-serving denylist; no credential read or sink found.'};
 const scannerPackage={name:'vite',version:'8.3.5',...pass,evidence:[scannerURL,protectiveURL],scannerFindings:[scannerReport]};
 const scannerSearch=()=>search(['vite 8.3.5 credential supply chain security'],[scannerURL,protectiveURL]);
+const verifiedScannerEvidence=[{name:'vite',version:'8.3.5',...scannerReport}];
 
-test('exact low credential token in protective source leaves only a fresh model pass eligible',async t=>{
+test('model-only protective scanner claims remain blocked',async t=>{
   const f=await fixture(t,res=>json(res,response({packages:[scannerPackage]},[scannerSearch()])));
   const result=await researchPackages(researchArgs([scannerPackage]),f.options);
+  assert.equal(result.pass,false);
+  assert.ok(result.findings.some(finding=>finding.severity==='high' && /model-only/.test(finding.message)));
+  assert.equal(f.requests.length,1);
+});
+
+test('exact low credential token requires matching controller evidence',async t=>{
+  const f=await fixture(t,res=>json(res,response({packages:[scannerPackage]},[scannerSearch()])));
+  const result=await researchPackages(researchArgs([scannerPackage]),{...f.options,verifiedScannerEvidence});
   assert.equal(result.pass,true);
   assert.deepEqual(result.packages[0].scannerFindings,[scannerReport]);
   assert.equal(f.requests.length,1);
   assert.match(f.requests[0].body.instructions,/actually retrieve the exact scanner/);
   assert.match(f.requests[0].body.instructions,/unresolved and unknown/);
   assert.match(f.requests[0].body.instructions,/never an allowance/);
+});
+
+test('verified scanner evidence rejects forged identity and missing model reproduction',async t=>{
+  for (const patch of [
+    {artifactSHA256:'0'.repeat(64)},
+    {version:'8.3.4'},
+    {matchedToken:'.env'},
+    {scannerURL:'https://evil.example/report'},
+    {upstreamURL:'https://github.com/vitejs/vite/blob/v8.3.5/packages/vite/src/node/config.ts'},
+  ]) {
+    const f=await fixture(t,res=>json(res,response({packages:[scannerPackage]},[scannerSearch()])));
+    await assert.rejects(researchPackages(researchArgs([scannerPackage]),{
+      ...f.options,verifiedScannerEvidence:[{name:'vite',version:'8.3.5',...scannerReport,...patch}],
+    }),code('INVALID_VERIFIED_EVIDENCE'));
+  }
+  const missing=await fixture(t,res=>json(res,response({packages:[{...scannerPackage,scannerFindings:[]}]},[scannerSearch()])));
+  const result=await researchPackages(researchArgs([scannerPackage]),{...missing.options,verifiedScannerEvidence});
+  assert.equal(result.pass,false);
+  assert.ok(result.findings.some(finding=>/not reproduced exactly/.test(finding.message)));
+});
+
+test('conditional absent-framework compatibility is informational while applicable defects stay negative',async t=>{
+  const conditional={severity:'medium',message:'Conditional Next.js issue #100666 applies only when Next.js is used',evidence:[source]};
+  const absent=await fixture(t,res=>json(res,response({packages:[{name:'react',version:'19.3.1',pass:true,findings:[conditional],evidence:[source],scannerFindings:[]}]},[search(['react 19.3.1 security'],[source])] )));
+  const context={applicationType:'vite-react-spa',bundler:'vite',framework:'react',usesNext:false,usesVitest:false};
+  const info=await researchPackages(researchArgs([{name:'react',version:'19.3.1'}]),{...absent.options,applicationContext:context});
+  assert.equal(info.pass,true);
+  assert.equal(info.packages[0].findings[0].severity,'info');
+
+  const present=await fixture(t,res=>json(res,response({packages:[{name:'react',version:'19.3.1',pass:false,findings:[conditional],evidence:[source],scannerFindings:[]}]},[search(['react 19.3.1 security'],[source])] )));
+  const blocked=await researchPackages(researchArgs([{name:'react',version:'19.3.1'}]),{...present.options,applicationContext:{...context,usesNext:true}});
+  assert.equal(blocked.pass,false);
+  assert.equal(blocked.packages[0].findings[0].severity,'medium');
+
+  const applicableFinding={severity:'medium',message:'Next.js issue also affects this Vite React application',evidence:[source]};
+  const applicable=await fixture(t,res=>json(res,response({packages:[{name:'react',version:'19.3.1',pass:false,findings:[applicableFinding],evidence:[source],scannerFindings:[]}]},[search(['react 19.3.1 security'],[source])] )));
+  const retained=await researchPackages(researchArgs([{name:'react',version:'19.3.1'}]),{...applicable.options,applicationContext:context});
+  assert.equal(retained.pass,false);
+  assert.equal(retained.packages[0].findings[0].severity,'medium');
 });
 
 test('incomplete scanner evidence and omitted fields fail the strict research schema',async t=>{
