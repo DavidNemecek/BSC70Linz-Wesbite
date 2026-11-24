@@ -28,6 +28,10 @@ Frontend, Vite-Konfiguration und die Edge-Handler in `api/` mit TypeScript.
 
 Vercel baut `development` für <https://dev.bsc70linz.at> und `main` für
 <https://www.bsc70linz.at>. Die Website wird aus `dist/` ausgeliefert.
+Dependency-Kandidaten werden auf `updates` unter
+<https://updates.dev.bsc70linz.at/> unabhängig geprüft, bevor sie nach `main`
+übernommen werden. Betrieb, Schutzregeln und Nachweise beschreibt
+[die Update-Automatisierung](.github/AUTOMATION.md).
 `api/teams.ts`, `api/robots.ts` und `api/sitemap.ts` sind JavaScript
 Edge-Funktionen. Die Anwendung verwendet weder PHP noch React Server Components.
 `assets/uploads/*.php` sind archivierte Fehlermeldungen der alten Website und

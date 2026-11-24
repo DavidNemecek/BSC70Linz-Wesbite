@@ -1,4 +1,4 @@
-﻿<!--
+<!--
 AGENTS.md – Hinweise für KI-Assistenten (ChatGPT/Codex) in diesem Repo.
 Kurz, praxisnah, und auf saubere Software-Engineering-Standards ausgerichtet.
 -->
@@ -102,7 +102,7 @@ Kurz, praxisnah, und auf saubere Software-Engineering-Standards ausgerichtet.
 ## Git/Review-Qualität
 - Änderungen sollen reviewbar sein: klare Diff-Struktur, keine massenhaften Format-Umbrüche.
 - Keine `git commit`/Branch-Aktionen, außer ausdrücklich gewünscht.
-- **Dauerhafte Freigabe für Sicherheitsupdates (Owner, 25.10.2026):** Sicherheitsänderungen committen und auf `development` veröffentlichen. Nach erfolgreicher CI/CD- und unabhängiger Live-Abnahme auf Dev dieselben Sicherheitsänderungen nach `main`/Produktion übernehmen und dort erneut prüfen. Dafür ist keine erneute Freigabe nötig. Bei fehlgeschlagenen Prüfungen erst korrigieren; fachfremde Änderungen nicht automatisch mitveröffentlichen.
+- **Dauerhafte Freigabe für Dependency-/Sicherheitsupdates (Owner, 26.10.2026):** Von aktuellem `main` ausgehen, minimale Änderungen auf `updates` veröffentlichen und auf `https://updates.dev.bsc70linz.at/` unabhängig gegen den gespeicherten Produktionsstand prüfen. Erst nach erfolgreichen Code-, Sicherheits-, Funktions- und Bildprüfungen per PR nach `main` übernehmen und Produktion erneut prüfen. Normale Releases warten mindestens sieben volle Tage; jede unabhängig bestätigte CVE in einer verwendeten Version erlaubt ausschließlich dem notwendigen Fix eine Ausnahme. Vor Ausführung neuer Paketversionen tatsächlich im Internet nach Supply-Chain-Angriffen und Problemen recherchieren. Major-Updates sind bei bestandenen Prüfungen freigegeben. Alle PRs analysieren, fachfremde PRs jedoch nicht automatisch mergen. Bei bestätigter Produktionsregression automatisch zurückrollen und ein GitHub-Issue erstellen. Keine erneute Freigabe nötig; fehlgeschlagene oder unvollständige Prüfungen blockieren die Übernahme. `development` enthält möglicherweise fachfremde Änderungen und wird dafür nicht pauschal gemergt.
 
 ## Kommunikation im Output
 - Antworte kurz und konkret: **Was wurde geändert**, **wo** (Dateipfade), **wie testen**.
